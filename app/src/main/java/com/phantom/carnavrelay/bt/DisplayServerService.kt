@@ -85,11 +85,11 @@ class DisplayServerService : Service() {
     if (Build.VERSION.SDK_INT >= 26) {
       val nm = getSystemService(NotificationManager::class.java)
       nm.createNotificationChannel(
-        NotificationChannel(chId, "Car Display", NotificationManager.IMPORTANCE_LOW)
+        NotificationChannel(chId, getString(R.string.channel_display_name), NotificationManager.IMPORTANCE_LOW)
       )
     }
     return NotificationCompat.Builder(this, chId)
-      .setContentTitle("CarNav Relay (Display)")
+      .setContentTitle(getString(R.string.app_name_display))
       .setContentText(text)
       .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
       .setOngoing(true)
