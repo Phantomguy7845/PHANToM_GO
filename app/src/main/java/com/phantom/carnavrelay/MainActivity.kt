@@ -194,11 +194,11 @@ class MainActivity : AppCompatActivity() {
 
   private fun startMainMode() {
     MainModeFlow.start(this)
-    finish()
+    // Removed finish() - let the dialog show properly
   }
 
   private fun startDisplayMode() {
     DisplayModeFlow.start(this)
-    finish()
+    // Removed finish() - let DisplayActivity start properly
   }
 }
