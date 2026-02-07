@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     val title = TextView(this).apply {
       text = getString(R.string.app_name)
       textSize = 32f
-      setTextColor(ContextCompat.getColor(context, R.color.purple_500))
+      setTextColor(ContextCompat.getColor(this@MainActivity, R.color.purple_500))
       setPadding(0, 0, 0, 16)
       gravity = android.view.Gravity.CENTER
     }
@@ -95,35 +95,35 @@ class MainActivity : AppCompatActivity() {
       radius = 24f
       cardElevation = 8f
       setContentPadding(32, 32, 32, 32)
-      setCardBackgroundColor(ContextCompat.getColor(context, R.color.purple_500))
+      setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.purple_500))
       layoutParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
       ).apply { setMargins(0, 0, 0, 24) }
     }
 
-    val mainLayout = LinearLayout(context).apply {
+    val mainLayout = LinearLayout(this@MainActivity).apply {
       orientation = LinearLayout.VERTICAL
       gravity = android.view.Gravity.CENTER
     }
 
-    val mainIcon = TextView(context).apply {
+    val mainIcon = TextView(this@MainActivity).apply {
       text = "📱"
       textSize = 48f
       gravity = android.view.Gravity.CENTER
     }
 
-    val mainText = TextView(context).apply {
+    val mainText = TextView(this@MainActivity).apply {
       text = getString(R.string.mode_main)
       textSize = 20f
-      setTextColor(ContextCompat.getColor(context, R.color.white))
+      setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
       gravity = android.view.Gravity.CENTER
     }
 
-    val mainDesc = TextView(context).apply {
+    val mainDesc = TextView(this@MainActivity).apply {
       text = "ส่งตำแหน่งนำทางไปยังจอติดรถ"
       textSize = 14f
-      setTextColor(ContextCompat.getColor(context, R.color.white))
+      setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
       alpha = 0.8f
       gravity = android.view.Gravity.CENTER
     }
@@ -142,35 +142,35 @@ class MainActivity : AppCompatActivity() {
       radius = 24f
       cardElevation = 8f
       setContentPadding(32, 32, 32, 32)
-      setCardBackgroundColor(ContextCompat.getColor(context, R.color.teal_700))
+      setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.teal_700))
       layoutParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
       )
     }
 
-    val displayLayout = LinearLayout(context).apply {
+    val displayLayout = LinearLayout(this@MainActivity).apply {
       orientation = LinearLayout.VERTICAL
       gravity = android.view.Gravity.CENTER
     }
 
-    val displayIcon = TextView(context).apply {
+    val displayIcon = TextView(this@MainActivity).apply {
       text = "🚗"
       textSize = 48f
       gravity = android.view.Gravity.CENTER
     }
 
-    val displayText = TextView(context).apply {
+    val displayText = TextView(this@MainActivity).apply {
       text = getString(R.string.mode_display)
       textSize = 20f
-      setTextColor(ContextCompat.getColor(context, R.color.white))
+      setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
       gravity = android.view.Gravity.CENTER
     }
 
-    val displayDesc = TextView(context).apply {
+    val displayDesc = TextView(this@MainActivity).apply {
       text = "แสดงตำแหน่งที่ได้รับจากเครื่องหลัก"
       textSize = 14f
-      setTextColor(ContextCompat.getColor(context, R.color.white))
+      setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
       alpha = 0.8f
       gravity = android.view.Gravity.CENTER
     }

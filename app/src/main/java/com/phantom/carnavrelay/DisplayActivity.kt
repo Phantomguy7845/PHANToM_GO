@@ -56,14 +56,14 @@ class DisplayActivity : AppCompatActivity() {
       orientation = LinearLayout.VERTICAL
       setPadding(64, 64, 64, 64)
       gravity = android.view.Gravity.CENTER
-      setBackgroundColor(ContextCompat.getColor(context, R.color.purple_700))
+      setBackgroundColor(ContextCompat.getColor(this@DisplayActivity, R.color.purple_700))
     }
 
     // App title
     val titleView = TextView(this).apply {
       text = getString(R.string.app_name_display)
       textSize = 24f
-      setTextColor(ContextCompat.getColor(context, R.color.white))
+      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.white))
       setPadding(0, 0, 0, 48)
       gravity = android.view.Gravity.CENTER
     }
@@ -73,34 +73,34 @@ class DisplayActivity : AppCompatActivity() {
       radius = 32f
       cardElevation = 16f
       setContentPadding(64, 64, 64, 64)
-      setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
+      setCardBackgroundColor(ContextCompat.getColor(this@DisplayActivity, R.color.white))
     }
 
-    val codeLayout = LinearLayout(context).apply {
+    val codeLayout = LinearLayout(this@DisplayActivity).apply {
       orientation = LinearLayout.VERTICAL
       gravity = android.view.Gravity.CENTER
     }
 
-    val codeLabel = TextView(context).apply {
+    val codeLabel = TextView(this@DisplayActivity).apply {
       text = getString(R.string.display_code_label)
       textSize = 18f
-      setTextColor(ContextCompat.getColor(context, R.color.purple_700))
+      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.purple_700))
       setPadding(0, 0, 0, 24)
       gravity = android.view.Gravity.CENTER
     }
 
-    val codeView = TextView(context).apply {
+    val codeView = TextView(this@DisplayActivity).apply {
       text = code.chunked(2).joinToString(" ")
       textSize = 64f
-      setTextColor(ContextCompat.getColor(context, R.color.black))
+      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.black))
       setPadding(0, 0, 0, 24)
       gravity = android.view.Gravity.CENTER
     }
 
-    val codeHint = TextView(context).apply {
+    val codeHint = TextView(this@DisplayActivity).apply {
       text = getString(R.string.display_code_hint)
       textSize = 14f
-      setTextColor(ContextCompat.getColor(context, R.color.purple_500))
+      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.purple_500))
       alpha = 0.8f
       gravity = android.view.Gravity.CENTER
     }
@@ -114,7 +114,7 @@ class DisplayActivity : AppCompatActivity() {
     val statusView = TextView(this).apply {
       text = getString(R.string.waiting_connection)
       textSize = 16f
-      setTextColor(ContextCompat.getColor(context, R.color.white))
+      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.white))
       setPadding(0, 48, 0, 0)
       gravity = android.view.Gravity.CENTER
       alpha = 0.7f
@@ -124,7 +124,7 @@ class DisplayActivity : AppCompatActivity() {
     val keepScreenOnView = TextView(this).apply {
       text = getString(R.string.keep_screen_on)
       textSize = 14f
-      setTextColor(ContextCompat.getColor(context, R.color.teal_200))
+      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.teal_200))
       setPadding(0, 24, 0, 0)
       gravity = android.view.Gravity.CENTER
     }
