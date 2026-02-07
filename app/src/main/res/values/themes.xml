@@ -9,8 +9,4 @@
     <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     <item name="android:navigationBarColor">?attr/colorPrimaryVariant</item>
   </style>
-
-  <style name="Theme.CarNavRelay.Splash" parent="Theme.CarNavRelay">
-    <item name="android:windowBackground">@drawable/splash_background</item>
-  </style>
 </resources>
