@@ -19,65 +19,124 @@ import java.io.InputStreamReader
 
 class DisplayServerService : Service() {
 
+  companion object {
+    private const val TAG = "PHANTOM_GO"
+    private const val NOTIFICATION_ID = 2001
+  }
+
   private var code: String = "000000"
   private var server: BluetoothServerSocket? = null
   private var worker: Thread? = null
 
+  override fun onCreate() {
+    super.onCreate()
+    Log.d(TAG, "🔧 DisplayServerService onCreate")
+  }
+
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    Log.d(TAG, "▶️ DisplayServerService onStartCommand, startId=$startId")
     code = intent?.getStringExtra("code") ?: code
-    startForeground(2001, notif("จอติดรถกำลังรอการเชื่อมต่อ… (code $code)"))
+    Log.d(TAG, "🔢 Pairing code: $code")
+    
+    try {
+      startForeground(NOTIFICATION_ID, notif(getString(R.string.notification_listening) + " (code $code)"))
+      Log.d(TAG, "✅ Foreground service started")
+    } catch (e: Exception) {
+      Log.e(TAG, "💥 Failed to start foreground service", e)
+      CrashReporter.init(application)
+      stopSelf()
+      return START_NOT_STICKY
+    }
 
     if (worker == null) {
+      Log.d(TAG, "🏃 Starting server worker thread")
       worker = Thread { runServerLoop() }.also { it.start() }
     }
     return START_STICKY
   }
 
   private fun runServerLoop() {
+    Log.d(TAG, "🔄 Server loop started")
     try {
-      val adapter = BluetoothAdapter.getDefaultAdapter() ?: return
+      val adapter = BluetoothAdapter.getDefaultAdapter()
+      if (adapter == null) {
+        Log.e(TAG, "❌ No Bluetooth adapter available")
+        return
+      }
+      
+      Log.d(TAG, "📡 Creating RFCOMM server socket...")
       server = adapter.listenUsingRfcommWithServiceRecord(BtConst.SERVICE_NAME, BtConst.APP_UUID)
+      Log.d(TAG, "✅ Server socket created, waiting for connections...")
 
       while (true) {
-        val socket = server?.accept() ?: break
+        val socket = server?.accept()
+        if (socket == null) {
+          Log.w(TAG, "⚠️ Server socket closed")
+          break
+        }
+        Log.d(TAG, "📱 Client connected: ${socket.remoteDevice.address}")
         handleClient(socket)
       }
-    } catch (_: Throwable) {
-      // ignore
+    } catch (e: Throwable) {
+      Log.e(TAG, "💥 Server loop error", e)
     }
+    Log.d(TAG, "🛑 Server loop ended")
   }
 
   private fun handleClient(socket: BluetoothSocket) {
+    val clientAddr = socket.remoteDevice.address
+    Log.d(TAG, "👤 Handling client: $clientAddr")
+    
     try {
       val reader = BufferedReader(InputStreamReader(socket.inputStream))
       var paired = false
 
       while (true) {
-        val line = reader.readLine() ?: break
+        val line = reader.readLine()
+        if (line == null) {
+          Log.d(TAG, "📴 Client $clientAddr disconnected")
+          break
+        }
+        
+        Log.d(TAG, "📨 Received from $clientAddr: $line")
         val obj = JSONObject(line)
 
         when (obj.optString("type")) {
           "HELLO" -> {
             val got = obj.optString("code")
             paired = (got == code)
+            Log.d(TAG, "🔑 Pairing attempt: received=$got, expected=$code, matched=$paired")
             // ถ้าไม่ตรง ตัดการเชื่อมต่อทันที
-            if (!paired) break
+            if (!paired) {
+              Log.w(TAG, "❌ Pairing failed, disconnecting client")
+              break
+            }
+            // Send connected broadcast
+            sendBroadcast(Intent(BtConst.ACTION_CONNECTED))
           }
 
           "OPEN_URL" -> {
-            if (!paired) continue
+            if (!paired) {
+              Log.w(TAG, "⚠️ OPEN_URL from unpaired client, ignoring")
+              continue
+            }
             val url = obj.optString("url")
+            Log.d(TAG, "🗺️ OPEN_URL received: $url")
             if (url.isNotBlank()) {
-              // ส่งไปให้ DisplayActivity เปิด Maps (ควรเปิด Activity ค้างไว้)
               sendBroadcast(Intent(BtConst.ACTION_OPEN_URL).putExtra(BtConst.EXTRA_URL, url))
             }
           }
         }
       }
-    } catch (_: Throwable) {
-      // ignore
+    } catch (e: Throwable) {
+      Log.e(TAG, "💥 Client handler error for $clientAddr", e)
     } finally {
-      try { socket.close() } catch (_: Throwable) {}
+      try { 
+        socket.close() 
+        Log.d(TAG, "🔌 Client socket closed: $clientAddr")
+      } catch (_: Throwable) {}
+      // Send disconnected broadcast
+      sendBroadcast(Intent(BtConst.ACTION_DISCONNECTED))
     }
   }
 
@@ -98,7 +157,13 @@ class DisplayServerService : Service() {
   }
 
   override fun onDestroy() {
-    try { server?.close() } catch (_: Throwable) {}
+    Log.d(TAG, "💀 DisplayServerService onDestroy")
+    try { 
+      server?.close() 
+      Log.d(TAG, "🔌 Server socket closed")
+    } catch (e: Throwable) {
+      Log.e(TAG, "Error closing server socket", e)
+    }
     worker = null
     super.onDestroy()
   }
