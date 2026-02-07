@@ -11,9 +11,9 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.card.MaterialCardView
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,16 +37,38 @@ class MainActivity : AppCompatActivity() {
   private fun setupModeCards() {
     Log.d(TAG, "🎮 Setting up mode cards")
     
-    findViewById<CardView>(R.id.mainCard).setOnClickListener {
-      Log.d(TAG, "▶️ Main mode card clicked")
-      pendingMode = 0
-      ensureBtPermissionsThenRun()
-    }
+    try {
+      val mainCard = findViewById<MaterialCardView>(R.id.mainCard)
+      val displayCard = findViewById<MaterialCardView>(R.id.displayCard)
+      
+      Log.d(TAG, "✅ Cards found: mainCard=$mainCard, displayCard=$displayCard")
+      
+      mainCard.setOnClickListener {
+        try {
+          Log.d(TAG, "▶️ Main mode card clicked")
+          pendingMode = 0
+          ensureBtPermissionsThenRun()
+        } catch (e: Exception) {
+          Log.e(TAG, "💥 Exception in mainCard click", e)
+          showCrashDialog(e)
+        }
+      }
 
-    findViewById<CardView>(R.id.displayCard).setOnClickListener {
-      Log.d(TAG, "📺 Display mode card clicked")
-      pendingMode = 1
-      ensureBtPermissionsThenRun()
+      displayCard.setOnClickListener {
+        try {
+          Log.d(TAG, "📺 Display mode card clicked")
+          pendingMode = 1
+          ensureBtPermissionsThenRun()
+        } catch (e: Exception) {
+          Log.e(TAG, "💥 Exception in displayCard click", e)
+          showCrashDialog(e)
+        }
+      }
+      
+      Log.d(TAG, "✅ Mode cards setup complete")
+    } catch (e: Exception) {
+      Log.e(TAG, "💥 Failed to setup mode cards", e)
+      Toast.makeText(this, "เกิดข้อผิดพลาดในการโหลด UI: ${e.message}", Toast.LENGTH_LONG).show()
     }
   }
 
