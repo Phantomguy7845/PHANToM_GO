@@ -9,5 +9,7 @@ object BtConst {
 
   // Broadcast ภายในจอรถ
   const val ACTION_OPEN_URL = "com.phantom.carnavrelay.OPEN_URL"
+  const val ACTION_CONNECTED = "com.phantom.carnavrelay.CONNECTED"
+  const val ACTION_DISCONNECTED = "com.phantom.carnavrelay.DISCONNECTED"
   const val EXTRA_URL = "url"
 }

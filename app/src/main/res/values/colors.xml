@@ -1,12 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="ghost_purple">#FF9B59B6</color>
-    <color name="ghost_purple_dark">#FF8E44AD</color>
+    <!-- Ghost Purple Theme -->
+    <color name="purple_50">#F4ECF7</color>
+    <color name="purple_100">#E8DAEF</color>
+    <color name="purple_200">#D2B4DE</color>
+    <color name="purple_300">#BB8FCE</color>
+    <color name="purple_400">#A569BD</color>
+    <color name="purple_500">#9B59B6</color>
+    <color name="purple_600">#8E44AD</color>
+    <color name="purple_700">#7D3C98</color>
+    <color name="purple_800">#6C3483</color>
+    <color name="purple_900">#5B2C6F</color>
+
+    <!-- Ghost Purple aliases -->
+    <color name="ghost_purple">#9B59B6</color>
+    <color name="ghost_purple_dark">#8E44AD</color>
+    <color name="ghost_purple_light">#BB8FCE</color>
+
+    <!-- Teal complementary -->
+    <color name="teal_200">#80CBC4</color>
+    <color name="teal_500">#26A69A</color>
+    <color name="teal_700">#00796B</color>
+    <color name="teal_900">#004D40</color>
+
+    <!-- Neutral -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray_100">#F5F5F5</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_400">#BDBDBD</color>
+    <color name="gray_500">#9E9E9E</color>
+    <color name="gray_600">#757575</color>
+    <color name="gray_700">#616161</color>
+    <color name="gray_800">#424242</color>
+    <color name="gray_900">#212121</color>
+
+    <!-- Status -->
+    <color name="success">#27AE60</color>
+    <color name="warning">#F39C12</color>
+    <color name="error">#E74C3C</color>
+    <color name="info">#3498DB</color>
+
+    <!-- Background -->
+    <color name="background">#FAFAFA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#212121</color>
+    <color name="on_primary">#FFFFFF</color>
 </resources>

@@ -1,10 +1,17 @@
 <resources>
+  <!-- App Name -->
   <string name="app_name">PHANToM GO</string>
   <string name="app_name_main">PHANToM GO - เครื่องหลัก</string>
   <string name="app_name_display">PHANToM GO - จอติดรถ</string>
+
+  <!-- Main Screen -->
   <string name="select_mode">เลือกโหมดการใช้งาน</string>
-  <string name="mode_main">เครื่องหลัก (ส่งตำแหน่ง)</string>
-  <string name="mode_display">จอติดรถ (แสดงผล)</string>
+  <string name="mode_main">เครื่องหลัก</string>
+  <string name="mode_main_desc">ส่งตำแหน่งนำทางไปยังจอติดรถ</string>
+  <string name="mode_display">จอติดรถ</string>
+  <string name="mode_display_desc">แสดงตำแหน่งที่ได้รับจากเครื่องหลัก</string>
+
+  <!-- Pairing -->
   <string name="paired_devices">อุปกรณ์ที่จับคู่ไว้</string>
   <string name="no_paired_devices">ยังไม่มีอุปกรณ์ที่จับคู่\n\nกรุณาไปจับคู่ Bluetooth ใน Settings ก่อน</string>
   <string name="enter_code">ใส่รหัสจับคู่</string>
@@ -12,16 +19,26 @@
   <string name="connect">เชื่อมต่อ</string>
   <string name="cancel">ยกเลิก</string>
   <string name="ok">ตกลง</string>
+
+  <!-- Display Mode -->
   <string name="display_title">โหมดจอติดรถ</string>
   <string name="display_code_label">รหัสจับคู่</string>
   <string name="display_code_hint">เอารหัสนี้ไปใส่ในเครื่องหลัก</string>
   <string name="keep_screen_on">หน้าจอจะค้างไว้ตลอด</string>
-  <string name="waiting_connection">รอการเชื่อมต่อ...</string>
+  <string name="waiting_connection">กำลังรอการเชื่อมต่อ</string>
+  <string name="connected">เชื่อมต่อแล้ว</string>
+  <string name="copy_code">คัดลอกรหัส</string>
+
+  <!-- Bluetooth -->
   <string name="bt_permission_title">ต้องการสิทธิ์ Bluetooth</string>
   <string name="bt_permission_message">แอปต้องใช้สิทธิ์ Bluetooth เพื่อเชื่อมต่อกันระหว่างเครื่อง</string>
+
+  <!-- Notifications -->
   <string name="main_connected">เชื่อมต่อแล้ว พร้อมส่งตำแหน่ง</string>
   <string name="main_connecting">กำลังเชื่อมต่อ...</string>
   <string name="channel_main_name">PHANToM GO - เครื่องหลัก</string>
   <string name="channel_display_name">PHANToM GO - จอติดรถ</string>
   <string name="notification_connected">เชื่อมต่ออยู่</string>
+  <string name="notification_listening">รอการเชื่อมต่อ</string>
+  <string name="notification_sending">พร้อมส่งตำแหน่ง</string>
 </resources>

@@ -4,8 +4,10 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -15,18 +17,20 @@ class MainActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    showModePicker()
+    setContentView(R.layout.activity_main)
+    setupModeCards()
   }
 
-  private fun showModePicker() {
-    AlertDialog.Builder(this)
-      .setTitle("เลือกโหมดการใช้งาน")
-      .setItems(arrayOf("เครื่องหลัก (Main)", "จอติดรถ (Display)")) { _, which ->
-        pendingMode = which
-        ensureBtPermissionsThenRun()
-      }
-      .setCancelable(true)
-      .show()
+  private fun setupModeCards() {
+    findViewById<CardView>(R.id.mainCard).setOnClickListener {
+      pendingMode = 0
+      ensureBtPermissionsThenRun()
+    }
+
+    findViewById<CardView>(R.id.displayCard).setOnClickListener {
+      pendingMode = 1
+      ensureBtPermissionsThenRun()
+    }
   }
 
   private fun ensureBtPermissionsThenRun() {
@@ -38,12 +42,20 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun runSelectedMode() {
-    when (pendingMode) {
+    val success = when (pendingMode) {
       0 -> MainModeFlow.start(this)
       1 -> DisplayModeFlow.start(this)
-      else -> {}
+      else -> {
+        Toast.makeText(this, "กรุณาเลือกโหมด", Toast.LENGTH_SHORT).show()
+        false
+      }
     }
-    finish()
+
+    // Only finish if mode started successfully
+    if (success) {
+      finish()
+    }
+    // If not successful, stay on MainActivity so user can see the error dialog
   }
 
   private fun hasBtPermissions(): Boolean {
@@ -61,7 +73,9 @@ class MainActivity : AppCompatActivity() {
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
       needed.add(Manifest.permission.BLUETOOTH_SCAN)
 
-    ActivityCompat.requestPermissions(this, needed.toTypedArray(), 1001)
+    if (needed.isNotEmpty()) {
+      ActivityCompat.requestPermissions(this, needed.toTypedArray(), 1001)
+    }
   }
 
   override fun onRequestPermissionsResult(
@@ -71,17 +85,25 @@ class MainActivity : AppCompatActivity() {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     if (requestCode == 1001) {
-      if (hasBtPermissions()) runSelectedMode()
-      else {
-        AlertDialog.Builder(this)
-          .setTitle("ต้องอนุญาต Bluetooth")
-          .setMessage("ถ้าไม่อนุญาต BLUETOOTH_CONNECT/SCAN แอปจะเชื่อมต่ออุปกรณ์ไม่ได้")
-          .setPositiveButton("ลองใหม่") { _, _ ->
-            ensureBtPermissionsThenRun()
-          }
-          .setNegativeButton("ปิด") { _, _ -> finish() }
-          .show()
+      if (hasBtPermissions()) {
+        runSelectedMode()
+      } else {
+        showPermissionDeniedDialog()
       }
     }
+  }
+
+  private fun showPermissionDeniedDialog() {
+    AlertDialog.Builder(this)
+      .setTitle("ต้องอนุญาต Bluetooth")
+      .setMessage("ถ้าไม่อนุญาต BLUETOOTH_CONNECT/SCAN แอปจะเชื่อมต่ออุปกรณ์ไม่ได้")
+      .setPositiveButton("ลองใหม่") { _, _ ->
+        ensureBtPermissionsThenRun()
+      }
+      .setNegativeButton("ปิด") { _, _ ->
+        finish()
+      }
+      .setCancelable(false)
+      .show()
   }
 }

@@ -11,22 +11,34 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
-import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.phantom.carnavrelay.bt.DisplayServerService
 
 class DisplayActivity : AppCompatActivity() {
 
   private lateinit var code: String
+  private var isConnected = false
 
   private val receiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-      if (intent.action == BtConst.ACTION_OPEN_URL) {
-        val url = intent.getStringExtra(BtConst.EXTRA_URL) ?: return
-        openMaps(url)
+      when (intent.action) {
+        BtConst.ACTION_OPEN_URL -> {
+          val url = intent.getStringExtra(BtConst.EXTRA_URL) ?: return
+          openMaps(url)
+        }
+        BtConst.ACTION_CONNECTED -> {
+          isConnected = true
+          updateConnectionStatus(true)
+        }
+        BtConst.ACTION_DISCONNECTED -> {
+          isConnected = false
+          updateConnectionStatus(false)
+        }
       }
     }
   }
@@ -50,91 +62,11 @@ class DisplayActivity : AppCompatActivity() {
       )
     }
 
+    setContentView(R.layout.activity_display)
+
     code = intent.getStringExtra("code") ?: "000000"
-
-    val layout = LinearLayout(this).apply {
-      orientation = LinearLayout.VERTICAL
-      setPadding(64, 64, 64, 64)
-      gravity = android.view.Gravity.CENTER
-      setBackgroundColor(ContextCompat.getColor(this@DisplayActivity, R.color.purple_700))
-    }
-
-    // App title
-    val titleView = TextView(this).apply {
-      text = getString(R.string.app_name_display)
-      textSize = 24f
-      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.white))
-      setPadding(0, 0, 0, 48)
-      gravity = android.view.Gravity.CENTER
-    }
-
-    // Code card
-    val codeCard = MaterialCardView(this).apply {
-      radius = 32f
-      cardElevation = 16f
-      setContentPadding(64, 64, 64, 64)
-      setCardBackgroundColor(ContextCompat.getColor(this@DisplayActivity, R.color.white))
-    }
-
-    val codeLayout = LinearLayout(this@DisplayActivity).apply {
-      orientation = LinearLayout.VERTICAL
-      gravity = android.view.Gravity.CENTER
-    }
-
-    val codeLabel = TextView(this@DisplayActivity).apply {
-      text = getString(R.string.display_code_label)
-      textSize = 18f
-      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.purple_700))
-      setPadding(0, 0, 0, 24)
-      gravity = android.view.Gravity.CENTER
-    }
-
-    val codeView = TextView(this@DisplayActivity).apply {
-      text = code.chunked(2).joinToString(" ")
-      textSize = 64f
-      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.black))
-      setPadding(0, 0, 0, 24)
-      gravity = android.view.Gravity.CENTER
-    }
-
-    val codeHint = TextView(this@DisplayActivity).apply {
-      text = getString(R.string.display_code_hint)
-      textSize = 14f
-      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.purple_500))
-      alpha = 0.8f
-      gravity = android.view.Gravity.CENTER
-    }
-
-    codeLayout.addView(codeLabel)
-    codeLayout.addView(codeView)
-    codeLayout.addView(codeHint)
-    codeCard.addView(codeLayout)
-
-    // Status text
-    val statusView = TextView(this).apply {
-      text = getString(R.string.waiting_connection)
-      textSize = 16f
-      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.white))
-      setPadding(0, 48, 0, 0)
-      gravity = android.view.Gravity.CENTER
-      alpha = 0.7f
-    }
-
-    // Keep screen on hint
-    val keepScreenOnView = TextView(this).apply {
-      text = getString(R.string.keep_screen_on)
-      textSize = 14f
-      setTextColor(ContextCompat.getColor(this@DisplayActivity, R.color.teal_200))
-      setPadding(0, 24, 0, 0)
-      gravity = android.view.Gravity.CENTER
-    }
-
-    layout.addView(titleView)
-    layout.addView(codeCard)
-    layout.addView(statusView)
-    layout.addView(keepScreenOnView)
-
-    setContentView(layout)
+    setupCodeDisplay()
+    setupCopyButton()
 
     // Start service
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -148,9 +80,52 @@ class DisplayActivity : AppCompatActivity() {
     }
   }
 
+  private fun setupCodeDisplay() {
+    // Display code in 3 blocks: [12] [34] [56]
+    val blocks = listOf(
+      findViewById<TextView>(R.id.codeBlock1),
+      findViewById<TextView>(R.id.codeBlock2),
+      findViewById<TextView>(R.id.codeBlock3)
+    )
+
+    val chunkedCode = code.chunked(2)
+    for (i in blocks.indices) {
+      blocks[i].text = chunkedCode.getOrElse(i) { "--" }
+    }
+  }
+
+  private fun setupCopyButton() {
+    findViewById<MaterialButton>(R.id.copyButton)?.setOnClickListener {
+      val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+      val clip = android.content.ClipData.newPlainText("Pairing Code", code)
+      clipboard.setPrimaryClip(clip)
+      Toast.makeText(this, "คัดลอกรหัส $code", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  private fun updateConnectionStatus(connected: Boolean) {
+    val statusDot = findViewById<View>(R.id.statusDot)
+    val statusText = findViewById<TextView>(R.id.statusText)
+
+    if (connected) {
+      statusDot?.background = ContextCompat.getDrawable(this, R.drawable.circle_status_connected)
+      statusText?.text = "เชื่อมต่อแล้ว"
+      statusText?.setTextColor(ContextCompat.getColor(this, R.color.success))
+    } else {
+      statusDot?.background = ContextCompat.getDrawable(this, R.drawable.circle_status_waiting)
+      statusText?.text = getString(R.string.waiting_connection)
+      statusText?.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
+    }
+  }
+
   override fun onStart() {
     super.onStart()
-    registerReceiver(receiver, IntentFilter(BtConst.ACTION_OPEN_URL))
+    val filter = IntentFilter().apply {
+      addAction(BtConst.ACTION_OPEN_URL)
+      addAction(BtConst.ACTION_CONNECTED)
+      addAction(BtConst.ACTION_DISCONNECTED)
+    }
+    registerReceiver(receiver, filter)
   }
 
   override fun onStop() {

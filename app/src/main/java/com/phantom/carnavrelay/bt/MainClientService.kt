@@ -106,7 +106,7 @@ class MainClientService : Service() {
     return NotificationCompat.Builder(this, chId)
       .setContentTitle(getString(R.string.app_name_main))
       .setContentText(text)
-      .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
+      .setSmallIcon(R.drawable.ic_main_mode)
       .setOngoing(true)
       .build()
   }
