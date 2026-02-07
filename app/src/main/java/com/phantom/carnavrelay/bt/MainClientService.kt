@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.phantom.carnavrelay.BtConst
+import com.phantom.carnavrelay.CrashReporter
 import com.phantom.carnavrelay.R
 import org.json.JSONObject
 import java.io.PrintWriter
@@ -57,6 +58,7 @@ class MainClientService : Service() {
       Log.d(TAG, "✅ Foreground service started")
     } catch (e: Exception) {
       Log.e(TAG, "💥 Failed to start foreground service", e)
+      CrashReporter.recordException(this, "MainClientService:startForeground", e)
       stopSelf()
       return START_NOT_STICKY
     }
@@ -106,6 +108,7 @@ class MainClientService : Service() {
 
       } catch (e: Throwable) {
         Log.e(TAG, "💥 Connection error", e)
+        CrashReporter.recordException(this, "MainClientService:connectIfNeeded", e)
         closeNow()
       }
     }.start()
@@ -131,6 +134,7 @@ class MainClientService : Service() {
         }
       } catch (e: Throwable) {
         Log.e(TAG, "💥 Error sending URL", e)
+        CrashReporter.recordException(this, "MainClientService:sendOpenUrl", e)
         closeNow()
       }
     }.start()

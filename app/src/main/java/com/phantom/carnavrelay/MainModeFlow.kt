@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -56,6 +57,7 @@ object MainModeFlow {
       adapter.bondedDevices?.toList().orEmpty()
     } catch (e: SecurityException) {
       Log.e(TAG, "💥 SecurityException accessing bonded devices", e)
+      CrashReporter.recordException(ctx, "MainModeFlow:getBondedDevices", e)
       emptyList()
     }
     
@@ -91,7 +93,8 @@ object MainModeFlow {
           Log.d(TAG, "✅ MainPairActivity started")
         } catch (e: Exception) {
           Log.e(TAG, "💥 Failed to start MainPairActivity", e)
-          throw e
+          CrashReporter.recordException(ctx, "MainModeFlow:startMainPairActivity", e)
+          Toast.makeText(ctx, "ไม่สามารถเปิดหน้าจอคู่เครื่องได้: ${e.message}", Toast.LENGTH_LONG).show()
         }
       }
       .setNegativeButton(R.string.cancel, null)
