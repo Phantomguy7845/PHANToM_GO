@@ -1,8 +1,8 @@
 package com.phantom.carnavrelay
 
 import android.Manifest
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -15,18 +15,18 @@ object MainModeFlow {
 
   private const val TAG = "PHANTOM_GO"
 
-  fun start(ctx: Context): Boolean {
-    Log.d(TAG, "▶️ MainModeFlow.start() called")
+  fun start(activity: Activity): Boolean {
+    Log.d(TAG, "▶️ MainModeFlow.start() called from ${activity.javaClass.simpleName}")
     
     // Check Bluetooth permissions first
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      val hasConnect = ContextCompat.checkSelfPermission(ctx, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
-      val hasScan = ContextCompat.checkSelfPermission(ctx, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+      val hasConnect = ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+      val hasScan = ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
       Log.d(TAG, "🔒 BT permissions - CONNECT: $hasConnect, SCAN: $hasScan")
       
       if (!hasConnect || !hasScan) {
         Log.w(TAG, "❌ Missing Bluetooth permissions for MainMode")
-        showPermissionDialog(ctx)
+        showPermissionDialog(activity)
         return false
       }
     }
@@ -35,7 +35,7 @@ object MainModeFlow {
     
     if (adapter == null) {
       Log.e(TAG, "❌ No Bluetooth adapter found")
-      MaterialAlertDialogBuilder(ctx)
+      MaterialAlertDialogBuilder(activity)
         .setTitle("ไม่รองรับ Bluetooth")
         .setMessage("อุปกรณ์นี้ไม่รองรับ Bluetooth")
         .setPositiveButton(R.string.ok, null)
@@ -43,9 +43,11 @@ object MainModeFlow {
       return false
     }
     
+    Log.d(TAG, "📡 Bluetooth adapter found, checking enabled state")
+    
     if (!adapter.isEnabled) {
       Log.w(TAG, "⚠️ Bluetooth is disabled")
-      MaterialAlertDialogBuilder(ctx)
+      MaterialAlertDialogBuilder(activity)
         .setTitle("Bluetooth ปิดอยู่")
         .setMessage("กรุณาเปิด Bluetooth ใน Settings ก่อนใช้งาน")
         .setPositiveButton(R.string.ok, null)
@@ -53,11 +55,13 @@ object MainModeFlow {
       return false
     }
     
+    Log.d(TAG, "✅ Bluetooth is enabled")
+    
     val bonded = try {
       adapter.bondedDevices?.toList().orEmpty()
     } catch (e: SecurityException) {
       Log.e(TAG, "💥 SecurityException accessing bonded devices", e)
-      CrashReporter.recordException(ctx, "MainModeFlow:getBondedDevices", e)
+      CrashReporter.recordException(activity, "MainModeFlow:getBondedDevices", e)
       emptyList()
     }
     
@@ -65,7 +69,7 @@ object MainModeFlow {
 
     if (bonded.isEmpty()) {
       Log.w(TAG, "⚠️ No paired Bluetooth devices")
-      MaterialAlertDialogBuilder(ctx)
+      MaterialAlertDialogBuilder(activity)
         .setTitle(R.string.paired_devices)
         .setMessage(R.string.no_paired_devices)
         .setPositiveButton(R.string.ok, null)
@@ -74,37 +78,53 @@ object MainModeFlow {
     }
 
     val names = bonded.map { "${it.name ?: "Unknown"}\n${it.address}" }.toTypedArray()
+    
+    Log.d(TAG, "📋 Showing device picker dialog with ${names.size} devices")
 
-    MaterialAlertDialogBuilder(ctx)
+    MaterialAlertDialogBuilder(activity)
       .setTitle(R.string.paired_devices)
       .setItems(names) { _, which ->
         val device = bonded[which]
-        Log.d(TAG, "📱 User selected device: ${device.name} (${device.address})")
+        Log.d(TAG, "� User selected device: ${device.name} (${device.address})")
         
-        // Start MainPairActivity instead of showing dialog
-        val intent = Intent(ctx, MainPairActivity::class.java).apply {
+        // Start MainPairActivity and then finish MainActivity
+        val intent = Intent(activity, MainPairActivity::class.java).apply {
           putExtra("address", device.address)
           putExtra("device_name", device.name ?: "Unknown")
-          addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+          // No FLAG_ACTIVITY_NEW_TASK needed when using Activity context
         }
         
         try {
-          ctx.startActivity(intent)
-          Log.d(TAG, "✅ MainPairActivity started")
+          Log.d(TAG, "🚀 Starting MainPairActivity for ${device.address}")
+          activity.startActivity(intent)
+          Log.d(TAG, "✅ MainPairActivity started, finishing MainActivity")
+          Toast.makeText(activity, "กำลังเชื่อมต่อ ${device.name ?: "Unknown"}...", Toast.LENGTH_SHORT).show()
+          // Now finish the calling activity after successfully starting MainPairActivity
+          activity.finish()
         } catch (e: Exception) {
           Log.e(TAG, "💥 Failed to start MainPairActivity", e)
-          CrashReporter.recordException(ctx, "MainModeFlow:startMainPairActivity", e)
-          Toast.makeText(ctx, "ไม่สามารถเปิดหน้าจอคู่เครื่องได้: ${e.message}", Toast.LENGTH_LONG).show()
+          CrashReporter.recordException(activity, "MainModeFlow:startMainPairActivity", e)
+          Toast.makeText(activity, "ไม่สามารถเปิดหน้าจอคู่เครื่องได้: ${e.message}", Toast.LENGTH_LONG).show()
         }
       }
-      .setNegativeButton(R.string.cancel, null)
+      .setNegativeButton(R.string.cancel) { _, _ ->
+        Log.d(TAG, "❌ User cancelled device selection dialog")
+        // Don't finish activity - just let dialog dismiss and stay on MainActivity
+      }
+      .setOnCancelListener {
+        Log.d(TAG, "❌ Device picker dialog cancelled (back button)")
+        // Don't finish activity - stay on MainActivity
+      }
       .show()
     
-    return true
+    Log.d(TAG, "⏳ Device picker dialog shown, returning false (mode not yet started)")
+    // Return false because we haven't actually started the mode yet - we're waiting for user selection
+    return false
   }
 
-  private fun showPermissionDialog(ctx: Context) {
-    MaterialAlertDialogBuilder(ctx)
+  private fun showPermissionDialog(activity: Activity) {
+    Log.d(TAG, "⚠️ Showing permission dialog")
+    MaterialAlertDialogBuilder(activity)
       .setTitle("ต้องการสิทธิ์ Bluetooth")
       .setMessage("กรุณาอนุญาติสิทธิ์ Bluetooth เพื่อใช้งานโหมดนี้")
       .setPositiveButton(R.string.ok, null)

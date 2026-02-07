@@ -62,7 +62,7 @@ object DisplayModeFlow {
     
     val i = Intent(ctx, DisplayActivity::class.java).apply {
       putExtra("code", code)
-      addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      // No FLAG_ACTIVITY_NEW_TASK needed - called from Activity context
     }
     
     try {
