@@ -8,15 +8,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.phantom.carnavrelay.bt.DisplayServerService
 
 class DisplayActivity : AppCompatActivity() {
@@ -45,49 +43,62 @@ class DisplayActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    
-    // Keep screen on and full screen
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      window.insetsController?.let {
-        it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        it.hide(WindowInsets.Type.systemBars())
-      }
-    } else {
-      @Suppress("DEPRECATION")
-      window.decorView.systemUiVisibility = (
-        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        or View.SYSTEM_UI_FLAG_FULLSCREEN
-        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-      )
-    }
 
+    // Keep screen on
+    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+    // IMPORTANT: ต้อง setContentView ก่อนค่อยทำ insets/immersive เพื่อให้ decorView ถูกสร้างแล้ว
     setContentView(R.layout.activity_display)
 
+    // หลัง setContentView แล้ว decorView จะพร้อม
+    applyImmersiveSafe()
+
     code = intent.getStringExtra("code") ?: "000000"
+
     setupCodeDisplay()
     setupCopyButton()
 
     // Start service
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      startForegroundService(Intent(this, DisplayServerService::class.java).apply {
-        putExtra("code", code)
-      })
-    } else {
-      startService(Intent(this, DisplayServerService::class.java).apply {
-        putExtra("code", code)
-      })
+    val svc = Intent(this, DisplayServerService::class.java).apply {
+      putExtra("code", code)
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(svc) else startService(svc)
+  }
+
+  // กัน OEM/Android 15 บางรุ่นที่ insets controller ยังไม่พร้อมในจังหวะต้น ๆ
+  private fun applyImmersiveSafe() {
+    // Edge-to-edge (optional แต่ช่วยให้ compat ทำงานสม่ำเสมอ)
+    WindowCompat.setDecorFitsSystemWindows(window, false)
+
+    // รันหลัง view ถูก attach จริง ๆ
+    window.decorView.post {
+      try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          val controller = WindowCompat.getInsetsController(window, window.decorView)
+          controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+          controller.hide(WindowInsetsCompat.Type.systemBars())
+        } else {
+          @Suppress("DEPRECATION")
+          window.decorView.systemUiVisibility =
+            (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+              or View.SYSTEM_UI_FLAG_FULLSCREEN
+              or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+        }
+      } catch (t: Throwable) {
+        // ถ้า immersive ทำงานไม่ได้ ก็ไม่ควรทำให้แอป crash
+        // (จะยังใช้งานต่อได้ แค่ไม่ fullscreen)
+      }
     }
   }
 
   private fun setupCodeDisplay() {
     // Display code in 3 blocks: [12] [34] [56]
     val blocks = listOf(
-      findViewById<TextView>(R.id.codeBlock1),
-      findViewById<TextView>(R.id.codeBlock2),
-      findViewById<TextView>(R.id.codeBlock3)
+      findViewById<android.widget.TextView>(R.id.codeBlock1),
+      findViewById<android.widget.TextView>(R.id.codeBlock2),
+      findViewById<android.widget.TextView>(R.id.codeBlock3)
     )
-
     val chunkedCode = code.chunked(2)
     for (i in blocks.indices) {
       blocks[i].text = chunkedCode.getOrElse(i) { "--" }
@@ -95,7 +106,7 @@ class DisplayActivity : AppCompatActivity() {
   }
 
   private fun setupCopyButton() {
-    findViewById<MaterialButton>(R.id.copyButton)?.setOnClickListener {
+    findViewById<View>(R.id.copyButton)?.setOnClickListener {
       val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
       val clip = android.content.ClipData.newPlainText("Pairing Code", code)
       clipboard.setPrimaryClip(clip)
@@ -105,8 +116,7 @@ class DisplayActivity : AppCompatActivity() {
 
   private fun updateConnectionStatus(connected: Boolean) {
     val statusDot = findViewById<View>(R.id.statusDot)
-    val statusText = findViewById<TextView>(R.id.statusText)
-
+    val statusText = findViewById<android.widget.TextView>(R.id.statusText)
     if (connected) {
       statusDot?.background = ContextCompat.getDrawable(this, R.drawable.circle_status_connected)
       statusText?.text = "เชื่อมต่อแล้ว"
