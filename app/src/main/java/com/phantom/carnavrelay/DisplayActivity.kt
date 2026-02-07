@@ -135,7 +135,12 @@ class DisplayActivity : AppCompatActivity() {
       addAction(BtConst.ACTION_CONNECTED)
       addAction(BtConst.ACTION_DISCONNECTED)
     }
-    registerReceiver(receiver, filter)
+    // Android 14+ requires RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      registerReceiver(receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+    } else {
+      registerReceiver(receiver, filter)
+    }
   }
 
   override fun onStop() {
