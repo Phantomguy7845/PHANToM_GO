@@ -136,6 +136,39 @@ object CrashReporter {
     }
 
     /**
+     * Record an exception manually (for caught exceptions in services)
+     */
+    fun recordException(context: Context, where: String, throwable: Throwable) {
+        try {
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+
+            pw.println("--- MANUAL EXCEPTION RECORD ---")
+            pw.println("Location: $where")
+            pw.println("Time: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())}")
+            pw.println()
+            pw.println("--- STACK TRACE ---")
+            throwable.printStackTrace(pw)
+            pw.println()
+            pw.println("================================")
+
+            pw.flush()
+
+            val crashFile = File(context.filesDir, "crash_exceptions.txt")
+            crashFile.appendText(sw.toString() + "\n\n")
+
+            Log.d(TAG, "📝 Exception recorded at $where: ${throwable.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Failed to record exception", e)
+        }
+    }
+
+    fun lastCrashText(context: Context): String? {
+        val crashFile = File(context.filesDir, CRASH_FILE_NAME)
+        return if (crashFile.exists()) crashFile.readText() else null
+    }
+
+    /**
      * Check and show crash dialog if there's a pending crash report
      * Call this from MainActivity.onCreate()
      */

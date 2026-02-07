@@ -10,8 +10,10 @@ import android.bluetooth.BluetoothSocket
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.phantom.carnavrelay.BtConst
+import com.phantom.carnavrelay.CrashReporter
 import com.phantom.carnavrelay.R
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -43,7 +45,7 @@ class DisplayServerService : Service() {
       Log.d(TAG, "✅ Foreground service started")
     } catch (e: Exception) {
       Log.e(TAG, "💥 Failed to start foreground service", e)
-      CrashReporter.init(application)
+    CrashReporter.recordException(applicationContext, "DisplayServerService:startForeground", e)
       stopSelf()
       return START_NOT_STICKY
     }
@@ -79,6 +81,7 @@ class DisplayServerService : Service() {
       }
     } catch (e: Throwable) {
       Log.e(TAG, "💥 Server loop error", e)
+      CrashReporter.recordException(applicationContext, "DisplayServerService:runServerLoop", e)
     }
     Log.d(TAG, "🛑 Server loop ended")
   }
@@ -99,7 +102,13 @@ class DisplayServerService : Service() {
         }
         
         Log.d(TAG, "📨 Received from $clientAddr: $line")
-        val obj = JSONObject(line)
+        val obj = try {
+          JSONObject(line)
+        } catch (e: Exception) {
+          Log.e(TAG, "💥 Invalid JSON from $clientAddr: $line", e)
+          CrashReporter.recordException(applicationContext, "DisplayServerService:parseJSON", e)
+          continue
+        }
 
         when (obj.optString("type")) {
           "HELLO" -> {
@@ -111,8 +120,12 @@ class DisplayServerService : Service() {
               Log.w(TAG, "❌ Pairing failed, disconnecting client")
               break
             }
-            // Send connected broadcast
-            sendBroadcast(Intent(BtConst.ACTION_CONNECTED))
+            try {
+              sendBroadcast(Intent(BtConst.ACTION_CONNECTED))
+            } catch (e: Exception) {
+              Log.e(TAG, "💥 Failed to broadcast CONNECTED", e)
+              CrashReporter.recordException(applicationContext, "DisplayServerService:broadcastConnected", e)
+            }
           }
 
           "OPEN_URL" -> {
@@ -123,20 +136,32 @@ class DisplayServerService : Service() {
             val url = obj.optString("url")
             Log.d(TAG, "🗺️ OPEN_URL received: $url")
             if (url.isNotBlank()) {
-              sendBroadcast(Intent(BtConst.ACTION_OPEN_URL).putExtra(BtConst.EXTRA_URL, url))
+              try {
+                sendBroadcast(Intent(BtConst.ACTION_OPEN_URL).putExtra(BtConst.EXTRA_URL, url))
+              } catch (e: Exception) {
+                Log.e(TAG, "💥 Failed to broadcast OPEN_URL", e)
+                CrashReporter.recordException(applicationContext, "DisplayServerService:broadcastOpenUrl", e)
+              }
             }
           }
         }
       }
     } catch (e: Throwable) {
       Log.e(TAG, "💥 Client handler error for $clientAddr", e)
+      CrashReporter.recordException(applicationContext, "DisplayServerService:handleClient", e)
     } finally {
-      try { 
-        socket.close() 
+      try {
+        socket.close()
         Log.d(TAG, "🔌 Client socket closed: $clientAddr")
-      } catch (_: Throwable) {}
-      // Send disconnected broadcast
-      sendBroadcast(Intent(BtConst.ACTION_DISCONNECTED))
+      } catch (e: Throwable) {
+        Log.e(TAG, "💥 Error closing client socket", e)
+        CrashReporter.recordException(applicationContext, "DisplayServerService:closeSocket", e)
+      }
+      try {
+        sendBroadcast(Intent(BtConst.ACTION_DISCONNECTED))
+      } catch (e: Exception) {
+        Log.e(TAG, "💥 Failed to broadcast DISCONNECTED", e)
+      }
     }
   }
 
@@ -158,11 +183,12 @@ class DisplayServerService : Service() {
 
   override fun onDestroy() {
     Log.d(TAG, "💀 DisplayServerService onDestroy")
-    try { 
-      server?.close() 
+    try {
+      server?.close()
       Log.d(TAG, "🔌 Server socket closed")
     } catch (e: Throwable) {
       Log.e(TAG, "Error closing server socket", e)
+      CrashReporter.recordException(applicationContext, "DisplayServerService:onDestroy", e)
     }
     worker = null
     super.onDestroy()
