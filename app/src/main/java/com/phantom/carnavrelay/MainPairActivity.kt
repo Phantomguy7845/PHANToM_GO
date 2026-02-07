@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
@@ -55,12 +56,18 @@ class MainPairActivity : AppCompatActivity() {
 
     private fun initViews() {
         Log.d(TAG, "🔧 MainPairActivity.initViews() called")
-        codeInput = findViewById(R.id.codeInput)
-        codeLayout = findViewById(R.id.codeLayout)
-        connectButton = findViewById(R.id.connectButton)
+        codeInput = findViewById<TextInputEditText>(R.id.codeInput)
+        codeLayout = findViewById<TextInputLayout>(R.id.codeLayout)
+        connectButton = findViewById<MaterialButton>(R.id.connectButton)
+
+        // Validate views found
+        if (codeInput == null || codeLayout == null || connectButton == null) {
+            throw IllegalStateException("Required views not found in layout")
+        }
 
         // Set device name in subtitle
-        findViewById<android.widget.TextView>(R.id.deviceNameText)?.text = deviceName
+        findViewById<TextView>(R.id.deviceNameText)?.text = deviceName
+        Log.d(TAG, "✅ Views initialized: codeInput=$codeInput, codeLayout=$codeLayout, connectButton=$connectButton")
     }
 
     private fun setupCodeInput() {
