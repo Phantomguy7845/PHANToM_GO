@@ -65,7 +65,7 @@ class RelayActivity : AppCompatActivity() {
             return
         }
 
-        mainSender.sendOpenUrl(normalizedUrl, object : MainSender.SendCallback {
+        mainSender.sendOpenUrl(normalizedUrl, object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
                 showToast("Sent to display device!")
                 finish()

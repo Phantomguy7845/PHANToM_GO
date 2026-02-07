@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnRetryPending: Button
     private lateinit var btnClearPairing: Button
     private lateinit var cardDisplay: MaterialCardView
-    private lateinit var cardMain: MaterialCardView
 
     private val scanLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -65,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         btnRetryPending = findViewById(R.id.btnRetryPending)
         btnClearPairing = findViewById(R.id.btnClearPairing)
         cardDisplay = findViewById(R.id.cardDisplay)
-        cardMain = findViewById(R.id.cardMain)
 
         btnScanQR.setOnClickListener {
             startQRScan()
@@ -85,15 +83,6 @@ class MainActivity : AppCompatActivity() {
 
         cardDisplay.setOnClickListener {
             startActivity(Intent(this, DisplayActivity::class.java))
-        }
-
-        cardMain.setOnClickListener {
-            if (!mainSender.isPaired()) {
-                Toast.makeText(this, "Please pair with a Display device first", Toast.LENGTH_SHORT).show()
-                startQRScan()
-            } else {
-                Toast.makeText(this, "Already paired! Use Send Test or share navigation to Display.", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 
@@ -132,7 +121,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendTestLocation() {
         Log.d(TAG, "🧪 Sending test location (Bangkok)")
-        mainSender.sendTestLocation(object : MainSender.SendCallback {
+        mainSender.sendTestLocation(object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
                 updateUI()
             }
@@ -145,7 +134,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun retryPending() {
         Log.d(TAG, "� Retrying pending commands")
-        mainSender.retryPending(object : MainSender.SendCallback {
+        mainSender.retryPending(object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
                 updateUI()
             }
