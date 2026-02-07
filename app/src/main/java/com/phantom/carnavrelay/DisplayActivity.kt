@@ -1,163 +1,188 @@
 package com.phantom.carnavrelay
 
-import android.content.BroadcastReceiver
-import android.content.Context
+import android.Manifest
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.Uri
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.WindowManager
+import android.util.Log
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import com.phantom.carnavrelay.bt.DisplayServerService
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.common.BitMatrix
+import java.util.EnumMap
 
 class DisplayActivity : AppCompatActivity() {
 
-  private lateinit var code: String
-  private var isConnected = false
+    companion object {
+        private const val TAG = "PHANTOM_GO"
+        private const val PERMISSION_REQUEST_CODE = 1001
+    }
 
-  private val receiver = object : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-      when (intent.action) {
-        BtConst.ACTION_OPEN_URL -> {
-          val url = intent.getStringExtra(BtConst.EXTRA_URL) ?: return
-          openMaps(url)
+    private lateinit var prefsManager: PrefsManager
+    private lateinit var tvIpPort: TextView
+    private lateinit var tvTokenHint: TextView
+    private lateinit var ivQrCode: ImageView
+    private lateinit var tvStatus: TextView
+    private lateinit var btnRefreshToken: Button
+    private lateinit var btnCopyToken: Button
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "▶️ DisplayActivity.onCreate()")
+        setContentView(R.layout.activity_display)
+
+        prefsManager = PrefsManager(this)
+
+        initViews()
+        checkPermissions()
+        updateDisplay()
+        startHttpServer()
+    }
+
+    private fun initViews() {
+        tvIpPort = findViewById(R.id.tvIpPort)
+        tvTokenHint = findViewById(R.id.tvTokenHint)
+        ivQrCode = findViewById(R.id.ivQrCode)
+        tvStatus = findViewById(R.id.tvStatus)
+        btnRefreshToken = findViewById(R.id.btnRefreshToken)
+        btnCopyToken = findViewById(R.id.btnCopyToken)
+
+        btnRefreshToken.setOnClickListener {
+            refreshToken()
         }
-        BtConst.ACTION_CONNECTED -> {
-          isConnected = true
-          updateConnectionStatus(true)
+
+        btnCopyToken.setOnClickListener {
+            copyTokenToClipboard()
         }
-        BtConst.ACTION_DISCONNECTED -> {
-          isConnected = false
-          updateConnectionStatus(false)
+    }
+
+    private fun checkPermissions() {
+        val permissions = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
-      }
-    }
-  }
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-
-    // Keep screen on
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-    // IMPORTANT: ต้อง setContentView ก่อนค่อยทำ insets/immersive เพื่อให้ decorView ถูกสร้างแล้ว
-    setContentView(R.layout.activity_display)
-
-    // หลัง setContentView แล้ว decorView จะพร้อม
-    applyImmersiveSafe()
-
-    code = intent.getStringExtra("code") ?: "000000"
-
-    setupCodeDisplay()
-    setupCopyButton()
-
-    // Start service
-    val svc = Intent(this, DisplayServerService::class.java).apply {
-      putExtra("code", code)
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(svc) else startService(svc)
-  }
-
-  // กัน OEM/Android 15 บางรุ่นที่ insets controller ยังไม่พร้อมในจังหวะต้น ๆ
-  private fun applyImmersiveSafe() {
-    // Edge-to-edge (optional แต่ช่วยให้ compat ทำงานสม่ำเสมอ)
-    WindowCompat.setDecorFitsSystemWindows(window, false)
-
-    // รันหลัง view ถูก attach จริง ๆ
-    window.decorView.post {
-      try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-          val controller = WindowCompat.getInsetsController(window, window.decorView)
-          controller.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-          controller.hide(WindowInsetsCompat.Type.systemBars())
-        } else {
-          @Suppress("DEPRECATION")
-          window.decorView.systemUiVisibility =
-            (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-              or View.SYSTEM_UI_FLAG_FULLSCREEN
-              or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
         }
-      } catch (t: Throwable) {
-        // ถ้า immersive ทำงานไม่ได้ ก็ไม่ควรทำให้แอป crash
-        // (จะยังใช้งานต่อได้ แค่ไม่ fullscreen)
-      }
     }
-  }
 
-  private fun setupCodeDisplay() {
-    // Display code in 3 blocks: [12] [34] [56]
-    val blocks = listOf(
-      findViewById<android.widget.TextView>(R.id.codeBlock1),
-      findViewById<android.widget.TextView>(R.id.codeBlock2),
-      findViewById<android.widget.TextView>(R.id.codeBlock3)
-    )
-    val chunkedCode = code.chunked(2)
-    for (i in blocks.indices) {
-      blocks[i].text = chunkedCode.getOrElse(i) { "--" }
+    private fun startHttpServer() {
+        Log.d(TAG, "🚀 Starting DisplayServerService")
+        try {
+            val intent = Intent(this, DisplayServerService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            tvStatus.text = "🟢 Server Running"
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to start server", e)
+            tvStatus.text = "🔴 Server Error"
+            Toast.makeText(this, "Failed to start server: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
-  }
 
-  private fun setupCopyButton() {
-    findViewById<View>(R.id.copyButton)?.setOnClickListener {
-      val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-      val clip = android.content.ClipData.newPlainText("Pairing Code", code)
-      clipboard.setPrimaryClip(clip)
-      Toast.makeText(this, "คัดลอกรหัส $code", Toast.LENGTH_SHORT).show()
-    }
-  }
+    private fun updateDisplay() {
+        val tempServer = HttpServer(this, prefsManager)
+        val ip = tempServer.getLocalIpAddress() ?: "0.0.0.0"
+        val port = prefsManager.getServerPort()
+        val token = prefsManager.getServerToken()
+        val tokenHint = prefsManager.getTokenHint(token)
 
-  private fun updateConnectionStatus(connected: Boolean) {
-    val statusDot = findViewById<View>(R.id.statusDot)
-    val statusText = findViewById<android.widget.TextView>(R.id.statusText)
-    if (connected) {
-      statusDot?.background = ContextCompat.getDrawable(this, R.drawable.circle_status_connected)
-      statusText?.text = "เชื่อมต่อแล้ว"
-      statusText?.setTextColor(ContextCompat.getColor(this, R.color.success))
-    } else {
-      statusDot?.background = ContextCompat.getDrawable(this, R.drawable.circle_status_waiting)
-      statusText?.text = getString(R.string.waiting_connection)
-      statusText?.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
-    }
-  }
+        tvIpPort.text = "$ip:$port"
+        tvTokenHint.text = "Token: $tokenHint"
 
-  override fun onStart() {
-    super.onStart()
-    val filter = IntentFilter().apply {
-      addAction(BtConst.ACTION_OPEN_URL)
-      addAction(BtConst.ACTION_CONNECTED)
-      addAction(BtConst.ACTION_DISCONNECTED)
-    }
-    // Android 14+ requires RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-      registerReceiver(receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
-    } else {
-      registerReceiver(receiver, filter)
-    }
-  }
+        val pairingPayload = JsonUtils.createPairingPayload(ip, port, token)
+        generateQrCode(pairingPayload)
 
-  override fun onStop() {
-    unregisterReceiver(receiver)
-    super.onStop()
-  }
-
-  private fun openMaps(url: String) {
-    try {
-      startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-        setPackage("com.google.android.apps.maps")
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      })
-    } catch (_: Throwable) {
-      startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      })
+        Log.d(TAG, "📋 Display updated - IP: $ip, Port: $port, Token: $tokenHint")
     }
-  }
+
+    private fun generateQrCode(content: String) {
+        try {
+            val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java)
+            hints[EncodeHintType.CHARACTER_SET] = "UTF-8"
+
+            val writer = QRCodeWriter()
+            val bitMatrix: BitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, 400, 400, hints)
+
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+                }
+            }
+
+            ivQrCode.setImageBitmap(bitmap)
+            Log.d(TAG, "✅ QR Code generated")
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to generate QR code", e)
+            Toast.makeText(this, "Failed to generate QR code", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun refreshToken() {
+        AlertDialog.Builder(this)
+            .setTitle("Refresh Token?")
+            .setMessage("This will generate a new token. The old pairing will no longer work. Make sure to re-scan the new QR code on the Main device.")
+            .setPositiveButton("Refresh") { _, _ ->
+                val newToken = prefsManager.refreshServerToken()
+                val tokenHint = prefsManager.getTokenHint(newToken)
+                Log.d(TAG, "🔄 Token refreshed: $tokenHint")
+                updateDisplay()
+                Toast.makeText(this, "Token refreshed! Re-scan QR code on Main device.", Toast.LENGTH_LONG).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun copyTokenToClipboard() {
+        val token = prefsManager.getServerToken()
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clip = android.content.ClipData.newPlainText("PHANToM GO Token", token)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, "Token copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "▶️ DisplayActivity.onResume()")
+        updateDisplay()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "💀 DisplayActivity.onDestroy()")
+        super.onDestroy()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                Log.d(TAG, "✅ All permissions granted")
+                startHttpServer()
+            } else {
+                Log.w(TAG, "⚠️ Some permissions denied")
+                Toast.makeText(this, "Some permissions denied. Server may not work properly.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 }

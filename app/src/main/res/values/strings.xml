@@ -1,44 +1,74 @@
 <resources>
   <!-- App Name -->
   <string name="app_name">PHANToM GO</string>
-  <string name="app_name_main">PHANToM GO - เครื่องหลัก</string>
-  <string name="app_name_display">PHANToM GO - จอติดรถ</string>
+  <string name="app_name_main">PHANToM GO - Main</string>
+  <string name="app_name_display">PHANToM GO - Display</string>
 
   <!-- Main Screen -->
-  <string name="select_mode">เลือกโหมดการใช้งาน</string>
-  <string name="mode_main">เครื่องหลัก</string>
-  <string name="mode_main_desc">ส่งตำแหน่งนำทางไปยังจอติดรถ</string>
-  <string name="mode_display">จอติดรถ</string>
-  <string name="mode_display_desc">แสดงตำแหน่งที่ได้รับจากเครื่องหลัก</string>
+  <string name="select_mode">Select Mode</string>
+  <string name="mode_main">Main Device</string>
+  <string name="mode_main_desc">Send navigation to Display</string>
+  <string name="mode_display">Display Device</string>
+  <string name="mode_display_desc">Show received navigation</string>
 
   <!-- Pairing -->
-  <string name="paired_devices">อุปกรณ์ที่จับคู่ไว้</string>
-  <string name="no_paired_devices">ยังไม่มีอุปกรณ์ที่จับคู่\n\nกรุณาไปจับคู่ Bluetooth ใน Settings ก่อน</string>
-  <string name="enter_code">ใส่รหัสจับคู่</string>
-  <string name="enter_code_hint">รหัส 6 หลักจากจอติดรถ</string>
-  <string name="connect">เชื่อมต่อ</string>
-  <string name="cancel">ยกเลิก</string>
-  <string name="ok">ตกลง</string>
+  <string name="paired_devices">Paired Devices</string>
+  <string name="no_paired_devices">No paired devices\n\nPlease scan QR code from Display device</string>
+  <string name="enter_code">Enter Pairing Code</string>
+  <string name="enter_code_hint">6-digit code from Display</string>
+  <string name="connect">Connect</string>
+  <string name="cancel">Cancel</string>
+  <string name="ok">OK</string>
+  <string name="scan_qr">Scan QR Code</string>
+  <string name="scan_qr_hint">Point camera at QR code on Display device</string>
 
   <!-- Display Mode -->
-  <string name="display_title">โหมดจอติดรถ</string>
-  <string name="display_code_label">รหัสจับคู่</string>
-  <string name="display_code_hint">เอารหัสนี้ไปใส่ในเครื่องหลัก</string>
-  <string name="keep_screen_on">หน้าจอจะค้างไว้ตลอด</string>
-  <string name="waiting_connection">กำลังรอการเชื่อมต่อ</string>
-  <string name="connected">เชื่อมต่อแล้ว</string>
-  <string name="copy_code">คัดลอกรหัส</string>
+  <string name="display_title">Display Mode</string>
+  <string name="display_code_label">Pairing Code</string>
+  <string name="display_code_hint">Use this code on Main device</string>
+  <string name="keep_screen_on">Screen will stay on</string>
+  <string name="waiting_connection">Waiting for connection</string>
+  <string name="connected">Connected</string>
+  <string name="copy_code">Copy Code</string>
+  <string name="refresh_token">Refresh Token</string>
+  <string name="copy_token">Copy Token</string>
+  <string name="server_running">Server Running</string>
+  <string name="server_error">Server Error</string>
 
-  <!-- Bluetooth -->
-  <string name="bt_permission_title">ต้องการสิทธิ์ Bluetooth</string>
-  <string name="bt_permission_message">แอปต้องใช้สิทธิ์ Bluetooth เพื่อเชื่อมต่อกันระหว่างเครื่อง</string>
+  <!-- HTTP/Network -->
+  <string name="ip_port_format">%1$s:%2$d</string>
+  <string name="token_hint_format">Token: %1$s</string>
+  <string name="not_paired">Not Paired</string>
+  <string name="paired_with">Paired with %1$s</string>
+  <string name="pending_count">Pending: %1$d</string>
+  <string name="send_test">Send Test Location</string>
+  <string name="retry_pending">Retry Pending</string>
+  <string name="clear_pairing">Clear Pairing</string>
+  <string name="scan_to_pair">Scan QR to Pair</string>
+
+  <!-- Permissions -->
+  <string name="camera_permission_title">Camera Permission Required</string>
+  <string name="camera_permission_message">Camera is needed to scan QR codes for pairing</string>
+  <string name="notification_permission_title">Notification Permission</string>
+  <string name="notification_permission_message">Notifications are needed for foreground service</string>
 
   <!-- Notifications -->
-  <string name="main_connected">เชื่อมต่อแล้ว พร้อมส่งตำแหน่ง</string>
-  <string name="main_connecting">กำลังเชื่อมต่อ...</string>
-  <string name="channel_main_name">PHANToM GO - เครื่องหลัก</string>
-  <string name="channel_display_name">PHANToM GO - จอติดรถ</string>
-  <string name="notification_connected">เชื่อมต่ออยู่</string>
-  <string name="notification_listening">รอการเชื่อมต่อ</string>
-  <string name="notification_sending">พร้อมส่งตำแหน่ง</string>
+  <string name="main_connected">Connected - Ready to send</string>
+  <string name="main_connecting">Connecting...</string>
+  <string name="channel_main_name">PHANToM GO - Main</string>
+  <string name="channel_display_name">PHANToM GO - Display</string>
+  <string name="notification_connected">Connected</string>
+  <string name="notification_listening">Waiting for connection</string>
+  <string name="notification_sending">Ready to send location</string>
+  <string name="notification_server_running">HTTP Server running</string>
+
+  <!-- Toast Messages -->
+  <string name="toast_sent_success">Sent to display device!</string>
+  <string name="toast_queued_for_retry">Failed to send. Queued for retry.</string>
+  <string name="toast_auth_failed">Authentication failed. Check pairing.</string>
+  <string name="toast_paired_success">Paired successfully!</string>
+  <string name="toast_pairing_cleared">Pairing cleared</string>
+  <string name="toast_token_refreshed">Token refreshed!</string>
+  <string name="toast_copied">Copied to clipboard</string>
+  <string name="toast_no_pending">No pending commands</string>
 </resources>

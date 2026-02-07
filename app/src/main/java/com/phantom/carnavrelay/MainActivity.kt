@@ -6,210 +6,188 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
 
 class MainActivity : AppCompatActivity() {
 
-  companion object {
-    const val TAG = "PHANTOM_GO"
-  }
+    companion object {
+        private const val TAG = "PHANTOM_GO"
+        private const val CAMERA_PERMISSION_REQUEST = 1001
+    }
 
-  private var pendingMode: Int? = null // 0=MAIN, 1=DISPLAY
+    private lateinit var prefsManager: PrefsManager
+    private lateinit var mainSender: MainSender
+    
+    private lateinit var tvPairStatus: TextView
+    private lateinit var tvPairInfo: TextView
+    private lateinit var tvPendingCount: TextView
+    private lateinit var btnScanQR: Button
+    private lateinit var btnSendTest: Button
+    private lateinit var btnRetryPending: Button
+    private lateinit var btnClearPairing: Button
+    private lateinit var cardDisplay: MaterialCardView
+    private lateinit var cardMain: MaterialCardView
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    Log.d(TAG, "🏠 MainActivity onCreate")
-    setContentView(R.layout.activity_main)
-    
-    // Check for pending crash reports
-    CrashReporter.checkAndShowCrashReport(this)
-    
-    setupModeCards()
-  }
-
-  private fun setupModeCards() {
-    Log.d(TAG, "🎮 Setting up mode cards")
-    
-    try {
-      val mainCard = findViewById<MaterialCardView>(R.id.mainCard)
-      val displayCard = findViewById<MaterialCardView>(R.id.displayCard)
-      
-      Log.d(TAG, "✅ Cards found: mainCard=$mainCard, displayCard=$displayCard")
-      
-      mainCard.setOnClickListener {
-        try {
-          Log.d(TAG, "▶️ Main mode card clicked")
-          pendingMode = 0
-          ensureBtPermissionsThenRun()
-        } catch (e: Exception) {
-          Log.e(TAG, "💥 Exception in mainCard click", e)
-          showCrashDialog(e)
+    private val scanLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            Log.d(TAG, "✅ QR scan successful")
+            updateUI()
+        } else {
+            Log.d(TAG, "❌ QR scan cancelled or failed")
         }
-      }
+    }
 
-      displayCard.setOnClickListener {
-        try {
-          Log.d(TAG, "📺 Display mode card clicked")
-          pendingMode = 1
-          ensureBtPermissionsThenRun()
-        } catch (e: Exception) {
-          Log.e(TAG, "💥 Exception in displayCard click", e)
-          showCrashDialog(e)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "▶️ MainActivity.onCreate()")
+        setContentView(R.layout.activity_main)
+
+        prefsManager = PrefsManager(this)
+        mainSender = MainSender(this)
+
+        initViews()
+        updateUI()
+    }
+
+    private fun initViews() {
+        tvPairStatus = findViewById(R.id.tvPairStatus)
+        tvPairInfo = findViewById(R.id.tvPairInfo)
+        tvPendingCount = findViewById(R.id.tvPendingCount)
+        btnScanQR = findViewById(R.id.btnScanQR)
+        btnSendTest = findViewById(R.id.btnSendTest)
+        btnRetryPending = findViewById(R.id.btnRetryPending)
+        btnClearPairing = findViewById(R.id.btnClearPairing)
+        cardDisplay = findViewById(R.id.cardDisplay)
+        cardMain = findViewById(R.id.cardMain)
+
+        btnScanQR.setOnClickListener {
+            startQRScan()
         }
-      }
-      
-      Log.d(TAG, "✅ Mode cards setup complete")
-    } catch (e: Exception) {
-      Log.e(TAG, "💥 Failed to setup mode cards", e)
-      Toast.makeText(this, "เกิดข้อผิดพลาดในการโหลด UI: ${e.message}", Toast.LENGTH_LONG).show()
-    }
-  }
 
-  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menuInflater.inflate(R.menu.menu_main, menu)
-    return true
-  }
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    return when (item.itemId) {
-      R.id.action_diagnostics -> {
-        Log.d(TAG, "🔧 Opening Diagnostics")
-        startActivity(Intent(this, DiagnosticsActivity::class.java))
-        true
-      }
-      else -> super.onOptionsItemSelected(item)
-    }
-  }
-
-  private fun ensureBtPermissionsThenRun() {
-    Log.d(TAG, "🔒 Checking Bluetooth permissions...")
-    if (hasBtPermissions()) {
-      Log.d(TAG, "✅ Bluetooth permissions granted")
-      runSelectedMode()
-      return
-    }
-    Log.w(TAG, "⚠️ Bluetooth permissions needed, requesting...")
-    requestBtRuntimePermissions()
-  }
-
-  private fun runSelectedMode() {
-    Log.d(TAG, "🚀 Running selected mode: $pendingMode")
-    
-    val success = try {
-      when (pendingMode) {
-        0 -> MainModeFlow.start(this)
-        1 -> DisplayModeFlow.start(this)
-        else -> {
-          Log.w(TAG, "❓ Unknown mode selected: $pendingMode")
-          Toast.makeText(this, "กรุณาเลือกโหมด", Toast.LENGTH_SHORT).show()
-          false
+        btnSendTest.setOnClickListener {
+            sendTestLocation()
         }
-      }
-    } catch (e: Exception) {
-      Log.e(TAG, "💥 Exception starting mode $pendingMode", e)
-      // Let CrashReporter catch this, but also show user-friendly message
-      showCrashDialog(e)
-      false
+
+        btnRetryPending.setOnClickListener {
+            retryPending()
+        }
+
+        btnClearPairing.setOnClickListener {
+            confirmClearPairing()
+        }
+
+        cardDisplay.setOnClickListener {
+            startActivity(Intent(this, DisplayActivity::class.java))
+        }
+
+        cardMain.setOnClickListener {
+            if (!mainSender.isPaired()) {
+                Toast.makeText(this, "Please pair with a Display device first", Toast.LENGTH_SHORT).show()
+                startQRScan()
+            } else {
+                Toast.makeText(this, "Already paired! Use Send Test or share navigation to Display.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
-    // Only finish if mode started successfully
-    if (success) {
-      Log.d(TAG, "✅ Mode started successfully, finishing MainActivity")
-      finish()
-    } else {
-      Log.w(TAG, "⚠️ Mode start failed, staying on MainActivity")
+    private fun updateUI() {
+        val isPaired = mainSender.isPaired()
+        val pendingCount = mainSender.getPendingCount()
+
+        if (isPaired) {
+            tvPairStatus.text = "✅ Paired"
+            tvPairInfo.text = mainSender.getPairedInfo()
+            btnSendTest.isEnabled = true
+            btnClearPairing.isEnabled = true
+        } else {
+            tvPairStatus.text = "❌ Not Paired"
+            tvPairInfo.text = "Scan QR code from Display device"
+            btnSendTest.isEnabled = false
+            btnClearPairing.isEnabled = false
+        }
+
+        tvPendingCount.text = "Pending: $pendingCount"
+        btnRetryPending.isEnabled = pendingCount > 0
     }
-  }
 
-  private fun showCrashDialog(e: Exception) {
-    AlertDialog.Builder(this)
-      .setTitle("เกิดข้อผิดพลาด")
-      .setMessage("แอพพบปัญขณะเริ่มโหมด:\n\n${e.message}\n\nกรุณาลองใหม่หรือตรวจสอบ Diagnostics")
-      .setPositiveButton("เปิด Diagnostics") { _, _ ->
-        startActivity(Intent(this, DiagnosticsActivity::class.java))
-      }
-      .setNegativeButton("ปิด", null)
-      .show()
-  }
+    private fun startQRScan() {
+        // Check camera permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST)
+            }
+            return
+        }
 
-  private fun hasBtPermissions(): Boolean {
-    if (Build.VERSION.SDK_INT < 31) {
-      Log.d(TAG, "📱 SDK < 31, no runtime BT permissions needed")
-      return true
+        val intent = Intent(this, PairScanActivity::class.java)
+        scanLauncher.launch(intent)
     }
-    val connectOk = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
-    val scanOk = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
-    
-    Log.d(TAG, "🔍 BT_CONNECT: $connectOk, BT_SCAN: $scanOk")
-    return connectOk && scanOk
-  }
 
-  private fun requestBtRuntimePermissions() {
-    if (Build.VERSION.SDK_INT < 31) return
-    val needed = mutableListOf<String>()
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED)
-      needed.add(Manifest.permission.BLUETOOTH_CONNECT)
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
-      needed.add(Manifest.permission.BLUETOOTH_SCAN)
+    private fun sendTestLocation() {
+        Log.d(TAG, "🧪 Sending test location (Bangkok)")
+        mainSender.sendTestLocation(object : MainSender.SendCallback {
+            override fun onSuccess() {
+                updateUI()
+            }
 
-    if (needed.isNotEmpty()) {
-      Log.d(TAG, "📣 Requesting permissions: $needed")
-      ActivityCompat.requestPermissions(this, needed.toTypedArray(), 1001)
+            override fun onFailure(error: String, queued: Boolean) {
+                updateUI()
+            }
+        })
     }
-  }
 
-  override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<out String>,
-    grantResults: IntArray
-  ) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    Log.d(TAG, "📋 onRequestPermissionsResult: code=$requestCode, results=${grantResults.toList()}")
-    
-    if (requestCode == 1001) {
-      if (hasBtPermissions()) {
-        Log.d(TAG, "✅ Permissions granted after request")
-        runSelectedMode()
-      } else {
-        Log.w(TAG, "❌ Permissions denied after request")
-        showPermissionDeniedDialog()
-      }
+    private fun retryPending() {
+        Log.d(TAG, "� Retrying pending commands")
+        mainSender.retryPending(object : MainSender.SendCallback {
+            override fun onSuccess() {
+                updateUI()
+            }
+
+            override fun onFailure(error: String, queued: Boolean) {
+                updateUI()
+            }
+        })
     }
-  }
 
-  private fun showPermissionDeniedDialog() {
-    AlertDialog.Builder(this)
-      .setTitle("ต้องอนุญาต Bluetooth")
-      .setMessage("ถ้าไม่อนุญาต BLUETOOTH_CONNECT/SCAN แอปจะเชื่อมต่ออุปกรณ์ไม่ได้")
-      .setPositiveButton("ลองใหม่") { _, _ ->
-        ensureBtPermissionsThenRun()
-      }
-      .setNegativeButton("ปิด") { _, _ ->
-        finish()
-      }
-      .setCancelable(false)
-      .show()
-  }
+    private fun confirmClearPairing() {
+        AlertDialog.Builder(this)
+            .setTitle("Clear Pairing?")
+            .setMessage("This will remove the pairing with the Display device. You'll need to scan QR again to reconnect.")
+            .setPositiveButton("Clear") { _, _ ->
+                prefsManager.clearPairing()
+                mainSender.clearPending()
+                updateUI()
+                Toast.makeText(this, "Pairing cleared", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
-  override fun onResume() {
-    super.onResume()
-    Log.d(TAG, "▶️ MainActivity onResume")
-  }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            CAMERA_PERMISSION_REQUEST -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "✅ Camera permission granted")
+                    startQRScan()
+                } else {
+                    Log.w(TAG, "❌ Camera permission denied")
+                    Toast.makeText(this, "Camera permission required to scan QR codes", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
-  override fun onPause() {
-    super.onPause()
-    Log.d(TAG, "⏸️ MainActivity onPause")
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    Log.d(TAG, "💀 MainActivity onDestroy")
-  }
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "▶️ MainActivity.onResume()")
+        updateUI()
+    }
 }

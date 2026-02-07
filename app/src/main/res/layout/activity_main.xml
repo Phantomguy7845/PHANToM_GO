@@ -19,80 +19,126 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/subtitleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/select_mode"
-        android:textColor="@color/gray_600"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleText" />
-
-    <!-- Main Mode Card -->
+    <!-- Pairing Status -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/mainCard"
+        android:id="@+id/statusCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="48dp"
-        app:cardBackgroundColor="@color/purple_500"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="8dp"
+        android:layout_marginTop="24dp"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/subtitleText">
+        app:layout_constraintTop_toBottomOf="@id/titleText">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:orientation="vertical"
-            android:padding="32dp">
-
-            <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:src="@drawable/ic_main_mode"
-                app:tint="@color/white" />
+            android:padding="24dp">
 
             <TextView
+                android:id="@+id/tvPairStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/mode_main"
-                android:textColor="@color/white"
+                android:text="Not Paired"
+                android:textColor="@color/purple_500"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvPairInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="ส่งตำแหน่งนำทางไปยังจอติดรถ"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:alpha="0.8" />
+                android:text="Scan QR code from Display device"
+                android:textColor="@color/gray_600"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvPendingCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Pending: 0"
+                android:textColor="@color/warning"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Display Mode Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/displayCard"
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:id="@+id/buttonContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginTop="24dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/statusCard">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnScanQR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Scan QR to Pair" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSendTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:enabled="false"
+            android:text="Send Test Location"
+            style="@style/Widget.Material3.Button.TonalButton" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRetryPending"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="Retry Pending"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearPairing"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="Clear Pairing"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Display Mode Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardDisplay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="32dp"
         app:cardBackgroundColor="@color/teal_700"
         app:cardCornerRadius="24dp"
         app:cardElevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/mainCard">
+        app:layout_constraintTop_toBottomOf="@id/buttonContainer">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -120,7 +166,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="แสดงตำแหน่งที่ได้รับจากเครื่องหลัก"
+                android:text="Open Display Mode"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:alpha="0.8" />
@@ -133,7 +179,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:text="PHANToM GO - Bluetooth Navigation Relay"
+        android:text="PHANToM GO - QR + HTTP Navigation"
         android:textColor="@color/gray_400"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
