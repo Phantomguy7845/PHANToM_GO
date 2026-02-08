@@ -7,11 +7,15 @@ import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import android.Manifest
 import com.phantom.carnavrelay.BtConst
 import com.phantom.carnavrelay.CrashReporter
 import com.phantom.carnavrelay.R
@@ -66,9 +70,23 @@ class DisplayServerService : Service() {
         return
       }
       
+      // Check Bluetooth permissions
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val hasConnect = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        if (!hasConnect) {
+          Log.e(TAG, "❌ BLUETOOTH_CONNECT permission not granted")
+          return
+        }
+      }
+      
       Log.d(TAG, "📡 Creating RFCOMM server socket...")
-      server = adapter.listenUsingRfcommWithServiceRecord(BtConst.SERVICE_NAME, BtConst.APP_UUID)
-      Log.d(TAG, "✅ Server socket created, waiting for connections...")
+      try {
+        server = adapter.listenUsingRfcommWithServiceRecord(BtConst.SERVICE_NAME, BtConst.APP_UUID)
+        Log.d(TAG, "✅ Server socket created, waiting for connections...")
+      } catch (e: SecurityException) {
+        Log.e(TAG, "❌ SecurityException: Bluetooth permission denied", e)
+        return
+      }
 
       while (true) {
         val socket = server?.accept()

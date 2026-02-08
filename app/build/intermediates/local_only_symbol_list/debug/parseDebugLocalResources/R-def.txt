@@ -61,6 +61,7 @@ id btnA11ySettings
 id btnBatterySettings
 id btnCheckStatus
 id btnClearPairing
+id btnCopyPayload
 id btnCopyToken
 id btnRefreshToken
 id btnResetPairing
@@ -106,6 +107,7 @@ id tvPairInfo
 id tvPairStatus
 id tvPairedInfo
 id tvPendingCount
+id tvQrPayload
 id tvServerInfo
 id tvStatus
 id tvTokenHint

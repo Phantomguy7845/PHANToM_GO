@@ -2,6 +2,8 @@ package com.phantom.carnavrelay
 
 import android.Manifest
 import android.content.BroadcastReceiver
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -28,6 +30,8 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.common.BitMatrix
+import com.phantom.carnavrelay.util.buildPairPayload
+import com.phantom.carnavrelay.util.generateTokenHex
 import java.util.EnumMap
 
 class DisplayActivity : AppCompatActivity() {
@@ -54,6 +58,8 @@ class DisplayActivity : AppCompatActivity() {
     private lateinit var tvServerInfo: TextView
     private lateinit var tvBatteryStatus: TextView
     private lateinit var btnBatterySettings: Button
+    private lateinit var tvQrPayload: TextView
+    private lateinit var btnCopyPayload: Button
 
     private val pairingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -97,6 +103,8 @@ class DisplayActivity : AppCompatActivity() {
         tvServerInfo = findViewById(R.id.tvServerInfo)
         tvBatteryStatus = findViewById(R.id.tvBatteryStatus)
         btnBatterySettings = findViewById(R.id.btnBatterySettings)
+        tvQrPayload = findViewById(R.id.tvQrPayload)
+        btnCopyPayload = findViewById(R.id.btnCopyPayload)
 
         btnRefreshToken.setOnClickListener {
             refreshToken()
@@ -125,6 +133,10 @@ class DisplayActivity : AppCompatActivity() {
         btnBatterySettings.setOnClickListener {
             requestBatteryOptimization()
         }
+
+        btnCopyPayload.setOnClickListener {
+            copyPayloadToClipboard()
+        }
     }
 
     private fun checkPermissions() {
@@ -138,6 +150,22 @@ class DisplayActivity : AppCompatActivity() {
 
         if (permissions.isNotEmpty()) {
             ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            PERMISSION_REQUEST_CODE -> {
+                val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                Log.d(TAG, "🔒 Permission request result - all granted: $allGranted")
+                if (allGranted) {
+                    Log.d(TAG, "✅ All permissions granted")
+                } else {
+                    Log.w(TAG, "⚠️ Some permissions denied")
+                    Toast.makeText(this, "Some permissions were denied. Features may not work properly.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -203,8 +231,16 @@ class DisplayActivity : AppCompatActivity() {
             layoutConnected.visibility = View.GONE
         }
 
-        // Generate QR code
-        generateQRCode("$ip:$port:$token")
+        // Generate QR code with phantomgo:// scheme
+        val qrPayload = buildPairPayload(ip, port, token)
+        Log.d(TAG, "📋 QR Payload: $qrPayload")
+        
+        // Update payload display
+        tvQrPayload.text = qrPayload
+        tvQrPayload.visibility = if (isPaired) View.GONE else View.VISIBLE
+        btnCopyPayload.visibility = if (isPaired) View.GONE else View.VISIBLE
+        
+        generateQRCode(qrPayload)
     }
     
     private fun startDisplayService() {
@@ -316,6 +352,15 @@ class DisplayActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "💥 Failed to generate QR code", e)
         }
+    }
+    
+    private fun copyPayloadToClipboard() {
+        val payload = tvQrPayload.text.toString()
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("PHANToM GO QR Payload", payload)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, "QR Payload copied to clipboard", Toast.LENGTH_SHORT).show()
+        Log.d(TAG, "📋 QR Payload copied to clipboard")
     }
     
     private fun refreshToken() {

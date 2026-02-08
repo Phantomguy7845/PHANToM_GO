@@ -2,6 +2,7 @@ package com.phantom.carnavrelay
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.phantom.carnavrelay.util.generateTokenHex
 
 class PrefsManager(context: Context) {
     
@@ -178,10 +179,7 @@ class PrefsManager(context: Context) {
     }
     
     private fun generateNewToken(): String {
-        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
-        return (1..24)
-            .map { allowedChars.random() }
-            .joinToString("")
+        return generateTokenHex(12) // 24 hex chars, URL-safe
     }
     
     // Get token hint (first 4 + last 4 chars)

@@ -1,6 +1,8 @@
 package com.phantom.carnavrelay
 
 import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
@@ -13,6 +15,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import com.phantom.carnavrelay.util.PairInfo
+import com.phantom.carnavrelay.util.parsePairInfo
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -82,39 +86,60 @@ class PairScanActivity : AppCompatActivity() {
     }
 
     private fun handleScannedQR(content: String) {
-        Log.d(TAG, "📦 Processing QR content: $content")
+        val raw = content.trim()
+        Log.d(TAG, "� QR RAW = $raw")
 
-        // Try to parse as JSON
-        val pairingData = JsonUtils.parsePairingPayload(content)
+        // Parse using new parser
+        val pairInfo = parsePairInfo(raw)
         
-        if (pairingData == null) {
-            Log.e(TAG, "❌ Invalid QR code format")
-            Toast.makeText(this, "Invalid QR code format", Toast.LENGTH_LONG).show()
-            setResult(RESULT_CANCELED)
-            finish()
+        if (pairInfo == null) {
+            Log.e(TAG, "❌ Invalid QR format - showing debug dialog")
+            showInvalidQRDialog(raw)
             return
         }
+
+        Log.d(TAG, "✅ Parsed QR: ip=${pairInfo.ip}, port=${pairInfo.port}, token=${pairInfo.token.take(10)}...")
         
-        val (ip, port, token) = pairingData
-        Log.d(TAG, "✅ Parsed pairing data - IP: $ip, Port: $port, Token: ${prefsManager.getTokenHint(token)}")
-        
-        // Show progress dialog
-        showProgressDialog("Verifying pairing...")
-        
-        // Call /pair endpoint to verify
-        callPairEndpoint(ip, port, token)
+        // Continue with pairing process
+        callPairEndpoint(pairInfo)
     }
     
-    private fun callPairEndpoint(ip: String, port: Int, token: String) {
-        val endpoint = "http://$ip:$port/pair"
+    private fun showInvalidQRDialog(raw: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Invalid QR Format")
+            .setMessage("The QR code could not be parsed. Format not recognized.\n\nRaw content:\n${raw.take(200)}${if (raw.length > 200) "..." else ""}")
+            .setPositiveButton("Copy RAW") { _, _ ->
+                val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("QR Raw", raw)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(this, "Raw content copied to clipboard", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Retry") { _, _ ->
+                startScan()
+            }
+            .setNeutralButton("Cancel") { _, _ ->
+                setResult(RESULT_CANCELED)
+                finish()
+            }
+            .setCancelable(false)
+            .show()
+    }
+    
+    private fun callPairEndpoint(pairInfo: PairInfo) {
+        val endpoint = "http://${pairInfo.ip}:${pairInfo.port}/pair"
         val mainId = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ANDROID_ID) ?: "unknown"
         val mainName = android.os.Build.MODEL
         
         val jsonBody = JSONObject().apply {
-            put("token", token)
+            put("token", pairInfo.token)
             put("mainId", mainId)
             put("mainName", mainName)
         }.toString()
+        
+        Log.d(TAG, "✅ Parsed pairing data - IP: ${pairInfo.ip}, Port: ${pairInfo.port}, Token: ${prefsManager.getTokenHint(pairInfo.token)}")
+        
+        // Show progress dialog
+        showProgressDialog("Verifying pairing...")
         
         Log.d(TAG, "📤 Calling /pair at $endpoint")
         Log.d(TAG, "📦 Payload: $jsonBody")
@@ -151,8 +176,8 @@ class PairScanActivity : AppCompatActivity() {
                         200 -> {
                             // Success - save pairing as verified
                             Log.d(TAG, "✅ /pair success - saving verified pairing")
-                            prefsManager.savePairing(ip, port, token, verified = true)
-                            Toast.makeText(this@PairScanActivity, "Paired with $ip:$port!", Toast.LENGTH_LONG).show()
+                            prefsManager.savePairing(pairInfo.ip, pairInfo.port, pairInfo.token, verified = true)
+                            Toast.makeText(this@PairScanActivity, "Paired with ${pairInfo.ip}:${pairInfo.port}!", Toast.LENGTH_LONG).show()
                             setResult(RESULT_OK)
                             finish()
                         }
