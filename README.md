@@ -32,3 +32,25 @@
 
 ## GitHub Actions
 มี workflow สำหรับ build APK อัตโนมัติ
+
+## Test Commands (ADB)
+
+### Test ACTION_VIEW - google.navigation
+```bash
+adb shell am start -a android.intent.action.VIEW -d "google.navigation:q=13.7563,100.5018"
+```
+
+### Test ACTION_VIEW - geo URI
+```bash
+adb shell am start -a android.intent.action.VIEW -d "geo:0,0?q=13.7563,100.5018"
+```
+
+### Test ACTION_SEND - text/plain
+```bash
+adb shell am start -a android.intent.action.SEND -t "text/plain" --es android.intent.extra.TEXT "https://www.google.com/maps?q=13.7563,100.5018"
+```
+
+### Test Google Maps URL
+```bash
+adb shell am start -a android.intent.action.VIEW -d "https://www.google.com/maps/dir/?api=1&destination=13.7563,100.5018"
+```

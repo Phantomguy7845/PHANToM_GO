@@ -192,7 +192,32 @@ class PairScanActivity : AppCompatActivity() {
     
     private fun hideProgressDialog() {
         mainHandler.post {
-            progressDialog?.dismiss()
+            safeDismissDialog()
+        }
+    }
+    
+    private fun safeDismissDialog() {
+        try {
+            // Check if activity is still valid
+            if (isFinishing || isDestroyed) {
+                Log.d(TAG, "⚠️ Activity finishing/destroyed, skipping dialog dismiss")
+                progressDialog = null
+                return
+            }
+            
+            // Check if dialog exists and is showing
+            progressDialog?.let { dialog ->
+                if (dialog.isShowing) {
+                    dialog.dismiss()
+                    Log.d(TAG, "✅ Progress dialog dismissed safely")
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            // DecorView not attached - already dismissed or activity gone
+            Log.w(TAG, "⚠️ Dialog dismiss failed (DecorView not attached): ${e.message}")
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Unexpected error dismissing dialog: ${e.message}")
+        } finally {
             progressDialog = null
         }
     }
@@ -210,6 +235,15 @@ class PairScanActivity : AppCompatActivity() {
             }
             .setCancelable(false)
             .show()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "💀 PairScanActivity.onDestroy()")
+        // Remove all pending callbacks to prevent crashes after activity is destroyed
+        mainHandler.removeCallbacksAndMessages(null)
+        // Safely dismiss any showing dialog
+        safeDismissDialog()
+        super.onDestroy()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
