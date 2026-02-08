@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
@@ -20,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "PHANTOM_GO"
         private const val CAMERA_PERMISSION_REQUEST = 1001
+        private const val STATUS_CHECK_INTERVAL_MS = 5000L  // Check status every 5 seconds
     }
 
     private lateinit var prefsManager: PrefsManager
@@ -28,10 +31,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvPairStatus: TextView
     private lateinit var tvPairInfo: TextView
     private lateinit var tvPendingCount: TextView
+    private lateinit var tvConnectionState: TextView
     private lateinit var btnScanQR: Button
     private lateinit var btnSendTest: Button
     private lateinit var btnRetryPending: Button
     private lateinit var btnClearPairing: Button
+    private lateinit var btnCheckStatus: Button
     private lateinit var cardDisplay: MaterialCardView
 
     private val scanLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -40,6 +45,16 @@ class MainActivity : AppCompatActivity() {
             updateUI()
         } else {
             Log.d(TAG, "❌ QR scan cancelled or failed")
+        }
+    }
+    
+    private val handler = Handler(Looper.getMainLooper())
+    private val statusCheckRunnable = object : Runnable {
+        override fun run() {
+            if (mainSender.isPaired()) {
+                checkServerStatus()
+            }
+            handler.postDelayed(this, STATUS_CHECK_INTERVAL_MS)
         }
     }
 
@@ -53,16 +68,21 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         updateUI()
+        
+        // Check for crash reports
+        CrashReporter.checkAndShowCrashReport(this)
     }
 
     private fun initViews() {
         tvPairStatus = findViewById(R.id.tvPairStatus)
         tvPairInfo = findViewById(R.id.tvPairInfo)
         tvPendingCount = findViewById(R.id.tvPendingCount)
+        tvConnectionState = findViewById(R.id.tvConnectionState)
         btnScanQR = findViewById(R.id.btnScanQR)
         btnSendTest = findViewById(R.id.btnSendTest)
         btnRetryPending = findViewById(R.id.btnRetryPending)
         btnClearPairing = findViewById(R.id.btnClearPairing)
+        btnCheckStatus = findViewById(R.id.btnCheckStatus)
         cardDisplay = findViewById(R.id.cardDisplay)
 
         btnScanQR.setOnClickListener {
@@ -80,6 +100,11 @@ class MainActivity : AppCompatActivity() {
         btnClearPairing.setOnClickListener {
             confirmClearPairing()
         }
+        
+        btnCheckStatus.setOnClickListener {
+            checkServerStatus()
+            Toast.makeText(this, "Checking connection...", Toast.LENGTH_SHORT).show()
+        }
 
         cardDisplay.setOnClickListener {
             startActivity(Intent(this, DisplayActivity::class.java))
@@ -88,12 +113,39 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUI() {
         val isPaired = mainSender.isPaired()
+        val isVerified = mainSender.isVerified()
         val pendingCount = mainSender.getPendingCount()
+        val currentState = mainSender.getCurrentState()
+
+        // Update connection state display
+        val stateEmoji = when (currentState) {
+            MainSender.STATE_UNPAIRED -> "❌"
+            MainSender.STATE_PAIRING -> "⏳"
+            MainSender.STATE_CONNECTING -> "🔄"
+            MainSender.STATE_CONNECTED -> "✅"
+            MainSender.STATE_AUTH_FAILED -> "⚠️"
+            MainSender.STATE_OFFLINE -> "🔴"
+            else -> "❓"
+        }
+        
+        val stateText = when (currentState) {
+            MainSender.STATE_UNPAIRED -> "Not Paired"
+            MainSender.STATE_PAIRING -> "Waiting for Display"
+            MainSender.STATE_CONNECTING -> "Connecting..."
+            MainSender.STATE_CONNECTED -> "Connected"
+            MainSender.STATE_AUTH_FAILED -> "Auth Failed"
+            MainSender.STATE_OFFLINE -> "Offline"
+            else -> "Unknown"
+        }
+        
+        tvConnectionState.text = "$stateEmoji $stateText"
+        tvConnectionState.setTextColor(getStateColor(currentState))
 
         if (isPaired) {
-            tvPairStatus.text = "✅ Paired"
+            val verifiedEmoji = if (isVerified) "✅" else "⏳"
+            tvPairStatus.text = "$verifiedEmoji Paired"
             tvPairInfo.text = mainSender.getPairedInfo()
-            btnSendTest.isEnabled = true
+            btnSendTest.isEnabled = isVerified
             btnClearPairing.isEnabled = true
         } else {
             tvPairStatus.text = "❌ Not Paired"
@@ -104,6 +156,46 @@ class MainActivity : AppCompatActivity() {
 
         tvPendingCount.text = "Pending: $pendingCount"
         btnRetryPending.isEnabled = pendingCount > 0
+        
+        // Show auth failed warning
+        if (currentState == MainSender.STATE_AUTH_FAILED) {
+            showAuthFailedWarning()
+        }
+    }
+    
+    private fun getStateColor(state: String): Int {
+        return when (state) {
+            MainSender.STATE_CONNECTED -> ContextCompat.getColor(this, android.R.color.holo_green_dark)
+            MainSender.STATE_AUTH_FAILED -> ContextCompat.getColor(this, android.R.color.holo_red_dark)
+            MainSender.STATE_OFFLINE -> ContextCompat.getColor(this, android.R.color.holo_orange_dark)
+            MainSender.STATE_CONNECTING -> ContextCompat.getColor(this, android.R.color.holo_blue_dark)
+            else -> ContextCompat.getColor(this, android.R.color.darker_gray)
+        }
+    }
+    
+    private fun showAuthFailedWarning() {
+        AlertDialog.Builder(this)
+            .setTitle("⚠️ Authentication Failed")
+            .setMessage("The token no longer matches the Display device. This can happen if:\n\n1. The Display device refreshed its token\n2. You're trying to connect to a different device\n\nPlease scan the QR code again to re-pair.")
+            .setPositiveButton("Scan QR") { _, _ ->
+                startQRScan()
+            }
+            .setNegativeButton("Dismiss", null)
+            .show()
+    }
+    
+    private fun checkServerStatus() {
+        Log.d(TAG, "🔍 Checking server status...")
+        mainSender.checkServerStatus { success, error ->
+            runOnUiThread {
+                if (success) {
+                    Log.d(TAG, "✅ Server status check passed")
+                } else {
+                    Log.w(TAG, "❌ Server status check failed: $error")
+                }
+                updateUI()
+            }
+        }
     }
 
     private fun startQRScan() {
@@ -121,26 +213,48 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendTestLocation() {
         Log.d(TAG, "🧪 Sending test location (Bangkok)")
+        btnSendTest.isEnabled = false
+        
         mainSender.sendTestLocation(object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
-                updateUI()
+                Log.d(TAG, "✅ Test location sent successfully")
+                runOnUiThread {
+                    btnSendTest.isEnabled = mainSender.isVerified()
+                    updateUI()
+                }
             }
 
-            override fun onFailure(error: String, queued: Boolean) {
-                updateUI()
+            override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
+                Log.e(TAG, "❌ Failed to send test location: $error")
+                runOnUiThread {
+                    btnSendTest.isEnabled = mainSender.isVerified() && !authFailed
+                    updateUI()
+                    
+                    if (authFailed) {
+                        showAuthFailedWarning()
+                    }
+                }
             }
         })
     }
 
     private fun retryPending() {
-        Log.d(TAG, "� Retrying pending commands")
+        Log.d(TAG, "🔄 Retrying pending commands")
         mainSender.retryPending(object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
-                updateUI()
+                runOnUiThread {
+                    updateUI()
+                }
             }
 
-            override fun onFailure(error: String, queued: Boolean) {
-                updateUI()
+            override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
+                runOnUiThread {
+                    updateUI()
+                    
+                    if (authFailed) {
+                        showAuthFailedWarning()
+                    }
+                }
             }
         })
     }
@@ -150,7 +264,9 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Clear Pairing?")
             .setMessage("This will remove the pairing with the Display device. You'll need to scan QR again to reconnect.")
             .setPositiveButton("Clear") { _, _ ->
+                Log.d(TAG, "🗑️ Clearing pairing")
                 prefsManager.clearPairing()
+                mainSender.setState(MainSender.STATE_UNPAIRED)
                 mainSender.clearPending()
                 updateUI()
                 Toast.makeText(this, "Pairing cleared", Toast.LENGTH_SHORT).show()
@@ -178,5 +294,16 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         Log.d(TAG, "▶️ MainActivity.onResume()")
         updateUI()
+        
+        // Start periodic status checks
+        handler.post(statusCheckRunnable)
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "⏸️ MainActivity.onPause()")
+        
+        // Stop periodic status checks
+        handler.removeCallbacks(statusCheckRunnable)
     }
 }

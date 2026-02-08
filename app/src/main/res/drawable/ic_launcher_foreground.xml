@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- simple circle -->
+    <path
+        android:fillColor="#A78BFA"
+        android:pathData="M54,10 A44,44 0 1,1 53.99,10 Z"/>
+
+    <!-- letter P -->
+    <path
+        android:fillColor="#0B0820"
+        android:pathData="M38,28 h18 c10,0 16,6 16,14 c0,8 -6,14 -16,14 h-8 v24 h-10 Z
+                          M48,38 v18 h8 c5,0 8,-3 8,-9 c0,-6 -3,-9 -8,-9 Z"/>
+</vector>

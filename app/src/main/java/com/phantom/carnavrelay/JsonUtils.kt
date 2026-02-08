@@ -5,7 +5,7 @@ import org.json.JSONArray
 
 object JsonUtils {
     
-    fun createStatusResponse(ip: String, port: Int, paired: Boolean, tokenHint: String, version: String = "1.0"): String {
+    fun createStatusResponse(ip: String, port: Int, paired: Boolean, tokenHint: String, version: String = "1.0", pairedMainId: String? = null): String {
         return JSONObject().apply {
             put("ok", true)
             put("ip", ip)
@@ -13,14 +13,29 @@ object JsonUtils {
             put("paired", paired)
             put("tokenHint", tokenHint)
             put("version", version)
+            if (pairedMainId != null) {
+                put("pairedMainId", pairedMainId)
+            }
         }.toString()
     }
     
-    fun createOpenUrlResponse(success: Boolean, message: String = ""): String {
+    fun createPairResponse(success: Boolean, reason: String? = null): String {
+        return JSONObject().apply {
+            put("ok", success)
+            if (reason != null) {
+                put("reason", reason)
+            }
+        }.toString()
+    }
+    
+    fun createOpenUrlResponse(success: Boolean, message: String = "", reason: String? = null): String {
         return JSONObject().apply {
             put("ok", success)
             if (message.isNotEmpty()) {
                 put("message", message)
+            }
+            if (reason != null) {
+                put("reason", reason)
             }
         }.toString()
     }
@@ -32,10 +47,13 @@ object JsonUtils {
         }.toString()
     }
     
-    fun createErrorResponse(message: String): String {
+    fun createErrorResponse(message: String, reason: String? = null): String {
         return JSONObject().apply {
             put("ok", false)
             put("message", message)
+            if (reason != null) {
+                put("reason", reason)
+            }
         }.toString()
     }
     
@@ -45,6 +63,20 @@ object JsonUtils {
             val token = json.getString("token")
             val url = json.getString("url")
             Pair(token, url)
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    data class PairRequest(val token: String, val mainId: String, val mainName: String?)
+    
+    fun parsePairRequest(body: String): PairRequest? {
+        return try {
+            val json = JSONObject(body)
+            val token = json.getString("token")
+            val mainId = json.optString("mainId", "")
+            val mainName = json.optString("mainName", null)
+            PairRequest(token, mainId, mainName)
         } catch (e: Exception) {
             null
         }

@@ -71,7 +71,7 @@ class RelayActivity : AppCompatActivity() {
                 finish()
             }
 
-            override fun onFailure(error: String, queued: Boolean) {
+            override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
                 if (queued) {
                     showToast("Failed to send. Queued for retry.")
                 } else {

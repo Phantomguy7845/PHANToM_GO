@@ -1,14 +1,19 @@
 package com.phantom.carnavrelay
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -33,8 +38,25 @@ class DisplayActivity : AppCompatActivity() {
     private lateinit var tvTokenHint: TextView
     private lateinit var ivQrCode: ImageView
     private lateinit var tvStatus: TextView
+    private lateinit var tvPairedInfo: TextView
     private lateinit var btnRefreshToken: Button
     private lateinit var btnCopyToken: Button
+    private lateinit var btnShowQR: Button
+    private lateinit var btnResetPairing: Button
+    private lateinit var layoutQR: LinearLayout
+    private lateinit var layoutConnected: LinearLayout
+
+    private val pairingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == HttpServer.ACTION_PAIRING_CHANGED) {
+                val paired = intent.getBooleanExtra("paired", false)
+                Log.d(TAG, "📢 Received PAIRING_CHANGED broadcast: paired=$paired")
+                runOnUiThread {
+                    updateUI()
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +67,7 @@ class DisplayActivity : AppCompatActivity() {
 
         initViews()
         checkPermissions()
-        updateDisplay()
+        updateUI()
         startHttpServer()
     }
 
@@ -54,8 +76,13 @@ class DisplayActivity : AppCompatActivity() {
         tvTokenHint = findViewById(R.id.tvTokenHint)
         ivQrCode = findViewById(R.id.ivQrCode)
         tvStatus = findViewById(R.id.tvStatus)
+        tvPairedInfo = findViewById(R.id.tvPairedInfo)
         btnRefreshToken = findViewById(R.id.btnRefreshToken)
         btnCopyToken = findViewById(R.id.btnCopyToken)
+        btnShowQR = findViewById(R.id.btnShowQR)
+        btnResetPairing = findViewById(R.id.btnResetPairing)
+        layoutQR = findViewById(R.id.layoutQR)
+        layoutConnected = findViewById(R.id.layoutConnected)
 
         btnRefreshToken.setOnClickListener {
             refreshToken()
@@ -63,6 +90,14 @@ class DisplayActivity : AppCompatActivity() {
 
         btnCopyToken.setOnClickListener {
             copyTokenToClipboard()
+        }
+        
+        btnShowQR.setOnClickListener {
+            showQRCode()
+        }
+        
+        btnResetPairing.setOnClickListener {
+            confirmResetPairing()
         }
     }
 
@@ -97,20 +132,84 @@ class DisplayActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateDisplay() {
+    private fun updateUI() {
         val tempServer = HttpServer(this, prefsManager)
         val ip = tempServer.getLocalIpAddress() ?: "0.0.0.0"
         val port = prefsManager.getServerPort()
         val token = prefsManager.getServerToken()
         val tokenHint = prefsManager.getTokenHint(token)
+        val isPaired = prefsManager.isDisplayPaired()
 
         tvIpPort.text = "$ip:$port"
         tvTokenHint.text = "Token: $tokenHint"
 
+        if (isPaired) {
+            // Paired state - show connected UI
+            val mainName = prefsManager.getDisplayPairedMainName() ?: "Unknown Device"
+            val pairedAt = prefsManager.getDisplayPairedAt()
+            val timeStr = if (pairedAt > 0) {
+                val minutes = (System.currentTimeMillis() - pairedAt) / 60000
+                if (minutes < 60) "$minutes min ago" else "${minutes / 60} hr ago"
+            } else ""
+            
+            tvPairedInfo.text = "Connected to: $mainName\n$timeStr"
+            tvStatus.text = "🟢 CONNECTED"
+            
+            layoutQR.visibility = View.GONE
+            layoutConnected.visibility = View.VISIBLE
+            
+            Log.d(TAG, "📋 Display updated - PAIRED with $mainName")
+        } else {
+            // Not paired - show QR code
+            tvStatus.text = "🟡 Waiting for pairing..."
+            tvPairedInfo.text = "Scan this QR code with Main device"
+            
+            layoutQR.visibility = View.VISIBLE
+            layoutConnected.visibility = View.GONE
+            
+            val pairingPayload = JsonUtils.createPairingPayload(ip, port, token)
+            generateQrCode(pairingPayload)
+            
+            Log.d(TAG, "📋 Display updated - Waiting for pairing, tokenHint=$tokenHint")
+        }
+    }
+    
+    private fun showQRCode() {
+        // Show QR code temporarily
+        val tempServer = HttpServer(this, prefsManager)
+        val ip = tempServer.getLocalIpAddress() ?: "0.0.0.0"
+        val port = prefsManager.getServerPort()
+        val token = prefsManager.getServerToken()
+        
+        layoutQR.visibility = View.VISIBLE
+        layoutConnected.visibility = View.GONE
+        
         val pairingPayload = JsonUtils.createPairingPayload(ip, port, token)
         generateQrCode(pairingPayload)
-
-        Log.d(TAG, "📋 Display updated - IP: $ip, Port: $port, Token: $tokenHint")
+        
+        // Auto-hide after 30 seconds
+        ivQrCode.postDelayed({
+            if (!isFinishing && !isDestroyed) {
+                updateUI()
+            }
+        }, 30000)
+        
+        Toast.makeText(this, "QR code shown for 30 seconds", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun confirmResetPairing() {
+        AlertDialog.Builder(this)
+            .setTitle("Reset Pairing?")
+            .setMessage("This will disconnect the paired Main device and generate a new token. You'll need to re-scan the QR code.")
+            .setPositiveButton("Reset") { _, _ ->
+                Log.d(TAG, "🔄 Resetting pairing - clearing paired state and refreshing token")
+                prefsManager.setDisplayPaired(false)
+                prefsManager.refreshServerToken()
+                updateUI()
+                Toast.makeText(this, "Pairing reset. New QR code generated.", Toast.LENGTH_LONG).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun generateQrCode(content: String) {
@@ -142,12 +241,13 @@ class DisplayActivity : AppCompatActivity() {
     private fun refreshToken() {
         AlertDialog.Builder(this)
             .setTitle("Refresh Token?")
-            .setMessage("This will generate a new token. The old pairing will no longer work. Make sure to re-scan the new QR code on the Main device.")
+            .setMessage("This will generate a new token and reset any existing pairing. The old pairing will no longer work. Make sure to re-scan the new QR code on the Main device.")
             .setPositiveButton("Refresh") { _, _ ->
+                prefsManager.setDisplayPaired(false)
                 val newToken = prefsManager.refreshServerToken()
                 val tokenHint = prefsManager.getTokenHint(newToken)
                 Log.d(TAG, "🔄 Token refreshed: $tokenHint")
-                updateDisplay()
+                updateUI()
                 Toast.makeText(this, "Token refreshed! Re-scan QR code on Main device.", Toast.LENGTH_LONG).show()
             }
             .setNegativeButton("Cancel", null)
@@ -165,7 +265,23 @@ class DisplayActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "▶️ DisplayActivity.onResume()")
-        updateDisplay()
+        updateUI()
+        
+        // Register for pairing state changes
+        val filter = IntentFilter(HttpServer.ACTION_PAIRING_CHANGED)
+        registerReceiver(pairingReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "⏸️ DisplayActivity.onPause()")
+        
+        // Unregister receiver
+        try {
+            unregisterReceiver(pairingReceiver)
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Failed to unregister receiver", e)
+        }
     }
 
     override fun onDestroy() {

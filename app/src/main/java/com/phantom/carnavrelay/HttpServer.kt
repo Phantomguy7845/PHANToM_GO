@@ -14,6 +14,7 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
     companion object {
         private const val TAG = "PHANTOM_GO"
         const val DEFAULT_PORT = 8765
+        const val ACTION_PAIRING_CHANGED = "com.phantom.carnavrelay.PAIRING_CHANGED"
     }
     
     private var isRunning = false
@@ -47,8 +48,10 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
         
         return when {
             uri == "/status" && method == Method.GET -> handleStatus()
+            uri == "/pair" && method == Method.POST -> handlePair(session)
             uri == "/open-url" && method == Method.POST -> handleOpenUrl(session)
             uri == "/refresh-token" && method == Method.POST -> handleRefreshToken(session)
+            uri == "/unpair" && method == Method.POST -> handleUnpair(session)
             else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not Found")
         }
     }
@@ -58,9 +61,57 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
         val port = listeningPort
         val token = prefsManager.getServerToken()
         val tokenHint = prefsManager.getTokenHint(token)
+        val paired = prefsManager.isDisplayPaired()
+        val pairedMainId = prefsManager.getDisplayPairedMainId()
         
-        val response = JsonUtils.createStatusResponse(ip, port, true, tokenHint)
+        Log.d(TAG, "📊 /status request - paired=$paired, tokenHint=$tokenHint")
+        
+        val response = JsonUtils.createStatusResponse(ip, port, paired, tokenHint, "1.0", pairedMainId)
         return newFixedLengthResponse(Response.Status.OK, "application/json", response)
+    }
+    
+    private fun handlePair(session: IHTTPSession): Response {
+        val body = mutableMapOf<String, String>()
+        session.parseBody(body)
+        
+        val postData = body["postData"] ?: ""
+        Log.d(TAG, "📨 /pair request received: $postData")
+        
+        val request = JsonUtils.parsePairRequest(postData)
+        
+        if (request == null) {
+            Log.w(TAG, "❌ /pair invalid request format")
+            return newFixedLengthResponse(
+                Response.Status.BAD_REQUEST,
+                "application/json",
+                JsonUtils.createPairResponse(false, "INVALID_FORMAT")
+            )
+        }
+        
+        val serverToken = prefsManager.getServerToken()
+        
+        // Verify token
+        if (request.token != serverToken) {
+            Log.w(TAG, "❌ /pair UNAUTHORIZED - token mismatch")
+            return newFixedLengthResponse(
+                Response.Status.UNAUTHORIZED,
+                "application/json",
+                JsonUtils.createPairResponse(false, "UNAUTHORIZED")
+            )
+        }
+        
+        // Token valid - set paired state
+        Log.d(TAG, "✅ /pair success - token valid, mainId=${request.mainId}, mainName=${request.mainName}")
+        prefsManager.setDisplayPaired(true, request.mainId, request.mainName)
+        
+        // Broadcast pairing state change
+        broadcastPairingChanged(true)
+        
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json",
+            JsonUtils.createPairResponse(true)
+        )
     }
     
     private fun handleOpenUrl(session: IHTTPSession): Response {
@@ -68,34 +119,44 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
         session.parseBody(body)
         
         val postData = body["postData"] ?: ""
-        Log.d(TAG, "📨 Received open-url request: $postData")
+        Log.d(TAG, "📨 /open-url request: $postData")
         
         val request = JsonUtils.parseOpenUrlRequest(postData)
         
         if (request == null) {
-            Log.w(TAG, "❌ Invalid open-url request format")
+            Log.w(TAG, "❌ /open-url invalid request format")
             return newFixedLengthResponse(
-                Response.Status.BAD_REQUEST, 
-                "application/json", 
-                JsonUtils.createErrorResponse("Invalid request format")
+                Response.Status.BAD_REQUEST,
+                "application/json",
+                JsonUtils.createOpenUrlResponse(false, reason = "INVALID_FORMAT")
             )
         }
         
         val (token, url) = request
         val serverToken = prefsManager.getServerToken()
         
-        // Verify token
-        if (token != serverToken) {
-            Log.w(TAG, "❌ Invalid token received")
+        // Check if paired first
+        if (!prefsManager.isDisplayPaired()) {
+            Log.w(TAG, "❌ /open-url NOT_PAIRED - device not paired")
             return newFixedLengthResponse(
-                Response.Status.UNAUTHORIZED,
+                Response.Status.CONFLICT,
                 "application/json",
-                JsonUtils.createErrorResponse("Invalid token")
+                JsonUtils.createOpenUrlResponse(false, reason = "NOT_PAIRED")
             )
         }
         
-        // Token valid - open Maps
-        Log.d(TAG, "✅ Token valid, opening URL: $url")
+        // Verify token
+        if (token != serverToken) {
+            Log.w(TAG, "❌ /open-url UNAUTHORIZED - token mismatch")
+            return newFixedLengthResponse(
+                Response.Status.UNAUTHORIZED,
+                "application/json",
+                JsonUtils.createOpenUrlResponse(false, reason = "UNAUTHORIZED")
+            )
+        }
+        
+        // Token valid and paired - open Maps
+        Log.d(TAG, "✅ /open-url authorized, opening URL: $url")
         
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
@@ -104,6 +165,7 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
             }
             context.startActivity(intent)
             
+            Log.d(TAG, "✅ Maps opened successfully")
             return newFixedLengthResponse(
                 Response.Status.OK,
                 "application/json",
@@ -119,19 +181,62 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
                 }
                 context.startActivity(fallbackIntent)
                 
+                Log.d(TAG, "✅ URL opened with fallback browser")
                 return newFixedLengthResponse(
                     Response.Status.OK,
                     "application/json",
                     JsonUtils.createOpenUrlResponse(true, "URL opened (fallback)")
                 )
             } catch (e2: Exception) {
+                Log.e(TAG, "💥 Fallback also failed", e2)
                 return newFixedLengthResponse(
                     Response.Status.INTERNAL_ERROR,
                     "application/json",
-                    JsonUtils.createErrorResponse("Failed to open URL: ${e2.message}")
+                    JsonUtils.createOpenUrlResponse(false, "Failed to open URL: ${e2.message}")
                 )
             }
         }
+    }
+    
+    private fun handleUnpair(session: IHTTPSession): Response {
+        val body = mutableMapOf<String, String>()
+        session.parseBody(body)
+        
+        val postData = body["postData"] ?: ""
+        Log.d(TAG, "📨 /unpair request: $postData")
+        
+        // Parse to verify token if provided
+        val json = try {
+            org.json.JSONObject(postData)
+        } catch (e: Exception) {
+            null
+        }
+        
+        val token = json?.optString("token", "")
+        val serverToken = prefsManager.getServerToken()
+        
+        // If token provided, verify it
+        if (!token.isNullOrEmpty() && token != serverToken) {
+            Log.w(TAG, "❌ /unpair UNAUTHORIZED - token mismatch")
+            return newFixedLengthResponse(
+                Response.Status.UNAUTHORIZED,
+                "application/json",
+                JsonUtils.createErrorResponse("Invalid token", "UNAUTHORIZED")
+            )
+        }
+        
+        // Reset paired state
+        Log.d(TAG, "✅ /unpair - resetting paired state")
+        prefsManager.setDisplayPaired(false)
+        
+        // Broadcast pairing state change
+        broadcastPairingChanged(false)
+        
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json",
+            JsonUtils.createOpenUrlResponse(true, "Unpaired successfully")
+        )
     }
     
     private fun handleRefreshToken(session: IHTTPSession): Response {
@@ -146,6 +251,10 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
             )
         }
         
+        // Reset paired state when token refreshed
+        prefsManager.setDisplayPaired(false)
+        broadcastPairingChanged(false)
+        
         val newToken = prefsManager.refreshServerToken()
         Log.d(TAG, "🔄 Token refreshed, new hint: ${prefsManager.getTokenHint(newToken)}")
         
@@ -154,6 +263,19 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
             "application/json",
             JsonUtils.createRefreshTokenResponse(newToken)
         )
+    }
+    
+    private fun broadcastPairingChanged(paired: Boolean) {
+        try {
+            val intent = Intent(ACTION_PAIRING_CHANGED).apply {
+                putExtra("paired", paired)
+                setPackage(context.packageName)
+            }
+            context.sendBroadcast(intent)
+            Log.d(TAG, "📢 Broadcasted PAIRING_CHANGED: paired=$paired")
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to broadcast pairing change", e)
+        }
     }
     
     fun getLocalIpAddress(): String? {
