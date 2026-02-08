@@ -65,9 +65,11 @@ class RelayActivity : AppCompatActivity() {
 
         // If raw is empty, log and finish
         if (raw.isNullOrEmpty()) {
-            Log.w(TAG, "❌ No data received in intent (raw is null or empty)")
-            Log.w(TAG, "❌ Intent details: action=$action, data=$data, type=$type, extraText=$extraText, processText=$processText")
-            Toast.makeText(this, "No URL or text received", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "❌ NO_RAW: No data received in intent")
+            Log.e(TAG, "❌ NO_RAW: Intent details: action=$action, data=$data, type=$type, extraText=$extraText, processText=$processText")
+            runOnUiThread {
+                Toast.makeText(this, "No URL or text received", Toast.LENGTH_SHORT).show()
+            }
             finish()
             return
         }
@@ -87,7 +89,15 @@ class RelayActivity : AppCompatActivity() {
         Log.d(TAG, "🔗 Normalized URL: $normalizedUrl")
 
         // Send to Display device
-        sendToDisplay(normalizedUrl)
+        try {
+            sendToDisplay(normalizedUrl)
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Exception in sendToDisplay", e)
+            runOnUiThread {
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+            finish()
+        }
     }
     
     private fun sendToDisplay(mapsUrl: String) {

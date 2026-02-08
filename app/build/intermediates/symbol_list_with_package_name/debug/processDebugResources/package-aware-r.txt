@@ -1361,6 +1361,7 @@ color gray_800
 color gray_900
 color highlighted_text_material_dark
 color highlighted_text_material_light
+color ic_launcher_background
 color info
 color m3_appbar_overlay_color
 color m3_assist_chip_icon_tint_color
@@ -2038,6 +2039,7 @@ color purple_600
 color purple_700
 color purple_800
 color purple_900
+color red
 color ripple_material_dark
 color ripple_material_light
 color secondary_text_default_material_dark
@@ -2056,6 +2058,8 @@ color teal_200
 color teal_500
 color teal_700
 color teal_900
+color text_primary
+color text_secondary
 color tooltip_background_dark
 color tooltip_background_light
 color warning
@@ -2986,6 +2990,8 @@ drawable ic_display_mode
 drawable ic_error
 drawable ic_keep_screen_on
 drawable ic_keyboard_black_24dp
+drawable ic_launcher_foreground
+drawable ic_launcher_monochrome
 drawable ic_m3_chip_check
 drawable ic_m3_chip_checked_circle
 drawable ic_m3_chip_close
@@ -3085,6 +3091,7 @@ id SHOW_PROGRESS
 id SYM
 id TOP_END
 id TOP_START
+id a11yCard
 id accelerate
 id accessibility_action_clickable_span
 id accessibility_custom_action_0
@@ -3119,6 +3126,7 @@ id accessibility_custom_action_6
 id accessibility_custom_action_7
 id accessibility_custom_action_8
 id accessibility_custom_action_9
+id actionButtonsLayout
 id action_bar
 id action_bar_activity_content
 id action_bar_container
@@ -3162,13 +3170,19 @@ id beginning
 id blocking
 id bottom
 id bounce
+id btnA11ySettings
+id btnBatterySettings
+id btnCheckStatus
 id btnClearPairing
 id btnCopyToken
 id btnRefreshToken
+id btnResetPairing
 id btnRetryPending
 id btnScanQR
 id btnSendTest
+id btnShowQR
 id buttonContainer
+id buttonLayout
 id buttonPanel
 id cancel_button
 id cardDisplay
@@ -3232,6 +3246,7 @@ id disableHome
 id disablePostScroll
 id disableScroll
 id disjoint
+id displayModeCard
 id dragDown
 id dragEnd
 id dragLeft
@@ -3301,6 +3316,8 @@ id jumpToEnd
 id jumpToStart
 id labeled
 id layout
+id layoutConnected
+id layoutQR
 id left
 id leftToRight
 id legacy
@@ -3488,6 +3505,7 @@ id stop
 id stretch
 id submenuarrow
 id submit_area
+id switchDisplayMode
 id tabLayout
 id tabMode
 id tag_accessibility_actions
@@ -3539,10 +3557,17 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tvA11yStatus
+id tvA11yToggle
+id tvBatteryStatus
+id tvConnectionState
+id tvDisplayModeStatus
 id tvIpPort
 id tvPairInfo
 id tvPairStatus
+id tvPairedInfo
 id tvPendingCount
+id tvServerInfo
 id tvStatus
 id tvTokenHint
 id unchecked
@@ -3776,8 +3801,11 @@ layout support_simple_spinner_dropdown_item
 layout zxing_barcode_scanner
 layout zxing_capture
 menu menu_main
+mipmap ic_launcher
+mipmap ic_launcher_round
 plurals mtrl_badge_content_description
 raw zxing_beep
+string a11y_desc
 string abc_action_bar_home_description
 string abc_action_bar_up_description
 string abc_action_menu_overflow_description
@@ -5299,3 +5327,4 @@ styleable ViewStubCompat android_id android_layout android_inflatedId
 styleable zxing_camera_preview zxing_framing_rect_height zxing_framing_rect_width zxing_preview_scaling_strategy zxing_use_texture_view
 styleable zxing_finder zxing_possible_result_points zxing_result_view zxing_viewfinder_laser zxing_viewfinder_laser_visibility zxing_viewfinder_mask
 styleable zxing_view zxing_scanner_layout
+xml nav_capture_accessibility_config

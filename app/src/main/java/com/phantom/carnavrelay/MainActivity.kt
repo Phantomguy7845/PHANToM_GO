@@ -37,6 +37,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnRetryPending: Button
     private lateinit var btnClearPairing: Button
     private lateinit var btnCheckStatus: Button
+    private lateinit var btnA11ySettings: Button
+    private lateinit var tvA11yToggle: TextView
+    private lateinit var tvA11yStatus: TextView
     private lateinit var cardDisplay: MaterialCardView
 
     private val scanLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -68,6 +71,7 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         updateUI()
+        updateA11yUI()
         
         // Check for crash reports
         CrashReporter.checkAndShowCrashReport(this)
@@ -83,10 +87,33 @@ class MainActivity : AppCompatActivity() {
         btnRetryPending = findViewById(R.id.btnRetryPending)
         btnClearPairing = findViewById(R.id.btnClearPairing)
         btnCheckStatus = findViewById(R.id.btnCheckStatus)
+        btnA11ySettings = findViewById(R.id.btnA11ySettings)
+        tvA11yToggle = findViewById(R.id.tvA11yToggle)
+        tvA11yStatus = findViewById(R.id.tvA11yStatus)
         cardDisplay = findViewById(R.id.cardDisplay)
 
         btnScanQR.setOnClickListener {
             startQRScan()
+        }
+
+        btnSendTest.setOnClickListener {
+            sendTestLocation()
+        }
+
+        btnRetryPending.setOnClickListener {
+            retryPending()
+        }
+
+        btnClearPairing.setOnClickListener {
+            confirmClearPairing()
+        }
+
+        btnCheckStatus.setOnClickListener {
+            checkServerStatus()
+        }
+
+        btnA11ySettings.setOnClickListener {
+            showA11ySettings()
         }
 
         btnSendTest.setOnClickListener {
@@ -195,6 +222,55 @@ class MainActivity : AppCompatActivity() {
                 }
                 updateUI()
             }
+        }
+    }
+    
+    private fun showA11ySettings() {
+        val isEnabled = PrefsManager.isA11yCaptureEnabled(this)
+        val isSystemEnabled = PrefsManager.isA11yCaptureEnabled(this)
+        
+        val message = if (!isSystemEnabled) {
+            "Accessibility service is not enabled in system settings.\n\nPlease enable it first, then you can toggle capture on/off from here."
+        } else {
+            "Auto-capture is currently ${if (isEnabled) "ON" else "OFF"}.\n\nYou can toggle this setting without going to system settings."
+        }
+        
+        AlertDialog.Builder(this)
+            .setTitle("Auto Capture Settings")
+            .setMessage(message)
+            .setPositiveButton(if (isSystemEnabled) "Toggle" else "Open Settings") { _, _ ->
+                if (isSystemEnabled) {
+                    // Toggle app-level setting
+                    val newState = !isEnabled
+                    prefsManager.setA11yCaptureEnabled(newState)
+                    updateA11yUI()
+                    Log.d(TAG, "A11y capture toggled: $newState")
+                } else {
+                    // Open system accessibility settings
+                    try {
+                        val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to open accessibility settings", e)
+                        Toast.makeText(this, "Could not open settings", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun updateA11yUI() {
+        val isEnabled = PrefsManager.isA11yCaptureEnabled(this)
+        val isSystemEnabled = PrefsManager.isA11yCaptureEnabled(this)
+        
+        tvA11yToggle.text = if (isEnabled) "ON" else "OFF"
+        tvA11yToggle.setTextColor(if (isEnabled) getColor(R.color.purple_500) else getColor(R.color.text_primary))
+        
+        tvA11yStatus.text = if (isSystemEnabled) {
+            if (isEnabled) "Auto-capturing navigation links" else "Tap to enable auto-capture"
+        } else {
+            "Enable in system settings first"
         }
     }
 

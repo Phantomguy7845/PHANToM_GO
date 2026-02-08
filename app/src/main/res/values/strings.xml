@@ -71,4 +71,7 @@
   <string name="toast_token_refreshed">Token refreshed!</string>
   <string name="toast_copied">Copied to clipboard</string>
   <string name="toast_no_pending">No pending commands</string>
+
+  <!-- Accessibility Service -->
+  <string name="a11y_desc">จับลิงก์/ปุ่มนำทางเพื่อส่งไปจอติดรถ (ผู้ใช้เปิด/ปิดได้)</string>
 </resources>

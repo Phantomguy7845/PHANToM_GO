@@ -158,6 +158,17 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
         // Token valid and paired - open Maps
         Log.d(TAG, "✅ /open-url authorized, opening URL: $url")
         
+        // Notify DisplayServerService for background handling
+        try {
+            val serviceIntent = Intent(context, DisplayServerService::class.java).apply {
+                action = "com.phantom.carnavrelay.NAVIGATION_RECEIVED"
+                putExtra("url", url)
+            }
+            context.startService(serviceIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to notify DisplayServerService", e)
+        }
+        
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

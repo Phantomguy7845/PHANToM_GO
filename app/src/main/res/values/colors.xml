@@ -48,4 +48,8 @@
     <color name="surface">#FFFFFF</color>
     <color name="on_surface">#212121</color>
     <color name="on_primary">#FFFFFF</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
 </resources>

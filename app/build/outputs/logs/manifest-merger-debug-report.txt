@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-101:12
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-101:12
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-101:12
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-101:12
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-138:12
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-138:12
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-138:12
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-138:12
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\User\.gradle\caches\transforms-4\6197476ac45dfedf11d059be4eec9a05\transformed\material-1.12.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\User\.gradle\caches\transforms-4\575aabb8a919025997ecd10376a0d309\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\User\.gradle\caches\transforms-4\3c3b2802a4bc48b5895411c928f079f6\transformed\constraintlayout-2.0.1\AndroidManifest.xml:2:1-11:12
@@ -96,9 +96,13 @@ uses-permission#android.permission.WAKE_LOCK
 ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:21:5-68
 	android:name
 		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:21:22-65
+uses-permission#android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:24:5-95
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:24:22-92
 application
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:23:5-100:19
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:23:5-100:19
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:26:5-137:19
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:26:5-137:19
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\User\.gradle\caches\transforms-4\6197476ac45dfedf11d059be4eec9a05\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\User\.gradle\caches\transforms-4\6197476ac45dfedf11d059be4eec9a05\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\User\.gradle\caches\transforms-4\3c3b2802a4bc48b5895411c928f079f6\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
@@ -122,101 +126,145 @@ MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:27:9-35
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:9-35
 	android:label
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:26:9-41
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:31:9-41
+	android:roundIcon
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:30:9-54
+	android:icon
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:29:9-43
 	android:allowBackup
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:25:9-35
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:28:9-35
 	android:theme
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:28:9-49
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:33:9-49
 	android:usesCleartextTraffic
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:29:9-44
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:34:9-44
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:24:9-45
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:27:9-45
 activity#com.phantom.carnavrelay.MainActivity
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:31:9-38:20
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:36:9-43:20
 	android:exported
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:33:13-36
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:38:13-36
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:13-41
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:37:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:34:13-37:29
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:39:13-42:29
 action#android.intent.action.MAIN
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:35:17-69
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:40:17-69
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:35:25-66
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:40:25-66
 category#android.intent.category.LAUNCHER
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:36:17-77
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:41:17-77
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:36:27-74
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:41:27-74
 activity#com.phantom.carnavrelay.DisplayActivity
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:40:9-43:43
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:45:9-48:43
 	android:exported
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:42:13-36
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:47:13-36
 	android:keepScreenOn
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:43:13-40
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:48:13-40
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:41:13-44
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:46:13-44
 activity#com.phantom.carnavrelay.PairScanActivity
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:45:9-47:40
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:50:9-52:40
 	android:exported
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:47:13-37
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:52:13-37
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:46:13-45
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:51:13-45
 activity#com.phantom.carnavrelay.DiagnosticsActivity
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:49:9-52:58
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:54:9-57:58
 	android:parentActivityName
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:52:13-55
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:57:13-55
 	android:exported
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:51:13-37
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:56:13-37
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:50:13-48
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:55:13-48
 activity#com.phantom.carnavrelay.RelayActivity
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:54:9-92:20
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:59:9-111:20
 	android:launchMode
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:57:13-44
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:13-44
 	android:exported
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:56:13-36
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:61:13-36
 	android:theme
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:58:13-65
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:13-65
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:55:13-42
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:60:13-42
 intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:scheme:geo
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:61:13-66:29
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:66:13-71:29
 action#android.intent.action.VIEW
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:17-69
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:17-69
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:25-66
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:25-66
 category#android.intent.category.DEFAULT
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:17-76
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:17-76
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:27-73
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:27-73
 category#android.intent.category.BROWSABLE
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:17-78
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:17-78
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:27-75
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:27-75
 data
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:17-46
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:17-46
 	android:host
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:81:46-75
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:86:46-75
 	android:scheme
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:23-43
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:23-43
+	android:mimeType
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:101:23-52
 	android:pathPrefix
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:81:76-102
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:86:76-102
 intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:scheme:google.navigation
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:13-74:29
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:74:13-79:29
 intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:host:www.google.com+data:pathPrefix:/maps+data:scheme:https
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:77:13-82:29
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:82:13-87:29
 intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:host:maps.app.goo.gl+data:scheme:https
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:85:13-90:29
-service#com.phantom.carnavrelay.DisplayServerService
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:95:9-98:56
-	android:exported
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:97:13-37
-	android:foregroundServiceType
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:98:13-53
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:90:13-95:29
+intent-filter#action:name:android.intent.action.SEND+category:name:android.intent.category.DEFAULT+data:mimeType:text/plain
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:98:13-102:29
+action#android.intent.action.SEND
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:99:17-69
 	android:name
-		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:96:13-49
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:99:25-66
+intent-filter#action:name:android.intent.action.PROCESS_TEXT+category:name:android.intent.category.DEFAULT+data:mimeType:text/plain
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:105:13-109:29
+action#android.intent.action.PROCESS_TEXT
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:106:17-77
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:106:25-74
+service#com.phantom.carnavrelay.DisplayServerService
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:114:9-117:56
+	android:exported
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:116:13-37
+	android:foregroundServiceType
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:117:13-53
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:115:13-49
+service#com.phantom.carnavrelay.access.NavCaptureAccessibilityService
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:120:9-130:19
+	android:exported
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:123:13-37
+	android:permission
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:122:13-79
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:121:13-66
+intent-filter#action:name:android.accessibilityservice.AccessibilityService
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:124:13-126:29
+action#android.accessibilityservice.AccessibilityService
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:125:17-92
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:125:25-89
+meta-data#android.accessibilityservice
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:127:13-129:76
+	android:resource
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:129:17-73
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:128:17-60
+receiver#com.phantom.carnavrelay.receiver.OpenMapsReceiver
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:133:9-135:40
+	android:exported
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:135:13-37
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:134:13-54
 uses-sdk
 INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml

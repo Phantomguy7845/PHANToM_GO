@@ -39,6 +39,13 @@ class MainSender(private val context: Context) {
             fun onSuccess()
             fun onFailure(error: String, queued: Boolean, authFailed: Boolean = false)
         }
+        
+        // Static method for accessibility service
+        fun sendOpenUrlAsync(context: Context, mapsUrl: String, source: String = "a11y") {
+            val sender = MainSender(context)
+            Log.d(TAG, "[$source] Sending URL: $mapsUrl")
+            sender.sendOpenUrl(mapsUrl, null) // No callback needed for async capture
+        }
     }
 
     private val prefsManager = PrefsManager(context)

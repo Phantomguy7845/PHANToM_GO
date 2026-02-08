@@ -7,8 +7,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -20,6 +23,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
@@ -45,6 +49,11 @@ class DisplayActivity : AppCompatActivity() {
     private lateinit var btnResetPairing: Button
     private lateinit var layoutQR: LinearLayout
     private lateinit var layoutConnected: LinearLayout
+    private lateinit var switchDisplayMode: MaterialSwitch
+    private lateinit var tvDisplayModeStatus: TextView
+    private lateinit var tvServerInfo: TextView
+    private lateinit var tvBatteryStatus: TextView
+    private lateinit var btnBatterySettings: Button
 
     private val pairingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -83,6 +92,11 @@ class DisplayActivity : AppCompatActivity() {
         btnResetPairing = findViewById(R.id.btnResetPairing)
         layoutQR = findViewById(R.id.layoutQR)
         layoutConnected = findViewById(R.id.layoutConnected)
+        switchDisplayMode = findViewById(R.id.switchDisplayMode)
+        tvDisplayModeStatus = findViewById(R.id.tvDisplayModeStatus)
+        tvServerInfo = findViewById(R.id.tvServerInfo)
+        tvBatteryStatus = findViewById(R.id.tvBatteryStatus)
+        btnBatterySettings = findViewById(R.id.btnBatterySettings)
 
         btnRefreshToken.setOnClickListener {
             refreshToken()
@@ -98,6 +112,18 @@ class DisplayActivity : AppCompatActivity() {
         
         btnResetPairing.setOnClickListener {
             confirmResetPairing()
+        }
+
+        switchDisplayMode.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                startDisplayService()
+            } else {
+                stopDisplayService()
+            }
+        }
+
+        btnBatterySettings.setOnClickListener {
+            requestBatteryOptimization()
         }
     }
 
@@ -141,164 +167,193 @@ class DisplayActivity : AppCompatActivity() {
         val isPaired = prefsManager.isDisplayPaired()
 
         tvIpPort.text = "$ip:$port"
-        tvTokenHint.text = "Token: $tokenHint"
+        tvTokenHint.text = tokenHint
+        
+        // Update Display Mode UI
+        val isServiceRunning = isServiceRunning(DisplayServerService::class.java)
+        switchDisplayMode.isChecked = isServiceRunning
+        tvDisplayModeStatus.text = if (isServiceRunning) "ON" else "OFF"
+        tvDisplayModeStatus.setTextColor(if (isServiceRunning) getColor(R.color.success) else getColor(R.color.gray_600))
+        
+        if (isServiceRunning) {
+            tvServerInfo.text = "Server: $ip:$port"
+            tvStatus.text = "🟢 Server Running"
+        } else {
+            tvServerInfo.text = "Server not running"
+            tvStatus.text = "🔴 Server Stopped"
+        }
+
+        // Update battery optimization status
+        updateBatteryStatus()
 
         if (isPaired) {
-            // Paired state - show connected UI
-            val mainName = prefsManager.getDisplayPairedMainName() ?: "Unknown Device"
+            val pairedName = prefsManager.getDisplayPairedMainName() ?: "Unknown"
             val pairedAt = prefsManager.getDisplayPairedAt()
-            val timeStr = if (pairedAt > 0) {
+            val timeAgo = if (pairedAt > 0) {
                 val minutes = (System.currentTimeMillis() - pairedAt) / 60000
-                if (minutes < 60) "$minutes min ago" else "${minutes / 60} hr ago"
-            } else ""
+                if (minutes < 60) "${minutes}m ago" else "${minutes/60}h ago"
+            } else "Unknown"
             
-            tvPairedInfo.text = "Connected to: $mainName\n$timeStr"
-            tvStatus.text = "🟢 CONNECTED"
-            
+            tvPairedInfo.text = "Paired with $pairedName ($timeAgo)"
             layoutQR.visibility = View.GONE
             layoutConnected.visibility = View.VISIBLE
-            
-            Log.d(TAG, "📋 Display updated - PAIRED with $mainName")
         } else {
-            // Not paired - show QR code
-            tvStatus.text = "🟡 Waiting for pairing..."
-            tvPairedInfo.text = "Scan this QR code with Main device"
-            
+            tvPairedInfo.text = "Waiting for pairing..."
             layoutQR.visibility = View.VISIBLE
             layoutConnected.visibility = View.GONE
-            
-            val pairingPayload = JsonUtils.createPairingPayload(ip, port, token)
-            generateQrCode(pairingPayload)
-            
-            Log.d(TAG, "📋 Display updated - Waiting for pairing, tokenHint=$tokenHint")
+        }
+
+        // Generate QR code
+        generateQRCode("$ip:$port:$token")
+    }
+    
+    private fun startDisplayService() {
+        Log.d(TAG, "🚀 Starting DisplayServerService")
+        try {
+            val intent = Intent(this, DisplayServerService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            updateUI()
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to start server", e)
+            switchDisplayMode.isChecked = false
+            Toast.makeText(this, "Failed to start server: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
     
-    private fun showQRCode() {
-        // Show QR code temporarily
-        val tempServer = HttpServer(this, prefsManager)
-        val ip = tempServer.getLocalIpAddress() ?: "0.0.0.0"
-        val port = prefsManager.getServerPort()
-        val token = prefsManager.getServerToken()
-        
-        layoutQR.visibility = View.VISIBLE
-        layoutConnected.visibility = View.GONE
-        
-        val pairingPayload = JsonUtils.createPairingPayload(ip, port, token)
-        generateQrCode(pairingPayload)
-        
-        // Auto-hide after 30 seconds
-        ivQrCode.postDelayed({
-            if (!isFinishing && !isDestroyed) {
-                updateUI()
+    private fun stopDisplayService() {
+        Log.d(TAG, "🛑 Stopping DisplayServerService")
+        try {
+            val intent = Intent(this, DisplayServerService::class.java)
+            stopService(intent)
+            updateUI()
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to stop server", e)
+        }
+    }
+    
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        return try {
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+            val services = activityManager.getRunningServices(Integer.MAX_VALUE)
+            for (service in services) {
+                if (serviceClass.name == service.service.className) {
+                    return service.foreground
+                }
             }
-        }, 30000)
+            false
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not check service status", e)
+            false
+        }
+    }
+    
+    private fun updateBatteryStatus() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val isIgnoringBatteryOptimizations = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            powerManager.isIgnoringBatteryOptimizations(packageName)
+        } else {
+            true // Below Android 6, battery optimizations are less aggressive
+        }
         
-        Toast.makeText(this, "QR code shown for 30 seconds", Toast.LENGTH_SHORT).show()
+        if (isIgnoringBatteryOptimizations) {
+            tvBatteryStatus.text = "Battery optimization: OFF"
+            tvBatteryStatus.setTextColor(getColor(R.color.success))
+            btnBatterySettings.visibility = View.GONE
+        } else {
+            tvBatteryStatus.text = "Battery optimization: ON"
+            tvBatteryStatus.setTextColor(getColor(R.color.warning))
+            btnBatterySettings.visibility = View.VISIBLE
+        }
+    }
+    
+    private fun requestBatteryOptimization() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            AlertDialog.Builder(this)
+                .setTitle("Battery Optimization")
+                .setMessage("To ensure Display Mode works reliably in the background, please disable battery optimization for PHANToM GO.")
+                .setPositiveButton("Settings") { _, _ ->
+                    try {
+                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:$packageName")
+                        }
+                        startActivityForResult(intent, 1002)
+                    } catch (e: Exception) {
+                        // Fallback to general settings
+                        val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                        startActivity(intent)
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+    
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1002) {
+            updateUI()
+        }
+    }
+    
+    private fun generateQRCode(data: String) {
+        try {
+            val writer = QRCodeWriter()
+            val bitMatrix: BitMatrix = writer.encode(data, BarcodeFormat.QR_CODE, 512, 512)
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bitmap.setPixel(x, y, if (bitMatrix[x, y]) 0xFF000000.toInt() else 0xFFFFFFFF.toInt())
+                }
+            }
+            ivQrCode.setImageBitmap(bitmap)
+            Log.d(TAG, "✅ QR code generated successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to generate QR code", e)
+        }
+    }
+    
+    private fun refreshToken() {
+        Log.d(TAG, "🔄 Refreshing token...")
+        prefsManager.refreshServerToken()
+        updateUI()
+        Toast.makeText(this, "Token refreshed", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun copyTokenToClipboard() {
+        val token = prefsManager.getServerToken()
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clip = android.content.ClipData.newPlainText("PHANToM GO Token", token)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, "Token copied to clipboard", Toast.LENGTH_SHORT).show()
+        Log.d(TAG, "📋 Token copied to clipboard")
+    }
+    
+    private fun showQRCode() {
+        if (layoutQR.visibility == View.VISIBLE) {
+            layoutQR.visibility = View.GONE
+        } else {
+            layoutQR.visibility = View.VISIBLE
+            generateQRCode("${tvIpPort.text}:${prefsManager.getServerToken()}")
+        }
     }
     
     private fun confirmResetPairing() {
         AlertDialog.Builder(this)
             .setTitle("Reset Pairing?")
-            .setMessage("This will disconnect the paired Main device and generate a new token. You'll need to re-scan the QR code.")
+            .setMessage("This will remove the current pairing and generate a new token. The Main device will need to scan QR again.")
             .setPositiveButton("Reset") { _, _ ->
-                Log.d(TAG, "🔄 Resetting pairing - clearing paired state and refreshing token")
-                prefsManager.setDisplayPaired(false)
-                prefsManager.refreshServerToken()
+                Log.d(TAG, "�️ Resetting pairing")
+                prefsManager.clearDisplayPairing()
                 updateUI()
-                Toast.makeText(this, "Pairing reset. New QR code generated.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Pairing reset", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun generateQrCode(content: String) {
-        try {
-            val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java)
-            hints[EncodeHintType.CHARACTER_SET] = "UTF-8"
-
-            val writer = QRCodeWriter()
-            val bitMatrix: BitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, 400, 400, hints)
-
-            val width = bitMatrix.width
-            val height = bitMatrix.height
-            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-
-            for (x in 0 until width) {
-                for (y in 0 until height) {
-                    bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
-                }
-            }
-
-            ivQrCode.setImageBitmap(bitmap)
-            Log.d(TAG, "✅ QR Code generated")
-        } catch (e: Exception) {
-            Log.e(TAG, "💥 Failed to generate QR code", e)
-            Toast.makeText(this, "Failed to generate QR code", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun refreshToken() {
-        AlertDialog.Builder(this)
-            .setTitle("Refresh Token?")
-            .setMessage("This will generate a new token and reset any existing pairing. The old pairing will no longer work. Make sure to re-scan the new QR code on the Main device.")
-            .setPositiveButton("Refresh") { _, _ ->
-                prefsManager.setDisplayPaired(false)
-                val newToken = prefsManager.refreshServerToken()
-                val tokenHint = prefsManager.getTokenHint(newToken)
-                Log.d(TAG, "🔄 Token refreshed: $tokenHint")
-                updateUI()
-                Toast.makeText(this, "Token refreshed! Re-scan QR code on Main device.", Toast.LENGTH_LONG).show()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun copyTokenToClipboard() {
-        val token = prefsManager.getServerToken()
-        val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        val clip = android.content.ClipData.newPlainText("PHANToM GO Token", token)
-        clipboard.setPrimaryClip(clip)
-        Toast.makeText(this, "Token copied to clipboard", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "▶️ DisplayActivity.onResume()")
-        updateUI()
-        
-        // Register for pairing state changes
-        val filter = IntentFilter(HttpServer.ACTION_PAIRING_CHANGED)
-        registerReceiver(pairingReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        Log.d(TAG, "⏸️ DisplayActivity.onPause()")
-        
-        // Unregister receiver
-        try {
-            unregisterReceiver(pairingReceiver)
-        } catch (e: Exception) {
-            Log.w(TAG, "⚠️ Failed to unregister receiver", e)
-        }
-    }
-
-    override fun onDestroy() {
-        Log.d(TAG, "💀 DisplayActivity.onDestroy()")
-        super.onDestroy()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                Log.d(TAG, "✅ All permissions granted")
-                startHttpServer()
-            } else {
-                Log.w(TAG, "⚠️ Some permissions denied")
-                Toast.makeText(this, "Some permissions denied. Server may not work properly.", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 }

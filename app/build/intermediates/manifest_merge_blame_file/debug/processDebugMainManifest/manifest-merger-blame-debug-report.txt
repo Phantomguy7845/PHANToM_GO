@@ -49,292 +49,365 @@
 31-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:21:5-68
 31-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:21:22-65
 32
-33    <permission
-33-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
-34        android:name="com.phantom.carnavrelay.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-34-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
-35        android:protectionLevel="signature" />
-35-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
-36
-37    <uses-permission android:name="com.phantom.carnavrelay.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-37-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
-37-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
-38
-39    <uses-feature
-39-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:28:5-30:36
-40        android:name="android.hardware.camera.front"
-40-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:29:9-53
-41        android:required="false" /> <!-- TODO replace above two with next line after Android 4.2 -->
-41-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:30:9-33
-42    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
-43    <uses-feature
-43-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:33:5-35:36
-44        android:name="android.hardware.camera.autofocus"
-44-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:34:9-57
-45        android:required="false" />
-45-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:35:9-33
+33    <!-- Battery optimization -->
+34    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+34-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:24:5-95
+34-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:24:22-92
+35
+36    <permission
+36-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+37        android:name="com.phantom.carnavrelay.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+37-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+38        android:protectionLevel="signature" />
+38-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+39
+40    <uses-permission android:name="com.phantom.carnavrelay.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+40-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+40-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+41
+42    <uses-feature
+42-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:28:5-30:36
+43        android:name="android.hardware.camera.front"
+43-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:29:9-53
+44        android:required="false" /> <!-- TODO replace above two with next line after Android 4.2 -->
+44-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:30:9-33
+45    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
 46    <uses-feature
-46-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:36:5-38:36
-47        android:name="android.hardware.camera.flash"
-47-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:37:9-53
+46-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:33:5-35:36
+47        android:name="android.hardware.camera.autofocus"
+47-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:34:9-57
 48        android:required="false" />
-48-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:38:9-33
+48-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:35:9-33
 49    <uses-feature
-49-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:39:5-41:36
-50        android:name="android.hardware.screen.landscape"
-50-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:40:9-57
+49-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:36:5-38:36
+50        android:name="android.hardware.camera.flash"
+50-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:37:9-53
 51        android:required="false" />
-51-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:41:9-33
+51-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:38:9-33
 52    <uses-feature
-52-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:42:5-44:36
-53        android:name="android.hardware.wifi"
-53-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:43:9-45
+52-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:39:5-41:36
+53        android:name="android.hardware.screen.landscape"
+53-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:40:9-57
 54        android:required="false" />
-54-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:44:9-33
-55
-56    <application
-56-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:23:5-100:19
-57        android:name="com.phantom.carnavrelay.PhantomGoApplication"
-57-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:24:9-45
-58        android:allowBackup="true"
-58-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:25:9-35
-59        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-59-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
-60        android:debuggable="true"
-61        android:extractNativeLibs="false"
-62        android:label="@string/app_name"
-62-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:26:9-41
-63        android:supportsRtl="true"
-63-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:27:9-35
-64        android:theme="@style/Theme.CarNavRelay"
-64-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:28:9-49
-65        android:usesCleartextTraffic="true" >
-65-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:29:9-44
-66        <activity
-66-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:31:9-38:20
-67            android:name="com.phantom.carnavrelay.MainActivity"
-67-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:13-41
-68            android:exported="true" >
-68-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:33:13-36
-69            <intent-filter>
-69-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:34:13-37:29
-70                <action android:name="android.intent.action.MAIN" />
-70-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:35:17-69
-70-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:35:25-66
-71
-72                <category android:name="android.intent.category.LAUNCHER" />
-72-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:36:17-77
-72-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:36:27-74
-73            </intent-filter>
-74        </activity>
-75        <activity
-75-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:40:9-43:43
-76            android:name="com.phantom.carnavrelay.DisplayActivity"
-76-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:41:13-44
-77            android:exported="true"
-77-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:42:13-36
-78            android:keepScreenOn="true" />
-78-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:43:13-40
-79        <activity
-79-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:45:9-47:40
-80            android:name="com.phantom.carnavrelay.PairScanActivity"
-80-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:46:13-45
-81            android:exported="false" />
-81-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:47:13-37
-82        <activity
-82-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:49:9-52:58
-83            android:name="com.phantom.carnavrelay.DiagnosticsActivity"
-83-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:50:13-48
-84            android:exported="false"
-84-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:51:13-37
-85            android:parentActivityName="com.phantom.carnavrelay.MainActivity" />
-85-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:52:13-55
-86        <activity
-86-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:54:9-92:20
-87            android:name="com.phantom.carnavrelay.RelayActivity"
-87-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:55:13-42
-88            android:exported="true"
-88-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:56:13-36
-89            android:launchMode="singleTask"
-89-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:57:13-44
-90            android:theme="@style/Theme.CarNavRelay.Translucent" >
-90-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:58:13-65
-91
-92            <!-- geo:lat,lng หรือ geo:0,0?q= -->
-93            <intent-filter>
-93-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:61:13-66:29
-94                <action android:name="android.intent.action.VIEW" />
-94-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:17-69
-94-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:25-66
-95
-96                <category android:name="android.intent.category.DEFAULT" />
-96-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:17-76
-96-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:27-73
-97                <category android:name="android.intent.category.BROWSABLE" />
-97-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:17-78
-97-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:27-75
-98
-99                <data android:scheme="geo" />
-99-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:17-46
-99-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:23-43
-100            </intent-filter>
-101
-102            <!-- google.navigation:q= -->
-103            <intent-filter>
-103-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:13-74:29
-104                <action android:name="android.intent.action.VIEW" />
-104-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:17-69
-104-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:25-66
-105
-106                <category android:name="android.intent.category.DEFAULT" />
-106-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:17-76
-106-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:27-73
-107                <category android:name="android.intent.category.BROWSABLE" />
-107-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:17-78
-107-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:27-75
-108
-109                <data android:scheme="google.navigation" />
-109-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:17-46
-109-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:23-43
-110            </intent-filter>
-111
-112            <!-- https://www.google.com/maps... -->
-113            <intent-filter>
-113-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:77:13-82:29
-114                <action android:name="android.intent.action.VIEW" />
-114-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:17-69
-114-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:25-66
-115
-116                <category android:name="android.intent.category.DEFAULT" />
-116-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:17-76
-116-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:27-73
-117                <category android:name="android.intent.category.BROWSABLE" />
-117-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:17-78
-117-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:27-75
-118
-119                <data
-119-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:17-46
-120                    android:host="www.google.com"
-120-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:81:46-75
-121                    android:pathPrefix="/maps"
-121-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:81:76-102
-122                    android:scheme="https" />
-122-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:23-43
-123            </intent-filter>
-124
-125            <!-- https://maps.app.goo.gl/... -->
-126            <intent-filter>
-126-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:85:13-90:29
-127                <action android:name="android.intent.action.VIEW" />
-127-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:17-69
-127-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:25-66
-128
-129                <category android:name="android.intent.category.DEFAULT" />
-129-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:17-76
-129-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:27-73
-130                <category android:name="android.intent.category.BROWSABLE" />
-130-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:17-78
-130-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:64:27-75
-131
-132                <data
-132-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:17-46
-133                    android:host="maps.app.goo.gl"
-133-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:81:46-75
-134                    android:scheme="https" />
-134-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:65:23-43
-135            </intent-filter>
-136        </activity>
-137
-138        <!-- HTTP Server Service for Display mode -->
-139        <service
-139-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:95:9-98:56
-140            android:name="com.phantom.carnavrelay.DisplayServerService"
-140-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:96:13-49
-141            android:exported="false"
-141-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:97:13-37
-142            android:foregroundServiceType="dataSync" />
-142-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:98:13-53
-143
-144        <provider
-144-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
-145            android:name="androidx.startup.InitializationProvider"
-145-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
-146            android:authorities="com.phantom.carnavrelay.androidx-startup"
-146-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
-147            android:exported="false" >
-147-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
-148            <meta-data
-148-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
-149                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-149-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
-150                android:value="androidx.startup" />
-150-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
-151            <meta-data
-151-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\User\.gradle\caches\transforms-4\88deaf835e668ba176fa20bfda812b56\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
-152                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-152-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\User\.gradle\caches\transforms-4\88deaf835e668ba176fa20bfda812b56\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
-153                android:value="androidx.startup" />
-153-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\User\.gradle\caches\transforms-4\88deaf835e668ba176fa20bfda812b56\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
-154            <meta-data
-154-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
-155                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-155-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
-156                android:value="androidx.startup" />
-156-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
-157        </provider>
-158
-159        <receiver
-159-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
-160            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-160-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
-161            android:directBootAware="false"
-161-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
-162            android:enabled="true"
-162-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
-163            android:exported="true"
-163-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
-164            android:permission="android.permission.DUMP" >
-164-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
-165            <intent-filter>
-165-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
-166                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-166-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
-166-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
-167            </intent-filter>
-168            <intent-filter>
-168-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
-169                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-169-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
-169-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
-170            </intent-filter>
-171            <intent-filter>
-171-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
-172                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-172-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
-172-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
-173            </intent-filter>
-174            <intent-filter>
-174-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
-175                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-175-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
-175-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
-176            </intent-filter>
-177        </receiver>
-178
-179        <activity
-179-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
-180            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-180-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:48:13-74
-181            android:clearTaskOnLaunch="true"
-181-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:49:13-45
-182            android:screenOrientation="sensorLandscape"
-182-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:50:13-56
-183            android:stateNotNeeded="true"
-183-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:51:13-42
-184            android:theme="@style/zxing_CaptureTheme"
-184-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:52:13-54
-185            android:windowSoftInputMode="stateAlwaysHidden" />
-185-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:53:13-60
-186    </application>
-187
-188</manifest>
+54-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:41:9-33
+55    <uses-feature
+55-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:42:5-44:36
+56        android:name="android.hardware.wifi"
+56-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:43:9-45
+57        android:required="false" />
+57-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:44:9-33
+58
+59    <application
+59-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:26:5-137:19
+60        android:name="com.phantom.carnavrelay.PhantomGoApplication"
+60-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:27:9-45
+61        android:allowBackup="true"
+61-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:28:9-35
+62        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+62-->[androidx.core:core:1.13.1] C:\Users\User\.gradle\caches\transforms-4\eaa1026fbb99c599a3cde0e31536eaf0\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+63        android:debuggable="true"
+64        android:extractNativeLibs="false"
+65        android:icon="@mipmap/ic_launcher"
+65-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:29:9-43
+66        android:label="@string/app_name"
+66-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:31:9-41
+67        android:roundIcon="@mipmap/ic_launcher_round"
+67-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:30:9-54
+68        android:supportsRtl="true"
+68-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:9-35
+69        android:theme="@style/Theme.CarNavRelay"
+69-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:33:9-49
+70        android:usesCleartextTraffic="true" >
+70-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:34:9-44
+71        <activity
+71-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:36:9-43:20
+72            android:name="com.phantom.carnavrelay.MainActivity"
+72-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:37:13-41
+73            android:exported="true" >
+73-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:38:13-36
+74            <intent-filter>
+74-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:39:13-42:29
+75                <action android:name="android.intent.action.MAIN" />
+75-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:40:17-69
+75-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:40:25-66
+76
+77                <category android:name="android.intent.category.LAUNCHER" />
+77-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:41:17-77
+77-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:41:27-74
+78            </intent-filter>
+79        </activity>
+80        <activity
+80-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:45:9-48:43
+81            android:name="com.phantom.carnavrelay.DisplayActivity"
+81-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:46:13-44
+82            android:exported="true"
+82-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:47:13-36
+83            android:keepScreenOn="true" />
+83-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:48:13-40
+84        <activity
+84-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:50:9-52:40
+85            android:name="com.phantom.carnavrelay.PairScanActivity"
+85-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:51:13-45
+86            android:exported="false" />
+86-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:52:13-37
+87        <activity
+87-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:54:9-57:58
+88            android:name="com.phantom.carnavrelay.DiagnosticsActivity"
+88-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:55:13-48
+89            android:exported="false"
+89-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:56:13-37
+90            android:parentActivityName="com.phantom.carnavrelay.MainActivity" />
+90-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:57:13-55
+91        <activity
+91-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:59:9-111:20
+92            android:name="com.phantom.carnavrelay.RelayActivity"
+92-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:60:13-42
+93            android:exported="true"
+93-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:61:13-36
+94            android:launchMode="singleTask"
+94-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:62:13-44
+95            android:theme="@style/Theme.CarNavRelay.Translucent" >
+95-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:63:13-65
+96
+97            <!-- geo:lat,lng หรือ geo:0,0?q= -->
+98            <intent-filter>
+98-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:66:13-71:29
+99                <action android:name="android.intent.action.VIEW" />
+99-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:17-69
+99-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:25-66
+100
+101                <category android:name="android.intent.category.DEFAULT" />
+101-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:17-76
+101-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:27-73
+102                <category android:name="android.intent.category.BROWSABLE" />
+102-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:17-78
+102-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:27-75
+103
+104                <data android:scheme="geo" />
+104-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:17-46
+104-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:23-43
+105            </intent-filter>
+106
+107            <!-- google.navigation:q= -->
+108            <intent-filter>
+108-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:74:13-79:29
+109                <action android:name="android.intent.action.VIEW" />
+109-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:17-69
+109-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:25-66
+110
+111                <category android:name="android.intent.category.DEFAULT" />
+111-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:17-76
+111-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:27-73
+112                <category android:name="android.intent.category.BROWSABLE" />
+112-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:17-78
+112-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:27-75
+113
+114                <data android:scheme="google.navigation" />
+114-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:17-46
+114-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:23-43
+115            </intent-filter>
+116
+117            <!-- https://www.google.com/maps... -->
+118            <intent-filter>
+118-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:82:13-87:29
+119                <action android:name="android.intent.action.VIEW" />
+119-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:17-69
+119-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:25-66
+120
+121                <category android:name="android.intent.category.DEFAULT" />
+121-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:17-76
+121-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:27-73
+122                <category android:name="android.intent.category.BROWSABLE" />
+122-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:17-78
+122-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:27-75
+123
+124                <data
+124-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:17-46
+125                    android:host="www.google.com"
+125-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:86:46-75
+126                    android:pathPrefix="/maps"
+126-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:86:76-102
+127                    android:scheme="https" />
+127-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:23-43
+128            </intent-filter>
+129
+130            <!-- https://maps.app.goo.gl/... -->
+131            <intent-filter>
+131-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:90:13-95:29
+132                <action android:name="android.intent.action.VIEW" />
+132-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:17-69
+132-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:67:25-66
+133
+134                <category android:name="android.intent.category.DEFAULT" />
+134-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:17-76
+134-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:27-73
+135                <category android:name="android.intent.category.BROWSABLE" />
+135-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:17-78
+135-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:69:27-75
+136
+137                <data
+137-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:17-46
+138                    android:host="maps.app.goo.gl"
+138-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:86:46-75
+139                    android:scheme="https" />
+139-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:23-43
+140            </intent-filter>
+141
+142            <!-- ACTION_SEND for sharing text/plain (URLs) -->
+143            <intent-filter>
+143-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:98:13-102:29
+144                <action android:name="android.intent.action.SEND" />
+144-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:99:17-69
+144-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:99:25-66
+145
+146                <category android:name="android.intent.category.DEFAULT" />
+146-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:17-76
+146-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:27-73
+147
+148                <data android:mimeType="text/plain" />
+148-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:17-46
+148-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:101:23-52
+149            </intent-filter>
+150
+151            <!-- ACTION_PROCESS_TEXT for selected text processing -->
+152            <intent-filter>
+152-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:105:13-109:29
+153                <action android:name="android.intent.action.PROCESS_TEXT" />
+153-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:106:17-77
+153-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:106:25-74
+154
+155                <category android:name="android.intent.category.DEFAULT" />
+155-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:17-76
+155-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:68:27-73
+156
+157                <data android:mimeType="text/plain" />
+157-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:70:17-46
+157-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:101:23-52
+158            </intent-filter>
+159        </activity>
+160
+161        <!-- HTTP Server Service for Display mode -->
+162        <service
+162-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:114:9-117:56
+163            android:name="com.phantom.carnavrelay.DisplayServerService"
+163-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:115:13-49
+164            android:exported="false"
+164-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:116:13-37
+165            android:foregroundServiceType="dataSync" />
+165-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:117:13-53
+166
+167        <!-- Navigation Capture Accessibility Service -->
+168        <service
+168-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:120:9-130:19
+169            android:name="com.phantom.carnavrelay.access.NavCaptureAccessibilityService"
+169-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:121:13-66
+170            android:exported="false"
+170-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:123:13-37
+171            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+171-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:122:13-79
+172            <intent-filter>
+172-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:124:13-126:29
+173                <action android:name="android.accessibilityservice.AccessibilityService" />
+173-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:125:17-92
+173-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:125:25-89
+174            </intent-filter>
+175
+176            <meta-data
+176-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:127:13-129:76
+177                android:name="android.accessibilityservice"
+177-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:128:17-60
+178                android:resource="@xml/nav_capture_accessibility_config" />
+178-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:129:17-73
+179        </service>
+180
+181        <!-- Receiver for opening Maps from notification -->
+182        <receiver
+182-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:133:9-135:40
+183            android:name="com.phantom.carnavrelay.receiver.OpenMapsReceiver"
+183-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:134:13-54
+184            android:exported="false" />
+184-->D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:135:13-37
+185
+186        <provider
+186-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+187            android:name="androidx.startup.InitializationProvider"
+187-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+188            android:authorities="com.phantom.carnavrelay.androidx-startup"
+188-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+189            android:exported="false" >
+189-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+190            <meta-data
+190-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+191                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+191-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+192                android:value="androidx.startup" />
+192-->[androidx.emoji2:emoji2:1.3.0] C:\Users\User\.gradle\caches\transforms-4\7b2a5970e8fd31a82717185c03413cb0\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+193            <meta-data
+193-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\User\.gradle\caches\transforms-4\88deaf835e668ba176fa20bfda812b56\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+194                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+194-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\User\.gradle\caches\transforms-4\88deaf835e668ba176fa20bfda812b56\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+195                android:value="androidx.startup" />
+195-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\User\.gradle\caches\transforms-4\88deaf835e668ba176fa20bfda812b56\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+196            <meta-data
+196-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+197                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+197-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+198                android:value="androidx.startup" />
+198-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+199        </provider>
+200
+201        <receiver
+201-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+202            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+202-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+203            android:directBootAware="false"
+203-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+204            android:enabled="true"
+204-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+205            android:exported="true"
+205-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+206            android:permission="android.permission.DUMP" >
+206-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+207            <intent-filter>
+207-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+208                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+208-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+208-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+209            </intent-filter>
+210            <intent-filter>
+210-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+211                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+211-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+211-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+212            </intent-filter>
+213            <intent-filter>
+213-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+214                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+214-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+214-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+215            </intent-filter>
+216            <intent-filter>
+216-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+217                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+217-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+217-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\User\.gradle\caches\transforms-4\0849842f044afa1c32922914d375ef56\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+218            </intent-filter>
+219        </receiver>
+220
+221        <activity
+221-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
+222            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+222-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:48:13-74
+223            android:clearTaskOnLaunch="true"
+223-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:49:13-45
+224            android:screenOrientation="sensorLandscape"
+224-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:50:13-56
+225            android:stateNotNeeded="true"
+225-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:51:13-42
+226            android:theme="@style/zxing_CaptureTheme"
+226-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:52:13-54
+227            android:windowSoftInputMode="stateAlwaysHidden" />
+227-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\User\.gradle\caches\transforms-4\d2b66f017f73621f9bb6734c3f9bd0df\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:53:13-60
+228    </application>
+229
+230</manifest>

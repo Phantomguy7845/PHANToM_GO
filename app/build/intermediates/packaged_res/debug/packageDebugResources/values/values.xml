@@ -15,6 +15,7 @@
     <color name="gray_700">#616161</color>
     <color name="gray_800">#424242</color>
     <color name="gray_900">#212121</color>
+    <color name="ic_launcher_background">#1B1638</color>
     <color name="info">#3498DB</color>
     <color name="on_primary">#FFFFFF</color>
     <color name="on_surface">#212121</color>
@@ -28,14 +29,18 @@
     <color name="purple_700">#7D3C98</color>
     <color name="purple_800">#6C3483</color>
     <color name="purple_900">#5B2C6F</color>
+    <color name="red">#E74C3C</color>
     <color name="success">#27AE60</color>
     <color name="surface">#FFFFFF</color>
     <color name="teal_200">#80CBC4</color>
     <color name="teal_500">#26A69A</color>
     <color name="teal_700">#00796B</color>
     <color name="teal_900">#004D40</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
     <color name="warning">#F39C12</color>
     <color name="white">#FFFFFF</color>
+    <string name="a11y_desc">จับลิงก์/ปุ่มนำทางเพื่อส่งไปจอติดรถ (ผู้ใช้เปิด/ปิดได้)</string>
     <string name="app_name">PHANToM GO</string>
     <string name="app_name_display">PHANToM GO - Display</string>
     <string name="app_name_main">PHANToM GO - Main</string>

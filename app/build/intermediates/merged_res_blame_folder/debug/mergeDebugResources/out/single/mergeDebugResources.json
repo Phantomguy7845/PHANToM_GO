@@ -4,16 +4,24 @@
         "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_display_mode.xml"
     },
     {
-        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_error.xml.flat",
-        "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_error.xml"
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-xxhdpi_ic_launcher.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-xxhdpi/ic_launcher.xml"
     },
     {
-        "merged": "com.phantom.carnavrelay.app-debug-32:/layout_activity_diagnostics.xml.flat",
-        "source": "com.phantom.carnavrelay.app-main-34:/layout/activity_diagnostics.xml"
+        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_launcher_monochrome.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_launcher_monochrome.xml"
     },
     {
         "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_circle_status_connected.xml.flat",
         "source": "com.phantom.carnavrelay.app-main-34:/drawable/circle_status_connected.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-xhdpi_ic_launcher_round.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-xhdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
         "merged": "com.phantom.carnavrelay.app-debug-32:/layout_item_diagnostics_check.xml.flat",
@@ -24,6 +32,42 @@
         "source": "com.phantom.carnavrelay.app-main-34:/layout/activity_main.xml"
     },
     {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_circle_status_waiting.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/drawable/circle_status_waiting.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-hdpi_ic_launcher.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-hdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_check_circle.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_check_circle.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-mdpi_ic_launcher_round.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-mdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_error.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_error.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-xhdpi_ic_launcher.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-xhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/layout_activity_diagnostics.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/layout/activity_diagnostics.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/xml_nav_capture_accessibility_config.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/xml/nav_capture_accessibility_config.xml"
+    },
+    {
         "merged": "com.phantom.carnavrelay.app-debug-32:/layout_activity_main_pair.xml.flat",
         "source": "com.phantom.carnavrelay.app-main-34:/layout/activity_main_pair.xml"
     },
@@ -32,12 +76,12 @@
         "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_copy.xml"
     },
     {
-        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_circle_status_waiting.xml.flat",
-        "source": "com.phantom.carnavrelay.app-main-34:/drawable/circle_status_waiting.xml"
-    },
-    {
         "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_arrow_back.xml.flat",
         "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_arrow_back.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-xxxhdpi_ic_launcher_round.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-xxxhdpi/ic_launcher_round.xml"
     },
     {
         "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_main_mode.xml.flat",
@@ -52,15 +96,31 @@
         "source": "com.phantom.carnavrelay.app-main-34:/layout/activity_display.xml"
     },
     {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-xxxhdpi_ic_launcher.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-xxxhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-hdpi_ic_launcher_round.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-hdpi/ic_launcher_round.xml"
+    },
+    {
         "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_keep_screen_on.xml.flat",
         "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_keep_screen_on.xml"
     },
     {
-        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_bg_code_block.xml.flat",
-        "source": "com.phantom.carnavrelay.app-main-34:/drawable/bg_code_block.xml"
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-xxhdpi_ic_launcher_round.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-xxhdpi/ic_launcher_round.xml"
     },
     {
-        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_ic_check_circle.xml.flat",
-        "source": "com.phantom.carnavrelay.app-main-34:/drawable/ic_check_circle.xml"
+        "merged": "com.phantom.carnavrelay.app-debug-32:/mipmap-mdpi_ic_launcher.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/mipmap-mdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.phantom.carnavrelay.app-debug-32:/drawable_bg_code_block.xml.flat",
+        "source": "com.phantom.carnavrelay.app-main-34:/drawable/bg_code_block.xml"
     }
 ]
