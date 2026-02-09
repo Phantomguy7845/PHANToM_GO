@@ -203,6 +203,12 @@
             android:name="com.phantom.carnavrelay.receiver.OpenMapsReceiver"
             android:exported="false" />
 
+        <!-- Open Navigation Activity (for notification action) -->
+        <activity
+            android:name="com.phantom.carnavrelay.OpenNavigationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CarNavRelay.Translucent" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="com.phantom.carnavrelay.androidx-startup"

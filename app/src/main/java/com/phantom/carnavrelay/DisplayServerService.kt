@@ -219,16 +219,16 @@ class DisplayServerService : Service() {
             apply()
         }
         
-        // Update notification to show Open Maps action
-        updateNotification()
+        // Show navigation notification with Open Navigation action
+        showNavigationNotification(url)
         
         // Check if app is in foreground
         if (isAppInForeground()) {
             Log.d(TAG, "📱 App in foreground, opening Maps directly")
             openMapsDirectly(url)
         } else {
-            Log.d(TAG, "📱 App in background, showing notification")
-            showNavigationNotification(url)
+            Log.d(TAG, "� App in background, showing notification")
+            // Notification already shown above
         }
     }
     
@@ -276,12 +276,12 @@ class DisplayServerService : Service() {
             val notificationManager = ContextCompat.getSystemService(this, NotificationManager::class.java)
             
             // Create a high-priority notification for navigation
-            val openMapsIntent = Intent(this, OpenMapsReceiver::class.java).apply {
-                action = ACTION_OPEN_MAPS
-                putExtra(OpenMapsReceiver.EXTRA_URL, url)
+            val openNavIntent = Intent(this, OpenNavigationActivity::class.java).apply {
+                putExtra("url", url)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
-            val openMapsPendingIntent = PendingIntent.getBroadcast(
-                this, 100, openMapsIntent,
+            val openNavPendingIntent = PendingIntent.getActivity(
+                this, 2001, openNavIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
             
@@ -294,10 +294,10 @@ class DisplayServerService : Service() {
                 .setAutoCancel(true)
                 .addAction(
                     android.R.drawable.ic_menu_directions,
-                    "Open Maps",
-                    openMapsPendingIntent
+                    "Open Navigation",
+                    openNavPendingIntent
                 )
-                .setFullScreenIntent(openMapsPendingIntent, true)
+                .setFullScreenIntent(openNavPendingIntent, true)
                 .build()
             
             notificationManager?.notify(NOTIFICATION_ID + 1, notification)

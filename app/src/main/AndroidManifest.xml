@@ -148,5 +148,11 @@
             android:name=".receiver.OpenMapsReceiver"
             android:exported="false" />
 
+        <!-- Open Navigation Activity (for notification action) -->
+        <activity
+            android:name=".OpenNavigationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CarNavRelay.Translucent" />
+
     </application>
 </manifest>

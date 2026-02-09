@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-152:12
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-152:12
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-152:12
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-152:12
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-158:12
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-158:12
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-158:12
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:2:1-158:12
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\User\.gradle\caches\transforms-4\6197476ac45dfedf11d059be4eec9a05\transformed\material-1.12.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\User\.gradle\caches\transforms-4\575aabb8a919025997ecd10376a0d309\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\User\.gradle\caches\transforms-4\3c3b2802a4bc48b5895411c928f079f6\transformed\constraintlayout-2.0.1\AndroidManifest.xml:2:1-11:12
@@ -119,8 +119,8 @@ ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:30:5-95
 	android:name
 		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:30:22-92
 application
-ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:5-151:19
-INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:5-151:19
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:5-157:19
+INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:32:5-157:19
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\User\.gradle\caches\transforms-4\6197476ac45dfedf11d059be4eec9a05\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\User\.gradle\caches\transforms-4\6197476ac45dfedf11d059be4eec9a05\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\User\.gradle\caches\transforms-4\3c3b2802a4bc48b5895411c928f079f6\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
@@ -285,6 +285,14 @@ ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:147:9-149:
 		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:149:13-37
 	android:name
 		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:148:13-54
+activity#com.phantom.carnavrelay.OpenNavigationActivity
+ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:152:9-155:68
+	android:exported
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:154:13-37
+	android:theme
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:155:13-65
+	android:name
+		ADDED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml:153:13-51
 uses-sdk
 INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from D:\1111\111119\PHANToM_GO\app\src\main\AndroidManifest.xml
