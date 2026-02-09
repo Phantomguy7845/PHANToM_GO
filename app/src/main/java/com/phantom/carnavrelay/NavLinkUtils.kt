@@ -1,0 +1,156 @@
+package com.phantom.carnavrelay
+
+import android.net.Uri
+import android.util.Log
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.util.concurrent.TimeUnit
+
+object NavLinkUtils {
+    private const val TAG = "PHANTOM_GO"
+
+    private val resolverClient = OkHttpClient.Builder()
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .callTimeout(5, TimeUnit.SECONDS)
+        .build()
+
+    fun normalizeRawInput(raw: String): String? {
+        val uri = try {
+            Uri.parse(raw)
+        } catch (e: Exception) {
+            null
+        }
+
+        return when {
+            uri?.scheme != null -> normalizeUrl(uri)
+            raw.matches(Regex("^-?\\d+\\.?\\d*,-?\\d+\\.?\\d*$")) -> {
+                "https://www.google.com/maps/search/?api=1&query=${Uri.encode(raw)}"
+            }
+            else -> {
+                "https://www.google.com/maps/search/?api=1&query=${Uri.encode(raw)}"
+            }
+        }
+    }
+
+    fun normalizeUrl(uri: Uri): String? {
+        return when (uri.scheme) {
+            "geo" -> {
+                val geoData = uri.schemeSpecificPart
+                val query = uri.query
+
+                if (query != null && query.startsWith("q=")) {
+                    val searchQuery = query.substring(2).replace("+", " ")
+                    "https://www.google.com/maps/search/?api=1&query=${Uri.encode(searchQuery)}"
+                } else if (geoData.contains(",")) {
+                    val parts = geoData.split(",")
+                    if (parts.size >= 2) {
+                        val lat = parts[0]
+                        val lng = parts[1].substringBefore(";")
+                        "https://www.google.com/maps/search/?api=1&query=$lat,$lng"
+                    } else null
+                } else null
+            }
+
+            "google.navigation" -> {
+                val query = uri.getQueryParameter("q")
+                if (query != null) {
+                    "https://www.google.com/maps/dir/?api=1&destination=${Uri.encode(query)}"
+                } else null
+            }
+
+            "https" -> {
+                when {
+                    uri.host?.contains("google.com") == true && uri.path?.contains("/maps") == true -> {
+                        uri.toString()
+                    }
+                    uri.host?.contains("maps.app.goo.gl") == true -> {
+                        uri.toString()
+                    }
+                    else -> uri.toString()
+                }
+            }
+
+            else -> uri.toString()
+        }
+    }
+
+    fun isShortMapsLink(url: String): Boolean {
+        return try {
+            val uri = Uri.parse(url)
+            val host = uri.host?.lowercase() ?: return false
+            when {
+                host == "maps.app.goo.gl" -> true
+                host == "goo.gl" && uri.path?.contains("/app/maps") == true -> true
+                host == "goo.gl" && uri.path?.contains("/maps") == true -> true
+                else -> false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun resolveShortLinkIfNeeded(prefsManager: PrefsManager, url: String): String {
+        if (!isShortMapsLink(url)) {
+            return url
+        }
+
+        val cached = prefsManager.getResolvedUrlFor(url)
+        if (!cached.isNullOrEmpty()) {
+            Log.d(TAG, "🔁 Resolved URL from cache: $cached")
+            PhantomLog.i("NAV resolvedCache hit: $url -> $cached")
+            return cached
+        }
+
+        return try {
+            val request = Request.Builder()
+                .url(url)
+                .head()
+                .build()
+            resolverClient.newCall(request).execute().use { response ->
+                val finalUrl = response.request.url.toString()
+                val hasRedirect = response.priorResponse != null
+                val location = response.header("Location")
+
+                if (hasRedirect || !location.isNullOrEmpty()) {
+                    Log.d(TAG, "✅ HEAD resolved: $finalUrl")
+                    prefsManager.putResolvedUrl(url, finalUrl)
+                    finalUrl
+                } else if (response.code == 405) {
+                    resolveWithGet(prefsManager, url)
+                } else {
+                    resolveWithGet(prefsManager, url)
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ HEAD resolve failed: ${e.message}")
+            PhantomLog.w("NAV resolve HEAD failed, fallback to original: $url")
+            resolveWithGet(prefsManager, url)
+        }
+    }
+
+    private fun resolveWithGet(prefsManager: PrefsManager, url: String): String {
+        return try {
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+            resolverClient.newCall(request).execute().use { response ->
+                val finalUrl = response.request.url.toString()
+                if (finalUrl != url) {
+                    Log.d(TAG, "✅ GET resolved: $finalUrl")
+                    prefsManager.putResolvedUrl(url, finalUrl)
+                    finalUrl
+                } else {
+                    Log.w(TAG, "⚠️ GET resolve returned same URL, using original")
+                    PhantomLog.w("NAV resolve GET same URL, fallback: $url")
+                    url
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ GET resolve failed: ${e.message}")
+            PhantomLog.w("NAV resolve GET failed, fallback to original: $url")
+            url
+        }
+    }
+}

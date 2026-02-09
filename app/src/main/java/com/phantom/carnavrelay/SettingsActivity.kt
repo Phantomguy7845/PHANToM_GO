@@ -11,19 +11,16 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.HapticFeedbackConstants
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.card.MaterialCardView
 
 class SettingsActivity : AppCompatActivity() {
@@ -43,7 +40,24 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var copyLogButton: Button
     private lateinit var clearLogButton: Button
     private lateinit var grantPermissionButton: Button
+    private lateinit var notificationStatusText: TextView
+    private lateinit var requestNotificationButton: Button
     private lateinit var backButton: Button
+    private var notificationRequestInFlight = false
+
+    private val requestNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        notificationRequestInFlight = false
+        updateNotificationStatus()
+
+        if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val shouldShow = shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
+            if (!shouldShow) {
+                showNotificationSettingsDialog()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +69,7 @@ class SettingsActivity : AppCompatActivity() {
         initViews()
         setupClickListeners()
         updateOverlayStatus()
+        updateNotificationStatus()
         loadLogs()
     }
 
@@ -66,6 +81,8 @@ class SettingsActivity : AppCompatActivity() {
         copyLogButton = findViewById(R.id.copyLogButton)
         clearLogButton = findViewById(R.id.clearLogButton)
         grantPermissionButton = findViewById(R.id.grantPermissionButton)
+        notificationStatusText = findViewById(R.id.notificationStatusText)
+        requestNotificationButton = findViewById(R.id.requestNotificationButton)
         backButton = findViewById(R.id.backButton)
     }
 
@@ -91,6 +108,11 @@ class SettingsActivity : AppCompatActivity() {
 
         grantPermissionButton.setOnClickListener {
             requestOverlayPermission()
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        requestNotificationButton.setOnClickListener {
+            requestNotificationPermission()
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
@@ -134,6 +156,57 @@ class SettingsActivity : AppCompatActivity() {
         Toast.makeText(this, "Grant overlay permission and return", Toast.LENGTH_LONG).show()
     }
 
+    private fun requestNotificationPermission() {
+        if (notificationRequestInFlight) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationRequestInFlight = true
+            updateNotificationStatus()
+            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            openAppNotificationSettings()
+        }
+    }
+
+    private fun updateNotificationStatus() {
+        val enabled = NotificationHelper.canPostNotifications(this)
+        val api33Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+
+        if (enabled) {
+            notificationStatusText.text = "Notifications: Enabled"
+            notificationStatusText.setTextColor(ContextCompat.getColor(this, R.color.aurora_success))
+            requestNotificationButton.visibility = View.GONE
+        } else {
+            notificationStatusText.text = "Notifications: Disabled"
+            notificationStatusText.setTextColor(ContextCompat.getColor(this, R.color.aurora_warning))
+            requestNotificationButton.visibility = View.VISIBLE
+            requestNotificationButton.isEnabled = !notificationRequestInFlight
+            requestNotificationButton.text = if (api33Plus) {
+                "🔔 Request Notification Permission"
+            } else {
+                "🔔 Open Notification Settings"
+            }
+        }
+    }
+
+    private fun showNotificationSettingsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Enable Notifications")
+            .setMessage("Notifications are disabled. Please enable them in App Settings.")
+            .setPositiveButton("Open Settings") { _, _ ->
+                openAppNotificationSettings()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun openAppNotificationSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.parse("package:$packageName")
+        }
+        startActivity(intent)
+    }
+
     private fun loadLogs() {
         val logs = PhantomLog.getLogs(MAX_LOG_ENTRIES)
         logText.text = logs.joinToString("\n")
@@ -165,6 +238,7 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateOverlayStatus()
+        updateNotificationStatus()
         loadLogs() // Refresh logs
     }
 }

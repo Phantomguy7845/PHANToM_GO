@@ -33,6 +33,11 @@ class PrefsManager(context: Context) {
         // Pending queue
         private const val KEY_PENDING_QUEUE = "pending_queue"
 
+        // Device mode
+        private const val KEY_DEVICE_MODE = "device_mode"
+        const val MODE_MAIN = "MAIN"
+        const val MODE_DISPLAY = "DISPLAY"
+
         // Short link resolve cache
         private const val KEY_URL_RESOLVE_CACHE = "url_resolve_cache"
     }
@@ -178,6 +183,14 @@ class PrefsManager(context: Context) {
     
     fun getPendingCount(): Int {
         return getPendingQueue().size
+    }
+
+    fun getDeviceMode(): String {
+        return prefs.getString(KEY_DEVICE_MODE, MODE_MAIN) ?: MODE_MAIN
+    }
+
+    fun setDeviceMode(mode: String) {
+        prefs.edit().putString(KEY_DEVICE_MODE, mode).apply()
     }
 
     fun getResolvedUrlFor(shortUrl: String): String? {

@@ -21,7 +21,8 @@ import java.util.concurrent.TimeUnit
 
 class MainSender(
     private val context: Context,
-    private val toastEnabled: Boolean = true
+    private val toastEnabled: Boolean = true,
+    private val queueOnFailure: Boolean = true
 ) {
 
     companion object {
@@ -168,11 +169,13 @@ class MainSender(
                         }, 500)
                     } else {
                         // All retries failed - queue for later
-                        Log.w(TAG, "❌ All retries failed, queuing URL: $url")
+                        Log.w(TAG, "❌ All retries failed${if (queueOnFailure) ", queuing URL" else ""}: $url")
                         setState(STATE_OFFLINE)
-                        prefsManager.addToPendingQueue(url)
-                        showToast("Failed to send. Queued for retry.")
-                        callback?.onFailure(errorMsg, true)
+                        if (queueOnFailure) {
+                            prefsManager.addToPendingQueue(url)
+                            showToast("Failed to send. Queued for retry.")
+                        }
+                        callback?.onFailure(errorMsg, queueOnFailure)
                     }
                 }
 
@@ -227,9 +230,11 @@ class MainSender(
                                 showToast("Access forbidden: $reason")
                                 callback?.onFailure("Access forbidden: $reason", false)
                             } else {
-                                prefsManager.addToPendingQueue(url)
-                                showToast("Failed ($reason). Queued for retry.")
-                                callback?.onFailure("$errorMsg - $reason", true)
+                                if (queueOnFailure) {
+                                    prefsManager.addToPendingQueue(url)
+                                    showToast("Failed ($reason). Queued for retry.")
+                                }
+                                callback?.onFailure("$errorMsg - $reason", queueOnFailure)
                             }
                         }
                     }

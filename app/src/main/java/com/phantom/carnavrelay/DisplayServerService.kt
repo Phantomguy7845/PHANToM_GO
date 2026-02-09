@@ -51,6 +51,7 @@ class DisplayServerService : Service() {
         super.onCreate()
         Log.d(TAG, "▶️ DisplayServerService.onCreate()")
         prefsManager = PrefsManager(this)
+        prefsManager.setDeviceMode(PrefsManager.MODE_DISPLAY)
         overlayController = OverlayController(this)
         createNotificationChannel()
         acquireWakeLock()
@@ -128,6 +129,7 @@ class DisplayServerService : Service() {
 
     override fun onDestroy() {
         Log.d(TAG, "💀 DisplayServerService.onDestroy()")
+        prefsManager.setDeviceMode(PrefsManager.MODE_MAIN)
         
         // Cleanup overlay
         overlayController?.cleanup()
