@@ -98,9 +98,18 @@ class OverlayController(private val context: Context) {
     fun hideOverlay() {
         try {
             overlayView?.let { view ->
-                windowManager?.removeView(view)
+                val attached = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                    view.isAttachedToWindow
+                } else {
+                    true
+                }
+                if (attached) {
+                    windowManager?.removeView(view)
+                    Log.d(TAG, "🚫 Navigation overlay hidden")
+                } else {
+                    Log.d(TAG, "ℹ️ Overlay view not attached; skipping remove")
+                }
                 overlayView = null
-                Log.d(TAG, "🚫 Navigation overlay hidden")
             }
         } catch (e: Exception) {
             Log.e(TAG, "❌ Failed to hide overlay", e)

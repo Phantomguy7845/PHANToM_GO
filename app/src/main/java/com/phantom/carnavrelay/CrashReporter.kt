@@ -84,7 +84,13 @@ object CrashReporter {
             val pm = application?.packageManager
             val pi = pm?.getPackageInfo(application?.packageName ?: "", 0)
             pw.println("Package: ${application?.packageName}")
-            pw.println("Version: ${pi?.versionName} (${pi?.longVersionCode})")
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                pi?.longVersionCode?.toString() ?: "unknown"
+            } else {
+                @Suppress("DEPRECATION")
+                pi?.versionCode?.toString() ?: "unknown"
+            }
+            pw.println("Version: ${pi?.versionName} ($versionCode)")
         } catch (e: Exception) {
             pw.println("Package: (unable to get)")
         }

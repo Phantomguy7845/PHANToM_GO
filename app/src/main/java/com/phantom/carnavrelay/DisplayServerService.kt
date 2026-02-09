@@ -25,6 +25,7 @@ class DisplayServerService : Service() {
         private const val CHANNEL_ID = "phantom_go_display"
         private const val ACTION_OPEN_MAPS = "com.phantom.carnavrelay.OPEN_MAPS"
         private const val ACTION_STOP_SERVER = "com.phantom.carnavrelay.STOP_SERVER"
+        const val ACTION_APP_FOREGROUND = "com.phantom.carnavrelay.APP_FOREGROUND"
         
         // Wake lock
         private const val WAKE_LOCK_TAG = "PHANTOM_GO:DisplayServer"
@@ -37,6 +38,15 @@ class DisplayServerService : Service() {
     private var lastUrl: String? = null
     private var lastCmdAt: Long = 0
 
+    private val appStateReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ACTION_APP_FOREGROUND) {
+                Log.d(TAG, "📱 App foregrounded - hiding overlay")
+                overlayController?.hideOverlay()
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "▶️ DisplayServerService.onCreate()")
@@ -44,6 +54,17 @@ class DisplayServerService : Service() {
         overlayController = OverlayController(this)
         createNotificationChannel()
         acquireWakeLock()
+
+        try {
+            androidx.core.content.ContextCompat.registerReceiver(
+                this,
+                appStateReceiver,
+                android.content.IntentFilter(ACTION_APP_FOREGROUND),
+                androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to register app state receiver", e)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -110,6 +131,11 @@ class DisplayServerService : Service() {
         
         // Cleanup overlay
         overlayController?.cleanup()
+        try {
+            unregisterReceiver(appStateReceiver)
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Failed to unregister app state receiver", e)
+        }
         
         // Cleanup HTTP server
         try {
@@ -232,7 +258,7 @@ class DisplayServerService : Service() {
         showNavigationNotification(url)
         
         // Check if app is in foreground
-        if (isAppInForeground()) {
+        if (PhantomGoApplication.isInForeground()) {
             Log.d(TAG, "📱 App in foreground, opening Maps directly")
             openMapsDirectly(url)
         } else {
@@ -256,20 +282,6 @@ class DisplayServerService : Service() {
                 Log.w(TAG, "⚠️ Overlay controller not initialized")
             }
         }
-    }
-    
-    private fun isAppInForeground(): Boolean {
-        try {
-            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
-            val runningTasks = activityManager.getRunningTasks(1)
-            if (runningTasks.isNotEmpty()) {
-                val topActivity = runningTasks[0].topActivity
-                return topActivity?.packageName == packageName
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "⚠️ Could not check foreground state", e)
-        }
-        return false
     }
     
     private fun openMapsDirectly(url: String) {

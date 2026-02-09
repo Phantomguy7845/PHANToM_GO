@@ -17,7 +17,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.appbar.MaterialToolbar
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +33,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var prefsManager: PrefsManager
     private lateinit var mainSender: MainSender
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: MaterialToolbar
     
     private lateinit var tvPairStatus: TextView
     private lateinit var tvPairInfo: TextView
@@ -38,9 +45,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSendTest: Button
     private lateinit var btnRetryPending: Button
     private lateinit var btnClearPairing: Button
-    private lateinit var btnCheckStatus: Button
-    private lateinit var btnA11ySettings: Button
-    private lateinit var btnSettings: Button
     private lateinit var tvA11yToggle: TextView
     private lateinit var tvA11yStatus: TextView
     private lateinit var cardDisplay: MaterialCardView
@@ -67,12 +71,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "▶️ MainActivity.onCreate()")
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main_drawer)
 
         prefsManager = PrefsManager(this)
         mainSender = MainSender(this)
 
         initViews()
+        setupDrawer()
         updateUI()
         updateA11yUI()
         
@@ -81,6 +86,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navigationView = findViewById(R.id.navigationView)
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        
         tvPairStatus = findViewById(R.id.tvPairStatus)
         tvPairInfo = findViewById(R.id.tvPairInfo)
         tvPendingCount = findViewById(R.id.tvPendingCount)
@@ -89,9 +99,6 @@ class MainActivity : AppCompatActivity() {
         btnSendTest = findViewById(R.id.btnSendTest)
         btnRetryPending = findViewById(R.id.btnRetryPending)
         btnClearPairing = findViewById(R.id.btnClearPairing)
-        btnCheckStatus = findViewById(R.id.btnCheckStatus)
-        btnA11ySettings = findViewById(R.id.btnA11ySettings)
-        btnSettings = findViewById(R.id.btnSettings)
         tvA11yToggle = findViewById(R.id.tvA11yToggle)
         tvA11yStatus = findViewById(R.id.tvA11yStatus)
         cardDisplay = findViewById(R.id.cardDisplay)
@@ -101,36 +108,59 @@ class MainActivity : AppCompatActivity() {
         setupButtonEffects(btnSendTest)
         setupButtonEffects(btnRetryPending)
         setupButtonEffects(btnClearPairing)
-        setupButtonEffects(btnCheckStatus)
-        setupButtonEffects(btnA11ySettings)
-        setupButtonEffects(btnSettings)
 
         btnScanQR.setOnClickListener {
+            Log.d(TAG, "CLICK: btnScanQR on MainActivity")
             startQRScan()
         }
 
         btnSendTest.setOnClickListener {
+            Log.d(TAG, "CLICK: btnSendTest on MainActivity")
             sendTestLocation()
         }
 
         btnRetryPending.setOnClickListener {
+            Log.d(TAG, "CLICK: btnRetryPending on MainActivity")
             retryPending()
         }
 
         btnClearPairing.setOnClickListener {
+            Log.d(TAG, "CLICK: btnClearPairing on MainActivity")
             confirmClearPairing()
         }
 
-        btnCheckStatus.setOnClickListener {
-            checkServerStatus()
+        // Display Mode Card Click
+        cardDisplay.setOnClickListener {
+            Log.d(TAG, "CLICK: cardDisplay on MainActivity")
+            openDisplayMode()
         }
+    }
 
-        btnA11ySettings.setOnClickListener {
-            showA11ySettings()
+    private fun setupDrawer() {
+        toolbar.setNavigationOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
         }
-
-        btnSettings.setOnClickListener {
-            openSettings()
+        navigationView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_settings -> {
+                    Log.d(TAG, "CLICK: nav_settings on MainActivity")
+                    openSettings()
+                }
+                R.id.nav_logs -> {
+                    Log.d(TAG, "CLICK: nav_logs on MainActivity")
+                    openSettings()
+                }
+                R.id.nav_about -> {
+                    Log.d(TAG, "CLICK: nav_about on MainActivity")
+                    showAboutDialog()
+                }
+                R.id.nav_switch_mode -> {
+                    Log.d(TAG, "CLICK: nav_switch_mode on MainActivity")
+                    openDisplayMode()
+                }
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
         }
     }
 
@@ -145,7 +175,14 @@ class MainActivity : AppCompatActivity() {
                         .start()
                     v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                 }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                MotionEvent.ACTION_UP -> {
+                    v.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .setDuration(100)
+                        .start()
+                }
+                MotionEvent.ACTION_CANCEL -> {
                     v.animate()
                         .scaleX(1.0f)
                         .scaleY(1.0f)
@@ -153,90 +190,116 @@ class MainActivity : AppCompatActivity() {
                         .start()
                 }
             }
-            false
+            false // Don't consume; allow click handling
         }
     }
 
     private fun openSettings() {
+        Log.d(TAG, "⚙️ Opening Settings")
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }
 
-    private fun updateUI() {
-        val isPaired = mainSender.isPaired()
-        val isVerified = mainSender.isVerified()
-        val pendingCount = mainSender.getPendingCount()
-        val currentState = mainSender.getCurrentState()
-
-        // Update connection state display
-        val stateEmoji = when (currentState) {
-            MainSender.STATE_UNPAIRED -> "❌"
-            MainSender.STATE_PAIRING -> "⏳"
-            MainSender.STATE_CONNECTING -> "🔄"
-            MainSender.STATE_CONNECTED -> "✅"
-            MainSender.STATE_AUTH_FAILED -> "⚠️"
-            MainSender.STATE_OFFLINE -> "🔴"
-            else -> "❓"
-        }
-        
-        val stateText = when (currentState) {
-            MainSender.STATE_UNPAIRED -> "Not Paired"
-            MainSender.STATE_PAIRING -> "Waiting for Display"
-            MainSender.STATE_CONNECTING -> "Connecting..."
-            MainSender.STATE_CONNECTED -> "Connected"
-            MainSender.STATE_AUTH_FAILED -> "Auth Failed"
-            MainSender.STATE_OFFLINE -> "Offline"
-            else -> "Unknown"
-        }
-        
-        tvConnectionState.text = "$stateEmoji $stateText"
-        tvConnectionState.setTextColor(getStateColor(currentState))
-
-        if (isPaired) {
-            val verifiedEmoji = if (isVerified) "✅" else "⏳"
-            tvPairStatus.text = "$verifiedEmoji Paired"
-            tvPairInfo.text = mainSender.getPairedInfo()
-            btnSendTest.isEnabled = isVerified
-            btnClearPairing.isEnabled = true
-        } else {
-            tvPairStatus.text = "❌ Not Paired"
-            tvPairInfo.text = "Scan QR code from Display device"
-            btnSendTest.isEnabled = false
-            btnClearPairing.isEnabled = false
-        }
-
-        tvPendingCount.text = "Pending: $pendingCount"
-        btnRetryPending.isEnabled = pendingCount > 0
-        
-        // Show auth failed warning
-        if (currentState == MainSender.STATE_AUTH_FAILED) {
-            showAuthFailedWarning()
-        }
+    private fun openDisplayMode() {
+        Log.d(TAG, "🚀 Opening Display Mode")
+        val intent = Intent(this, DisplayActivity::class.java)
+        startActivity(intent)
     }
-    
-    private fun getStateColor(state: String): Int {
-        return when (state) {
-            MainSender.STATE_CONNECTED -> ContextCompat.getColor(this, android.R.color.holo_green_dark)
-            MainSender.STATE_AUTH_FAILED -> ContextCompat.getColor(this, android.R.color.holo_red_dark)
-            MainSender.STATE_OFFLINE -> ContextCompat.getColor(this, android.R.color.holo_orange_dark)
-            MainSender.STATE_CONNECTING -> ContextCompat.getColor(this, android.R.color.holo_blue_dark)
-            else -> ContextCompat.getColor(this, android.R.color.darker_gray)
-        }
-    }
-    
-    private fun showAuthFailedWarning() {
-        AlertDialog.Builder(this)
-            .setTitle("⚠️ Authentication Failed")
-            .setMessage("The token no longer matches the Display device. This can happen if:\n\n1. The Display device refreshed its token\n2. You're trying to connect to a different device\n\nPlease scan the QR code again to re-pair.")
-            .setPositiveButton("Scan QR") { _, _ ->
-                startQRScan()
+
+    private fun startQRScan() {
+        // Check camera permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST)
             }
-            .setNegativeButton("Dismiss", null)
+            return
+        }
+
+        try {
+            val intent = Intent("com.google.zxing.client.android.SCAN")
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
+            scanLauncher.launch(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Failed to start QR scanner", e)
+            Toast.makeText(this, "Please install a QR scanner app", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun sendTestLocation() {
+        if (!mainSender.isPaired()) {
+            Toast.makeText(this, "Not paired with Display device", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val testUrl = "google.navigation:q=13.7563,100.5018"
+        mainSender.sendOpenUrl(testUrl, object : MainSender.Companion.SendCallback {
+            override fun onSuccess() {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "✅ Test location sent", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "❌ Failed to send test location", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+    private fun retryPending() {
+        if (!mainSender.isPaired()) {
+            Toast.makeText(this, "Not paired with Display device", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val pending = prefsManager.getPendingQueue()
+        if (pending.isEmpty()) {
+            Toast.makeText(this, "No pending URLs", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Log.d(TAG, "🔄 Retrying ${pending.size} pending URLs")
+        
+        mainSender.retryPending(object : MainSender.Companion.SendCallback {
+            override fun onSuccess() {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "✅ All pending URLs sent", Toast.LENGTH_SHORT).show()
+                    updateUI()
+                }
+            }
+            override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "❌ Some URLs failed: $error", Toast.LENGTH_SHORT).show()
+                    updateUI()
+                }
+            }
+        })
+    }
+
+    private fun confirmClearPairing() {
+        AlertDialog.Builder(this)
+            .setTitle("Clear Pairing")
+            .setMessage("Are you sure you want to clear the pairing with the Display device?")
+            .setPositiveButton("Clear") { _, _ ->
+                clearPairing()
+            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
-    
+
+    private fun clearPairing() {
+        prefsManager.clearPairing()
+        mainSender.clearPending()
+        Toast.makeText(this, "✅ Pairing cleared", Toast.LENGTH_SHORT).show()
+        updateUI()
+    }
+
     private fun checkServerStatus() {
-        Log.d(TAG, "🔍 Checking server status...")
+        if (!mainSender.isPaired()) {
+            Log.w(TAG, "❌ Not paired, cannot check server status")
+            return
+        }
+
         mainSender.checkServerStatus { success, error ->
             runOnUiThread {
                 if (success) {
@@ -249,10 +312,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    private fun showA11ySettings() {
-        Toast.makeText(this, "Accessibility features have been removed", Toast.LENGTH_SHORT).show()
-    }
-    
     private fun updateA11yUI() {
         // Accessibility service has been removed
         // Hide or disable accessibility-related UI elements
@@ -261,112 +320,116 @@ class MainActivity : AppCompatActivity() {
         tvA11yStatus?.text = "Accessibility features removed"
     }
 
-    private fun startQRScan() {
-        // Check camera permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST)
-            }
-            return
+    private fun updateUI() {
+        val isPaired = mainSender.isPaired()
+        val pendingCount = prefsManager.getPendingCount()
+        val state = mainSender.getCurrentState()
+
+        // Update pairing status
+        if (isPaired) {
+            tvPairStatus.text = "✅ Paired"
+            tvPairStatus.setTextColor(getColor(R.color.aurora_success))
+            tvPairInfo.text = mainSender.getPairedInfo()
+        } else {
+            tvPairStatus.text = "Not Paired"
+            tvPairStatus.setTextColor(getColor(R.color.aurora_waiting))
+            tvPairInfo.text = "Scan QR code from Display device"
         }
 
-        val intent = Intent(this, PairScanActivity::class.java)
-        scanLauncher.launch(intent)
-    }
-
-    private fun sendTestLocation() {
-        Log.d(TAG, "🧪 Sending test location (Bangkok)")
-        btnSendTest.isEnabled = false
-        
-        mainSender.sendTestLocation(object : MainSender.Companion.SendCallback {
-            override fun onSuccess() {
-                Log.d(TAG, "✅ Test location sent successfully")
-                runOnUiThread {
-                    btnSendTest.isEnabled = mainSender.isVerified()
-                    updateUI()
-                }
+        when (state) {
+            MainSender.STATE_AUTH_FAILED -> {
+                tvConnectionState.text = "🔴 Auth failed"
+                tvConnectionState.setTextColor(getColor(R.color.aurora_auth_failed))
+                tvConnectionState.setBackgroundResource(R.drawable.badge_error)
             }
-
-            override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
-                Log.e(TAG, "❌ Failed to send test location: $error")
-                runOnUiThread {
-                    btnSendTest.isEnabled = mainSender.isVerified() && !authFailed
-                    updateUI()
-                    
-                    if (authFailed) {
-                        showAuthFailedWarning()
-                    }
-                }
+            MainSender.STATE_OFFLINE -> {
+                tvConnectionState.text = "🔴 Disconnected"
+                tvConnectionState.setTextColor(getColor(R.color.aurora_error))
+                tvConnectionState.setBackgroundResource(R.drawable.badge_error)
             }
-        })
-    }
-
-    private fun retryPending() {
-        Log.d(TAG, "🔄 Retrying pending commands")
-        mainSender.retryPending(object : MainSender.Companion.SendCallback {
-            override fun onSuccess() {
-                runOnUiThread {
-                    updateUI()
-                }
+            MainSender.STATE_CONNECTED -> {
+                tvConnectionState.text = "🟢 Connected"
+                tvConnectionState.setTextColor(getColor(R.color.aurora_success))
+                tvConnectionState.setBackgroundResource(R.drawable.badge_success)
             }
-
-            override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
-                runOnUiThread {
-                    updateUI()
-                    
-                    if (authFailed) {
-                        showAuthFailedWarning()
-                    }
-                }
+            MainSender.STATE_PAIRING, MainSender.STATE_CONNECTING -> {
+                tvConnectionState.text = "🟡 Connecting"
+                tvConnectionState.setTextColor(getColor(R.color.aurora_warning))
+                tvConnectionState.setBackgroundResource(R.drawable.badge_warning)
             }
-        })
-    }
-
-    private fun confirmClearPairing() {
-        AlertDialog.Builder(this)
-            .setTitle("Clear Pairing?")
-            .setMessage("This will remove the pairing with the Display device. You'll need to scan QR again to reconnect.")
-            .setPositiveButton("Clear") { _, _ ->
-                Log.d(TAG, "🗑️ Clearing pairing")
-                prefsManager.clearPairing()
-                mainSender.setState(MainSender.STATE_UNPAIRED)
-                mainSender.clearPending()
-                updateUI()
-                Toast.makeText(this, "Pairing cleared", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            CAMERA_PERMISSION_REQUEST -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "✅ Camera permission granted")
-                    startQRScan()
-                } else {
-                    Log.w(TAG, "❌ Camera permission denied")
-                    Toast.makeText(this, "Camera permission required to scan QR codes", Toast.LENGTH_LONG).show()
-                }
+            else -> {
+                tvConnectionState.text = if (isPaired) "🟡 Waiting" else "🟡 Waiting for Pairing"
+                tvConnectionState.setTextColor(getColor(R.color.aurora_waiting))
+                tvConnectionState.setBackgroundResource(R.drawable.badge_neutral)
             }
         }
+
+        // Update pending count
+        tvPendingCount.text = "Pending: $pendingCount"
+        if (pendingCount > 0) {
+            tvPendingCount.setTextColor(getColor(R.color.aurora_warning))
+            tvPendingCount.setBackgroundResource(R.drawable.badge_warning)
+        } else {
+            tvPendingCount.setTextColor(getColor(R.color.aurora_success))
+            tvPendingCount.setBackgroundResource(R.drawable.badge_success)
+        }
+
+        // Update button states
+        btnSendTest.isEnabled = isPaired
+        btnRetryPending.isEnabled = isPaired && pendingCount > 0
+        btnClearPairing.isEnabled = isPaired
     }
 
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "▶️ MainActivity.onResume()")
         updateUI()
-        
-        // Start periodic status checks
         handler.post(statusCheckRunnable)
     }
-    
+
     override fun onPause() {
         super.onPause()
         Log.d(TAG, "⏸️ MainActivity.onPause()")
-        
-        // Stop periodic status checks
         handler.removeCallbacks(statusCheckRunnable)
+    }
+
+    override fun onBackPressed() {
+        if (::drawerLayout.isInitialized && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+            return
+        }
+        super.onBackPressed()
+    }
+
+    private fun showAboutDialog() {
+        val versionName = try {
+            val pi = packageManager.getPackageInfo(packageName, 0)
+            pi.versionName ?: "unknown"
+        } catch (e: Exception) {
+            "unknown"
+        }
+        AlertDialog.Builder(this)
+            .setTitle("About PHANToM GO")
+            .setMessage("Version: $versionName\n\nSend navigation from main device to display device over Bluetooth/Wi-Fi.")
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        
+        when (requestCode) {
+            CAMERA_PERMISSION_REQUEST -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startQRScan()
+                } else {
+                    Toast.makeText(this, "Camera permission required for QR scanning", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 }

@@ -49,10 +49,11 @@ class DisplayActivity : AppCompatActivity() {
     private lateinit var tvPairedInfo: TextView
     private lateinit var btnRefreshToken: Button
     private lateinit var btnCopyToken: Button
-    private lateinit var btnShowQR: Button
     private lateinit var btnResetPairing: Button
     private lateinit var layoutQR: LinearLayout
     private lateinit var layoutConnected: LinearLayout
+    private lateinit var layoutConnectedActions: LinearLayout
+    private lateinit var btnOpenLastNav: Button
     private lateinit var switchDisplayMode: MaterialSwitch
     private lateinit var tvDisplayModeStatus: TextView
     private lateinit var tvServerInfo: TextView
@@ -94,10 +95,11 @@ class DisplayActivity : AppCompatActivity() {
         tvPairedInfo = findViewById(R.id.tvPairedInfo)
         btnRefreshToken = findViewById(R.id.btnRefreshToken)
         btnCopyToken = findViewById(R.id.btnCopyToken)
-        btnShowQR = findViewById(R.id.btnShowQR)
         btnResetPairing = findViewById(R.id.btnResetPairing)
         layoutQR = findViewById(R.id.layoutQR)
         layoutConnected = findViewById(R.id.layoutConnected)
+        layoutConnectedActions = findViewById(R.id.layoutConnectedActions)
+        btnOpenLastNav = findViewById(R.id.btnOpenLastNav)
         switchDisplayMode = findViewById(R.id.switchDisplayMode)
         tvDisplayModeStatus = findViewById(R.id.tvDisplayModeStatus)
         tvServerInfo = findViewById(R.id.tvServerInfo)
@@ -107,22 +109,27 @@ class DisplayActivity : AppCompatActivity() {
         btnCopyPayload = findViewById(R.id.btnCopyPayload)
 
         btnRefreshToken.setOnClickListener {
+            Log.d(TAG, "CLICK: btnRefreshToken on DisplayActivity")
             refreshToken()
         }
 
         btnCopyToken.setOnClickListener {
+            Log.d(TAG, "CLICK: btnCopyToken on DisplayActivity")
             copyTokenToClipboard()
         }
-        
-        btnShowQR.setOnClickListener {
-            showQRCode()
+
+        btnOpenLastNav.setOnClickListener {
+            Log.d(TAG, "CLICK: btnOpenLastNav on DisplayActivity")
+            openLastNavigation()
         }
-        
+
         btnResetPairing.setOnClickListener {
+            Log.d(TAG, "CLICK: btnResetPairing on DisplayActivity")
             confirmResetPairing()
         }
 
         switchDisplayMode.setOnCheckedChangeListener { _, isChecked ->
+            Log.d(TAG, "CLICK: switchDisplayMode on DisplayActivity -> $isChecked")
             if (isChecked) {
                 startDisplayService()
             } else {
@@ -131,10 +138,12 @@ class DisplayActivity : AppCompatActivity() {
         }
 
         btnBatterySettings.setOnClickListener {
+            Log.d(TAG, "CLICK: btnBatterySettings on DisplayActivity")
             requestBatteryOptimization()
         }
 
         btnCopyPayload.setOnClickListener {
+            Log.d(TAG, "CLICK: btnCopyPayload on DisplayActivity")
             copyPayloadToClipboard()
         }
     }
@@ -225,11 +234,16 @@ class DisplayActivity : AppCompatActivity() {
             tvPairedInfo.text = "Paired with $pairedName ($timeAgo)"
             layoutQR.visibility = View.GONE
             layoutConnected.visibility = View.VISIBLE
+            layoutConnectedActions.visibility = View.VISIBLE
         } else {
             tvPairedInfo.text = "Waiting for pairing..."
             layoutQR.visibility = View.VISIBLE
             layoutConnected.visibility = View.GONE
+            layoutConnectedActions.visibility = View.GONE
         }
+
+        val lastUrl = prefsManager.getPrefs().getString("last_url", null)
+        btnOpenLastNav.isEnabled = !lastUrl.isNullOrEmpty()
 
         // Generate QR code with phantomgo:// scheme
         val qrPayload = buildPairPayload(ip, port, token)
@@ -362,6 +376,23 @@ class DisplayActivity : AppCompatActivity() {
         Toast.makeText(this, "QR Payload copied to clipboard", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "📋 QR Payload copied to clipboard")
     }
+
+    private fun openLastNavigation() {
+        val prefs = prefsManager.getPrefs()
+        val lastUrl = prefs.getString("last_url", null)
+
+        if (lastUrl.isNullOrEmpty()) {
+            Toast.makeText(this, "No recent navigation found", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Log.d(TAG, "🧭 Opening last navigation URL: $lastUrl")
+        val intent = Intent(this, OpenNavigationActivity::class.java).apply {
+            putExtra("url", lastUrl)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+        startActivity(intent)
+    }
     
     private fun refreshToken() {
         Log.d(TAG, "🔄 Refreshing token...")
@@ -377,15 +408,6 @@ class DisplayActivity : AppCompatActivity() {
         clipboard.setPrimaryClip(clip)
         Toast.makeText(this, "Token copied to clipboard", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "📋 Token copied to clipboard")
-    }
-    
-    private fun showQRCode() {
-        if (layoutQR.visibility == View.VISIBLE) {
-            layoutQR.visibility = View.GONE
-        } else {
-            layoutQR.visibility = View.VISIBLE
-            generateQRCode("${tvIpPort.text}:${prefsManager.getServerToken()}")
-        }
     }
     
     private fun confirmResetPairing() {
