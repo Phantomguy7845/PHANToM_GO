@@ -32,6 +32,9 @@ class PrefsManager(context: Context) {
         
         // Pending queue
         private const val KEY_PENDING_QUEUE = "pending_queue"
+
+        // Short link resolve cache
+        private const val KEY_URL_RESOLVE_CACHE = "url_resolve_cache"
     }
     
     // Display device: Server token
@@ -175,6 +178,27 @@ class PrefsManager(context: Context) {
     
     fun getPendingCount(): Int {
         return getPendingQueue().size
+    }
+
+    fun getResolvedUrlFor(shortUrl: String): String? {
+        val json = prefs.getString(KEY_URL_RESOLVE_CACHE, "{}") ?: "{}"
+        return try {
+            val obj = org.json.JSONObject(json)
+            obj.optString(shortUrl, null)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun putResolvedUrl(shortUrl: String, resolvedUrl: String) {
+        val json = prefs.getString(KEY_URL_RESOLVE_CACHE, "{}") ?: "{}"
+        val obj = try {
+            org.json.JSONObject(json)
+        } catch (e: Exception) {
+            org.json.JSONObject()
+        }
+        obj.put(shortUrl, resolvedUrl)
+        prefs.edit().putString(KEY_URL_RESOLVE_CACHE, obj.toString()).apply()
     }
     
     private fun generateNewToken(): String {

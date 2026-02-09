@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.phantom.carnavrelay.PhantomLog
 
 class OpenNavigationActivity : AppCompatActivity() {
 
@@ -30,6 +31,7 @@ class OpenNavigationActivity : AppCompatActivity() {
         }
         
         Log.d(TAG, "📍 Opening navigation URL: $url")
+        PhantomLog.i("NAV openAttempt rawUrl=$url (OpenNavigationActivity)")
         
         try {
             // Create intent to open Google Maps
@@ -41,6 +43,7 @@ class OpenNavigationActivity : AppCompatActivity() {
             
             startActivity(mapsIntent)
             Log.d(TAG, "✅ Successfully launched Google Maps")
+            PhantomLog.i("NAV openSuccess via Google Maps (OpenNavigationActivity)")
             finish()
             
         } catch (e: ActivityNotFoundException) {
@@ -52,14 +55,17 @@ class OpenNavigationActivity : AppCompatActivity() {
                 }
                 startActivity(browserIntent)
                 Log.d(TAG, "✅ Successfully launched browser")
+                PhantomLog.w("NAV openFallback success (OpenNavigationActivity)")
                 finish()
             } catch (e2: Exception) {
                 Log.e(TAG, "💥 Failed to open any app for URL: $url", e2)
+                PhantomLog.e("NAV openFail (OpenNavigationActivity): ${e2.message}", e2)
                 Toast.makeText(this, "Cannot open navigation URL", Toast.LENGTH_LONG).show()
                 finish()
             }
         } catch (e: Exception) {
             Log.e(TAG, "💥 Error opening navigation URL: $url", e)
+            PhantomLog.e("NAV openError (OpenNavigationActivity): ${e.message}", e)
             Toast.makeText(this, "Error opening navigation", Toast.LENGTH_LONG).show()
             finish()
         }

@@ -1,6 +1,7 @@
 package com.phantom.carnavrelay
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -378,6 +379,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "▶️ MainActivity.onResume()")
+        setRelayComponentEnabled(!isDisplayServiceRunning(), "MainActivity.onResume")
         updateUI()
         handler.post(statusCheckRunnable)
     }
@@ -386,6 +388,33 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         Log.d(TAG, "⏸️ MainActivity.onPause()")
         handler.removeCallbacks(statusCheckRunnable)
+    }
+
+    private fun isDisplayServiceRunning(): Boolean {
+        return try {
+            val activityManager = getSystemService(android.app.ActivityManager::class.java)
+            val services = activityManager.getRunningServices(Integer.MAX_VALUE)
+            services.any { it.service.className == DisplayServerService::class.java.name }
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Could not check DisplayServerService state", e)
+            false
+        }
+    }
+
+    private fun setRelayComponentEnabled(enabled: Boolean, reason: String) {
+        val component = ComponentName(this, RelayActivity::class.java)
+        val state = if (enabled) {
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        } else {
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        }
+        packageManager.setComponentEnabledSetting(
+            component,
+            state,
+            PackageManager.DONT_KILL_APP
+        )
+        Log.d(TAG, "🔧 RelayActivity component ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
+        PhantomLog.i("RelayActivity ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
     }
 
     override fun onBackPressed() {

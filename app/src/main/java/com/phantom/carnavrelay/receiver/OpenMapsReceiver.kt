@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import com.phantom.carnavrelay.PhantomLog
 
 class OpenMapsReceiver : BroadcastReceiver() {
 
@@ -22,28 +23,33 @@ class OpenMapsReceiver : BroadcastReceiver() {
         }
 
         Log.d(TAG, "🗺️ OpenMapsReceiver: Opening URL: $url")
+        PhantomLog.i("NAV openAttempt rawUrl=$url (OpenMapsReceiver)")
         
         try {
-            // Try to open with Google Maps first
             val mapsIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                 setPackage("com.google.android.apps.maps")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             
-            // Check if Google Maps is installed
-            if (mapsIntent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(mapsIntent)
-                Log.d(TAG, "✅ Opened Google Maps")
-            } else {
-                // Fallback to any map app
+            context.startActivity(mapsIntent)
+            Log.d(TAG, "✅ Opened Google Maps")
+            PhantomLog.i("NAV openSuccess via Google Maps (OpenMapsReceiver)")
+        } catch (e: android.content.ActivityNotFoundException) {
+            Log.w(TAG, "⚠️ Google Maps not found, opening fallback")
+            try {
                 val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 context.startActivity(fallbackIntent)
                 Log.d(TAG, "✅ Opened with fallback map app")
+                PhantomLog.w("NAV openFallback success (OpenMapsReceiver)")
+            } catch (e2: Exception) {
+                Log.e(TAG, "💥 Failed to open Maps fallback", e2)
+                PhantomLog.e("NAV openFail (OpenMapsReceiver): ${e2.message}", e2)
             }
         } catch (e: Exception) {
             Log.e(TAG, "💥 Failed to open Maps", e)
+            PhantomLog.e("NAV openError (OpenMapsReceiver): ${e.message}", e)
         }
     }
 }

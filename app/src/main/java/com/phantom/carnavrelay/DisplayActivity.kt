@@ -2,6 +2,7 @@ package com.phantom.carnavrelay
 
 import android.Manifest
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -83,6 +84,7 @@ class DisplayActivity : AppCompatActivity() {
 
         initViews()
         checkPermissions()
+        setRelayComponentEnabled(false, "DisplayActivity.onCreate")
         updateUI()
         startHttpServer()
     }
@@ -211,6 +213,8 @@ class DisplayActivity : AppCompatActivity() {
         switchDisplayMode.isChecked = isServiceRunning
         tvDisplayModeStatus.text = if (isServiceRunning) "ON" else "OFF"
         tvDisplayModeStatus.setTextColor(if (isServiceRunning) getColor(R.color.success) else getColor(R.color.gray_600))
+
+        setRelayComponentEnabled(!isServiceRunning, "DisplayActivity.updateUI")
         
         if (isServiceRunning) {
             tvServerInfo.text = "Server: $ip:$port"
@@ -299,6 +303,22 @@ class DisplayActivity : AppCompatActivity() {
             Log.w(TAG, "Could not check service status", e)
             false
         }
+    }
+
+    private fun setRelayComponentEnabled(enabled: Boolean, reason: String) {
+        val component = ComponentName(this, RelayActivity::class.java)
+        val state = if (enabled) {
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        } else {
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        }
+        packageManager.setComponentEnabledSetting(
+            component,
+            state,
+            PackageManager.DONT_KILL_APP
+        )
+        Log.d(TAG, "🔧 RelayActivity component ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
+        PhantomLog.i("RelayActivity ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
     }
     
     private fun updateBatteryStatus() {

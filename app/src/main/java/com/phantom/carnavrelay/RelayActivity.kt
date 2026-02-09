@@ -11,6 +11,13 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class RelayActivity : AppCompatActivity() {
 
@@ -19,10 +26,16 @@ class RelayActivity : AppCompatActivity() {
     }
 
     private lateinit var mainSender: MainSender
+    private lateinit var prefsManager: PrefsManager
     private lateinit var sendingText: TextView
     private lateinit var statusText: TextView
     private lateinit var progressBar: ProgressBar
     private val handler = Handler(Looper.getMainLooper())
+    private val resolverClient = OkHttpClient.Builder()
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .callTimeout(5, TimeUnit.SECONDS)
+        .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +48,7 @@ class RelayActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         
         mainSender = MainSender(this)
+        prefsManager = PrefsManager(this)
 
         // Handle the intent
         handleIntent(intent)
@@ -90,6 +104,7 @@ class RelayActivity : AppCompatActivity() {
         }
 
         Log.d(TAG, "📋 Raw input: $raw")
+        PhantomLog.i("NAV rawUrl=$raw")
 
         // Normalize raw -> mapsUrl
         val normalizedUrl = normalizeRawInput(raw)
@@ -102,16 +117,19 @@ class RelayActivity : AppCompatActivity() {
         }
 
         Log.d(TAG, "🔗 Normalized URL: $normalizedUrl")
+        PhantomLog.i("NAV normalizedUrl=$normalizedUrl")
 
-        // Send to Display device
-        try {
-            sendToDisplay(normalizedUrl)
-        } catch (e: Exception) {
-            Log.e(TAG, "💥 Exception in sendToDisplay", e)
-            runOnUiThread {
-                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+        resolveShortLinkIfNeeded(normalizedUrl) { resolvedUrl, resolved ->
+            PhantomLog.i("NAV resolvedUrl=$resolvedUrl (resolved=$resolved)")
+            try {
+                sendToDisplay(resolvedUrl)
+            } catch (e: Exception) {
+                Log.e(TAG, "💥 Exception in sendToDisplay", e)
+                runOnUiThread {
+                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+                finish()
             }
-            finish()
         }
     }
     
@@ -128,6 +146,7 @@ class RelayActivity : AppCompatActivity() {
         }
 
         Log.d(TAG, "📤 Sending URL to display: $mapsUrl")
+        PhantomLog.i("NAV sendUrl=$mapsUrl")
         
         // Update UI
         runOnUiThread {
@@ -177,6 +196,116 @@ class RelayActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun resolveShortLinkIfNeeded(url: String, callback: (String, Boolean) -> Unit) {
+        if (!isShortMapsLink(url)) {
+            callback(url, false)
+            return
+        }
+
+        val cached = prefsManager.getResolvedUrlFor(url)
+        if (!cached.isNullOrEmpty()) {
+            Log.d(TAG, "🔁 Resolved URL from cache: $cached")
+            PhantomLog.i("NAV resolvedCache hit: $url -> $cached")
+            callback(cached, true)
+            return
+        }
+
+        Log.d(TAG, "🔎 Resolving short URL: $url")
+        PhantomLog.i("NAV resolve start: $url")
+        resolveWithHead(url, 0, callback)
+    }
+
+    private fun resolveWithHead(url: String, attempt: Int, callback: (String, Boolean) -> Unit) {
+        val request = Request.Builder()
+            .url(url)
+            .head()
+            .build()
+
+        resolverClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.w(TAG, "⚠️ HEAD resolve failed (attempt ${attempt + 1}): ${e.message}")
+                if (attempt < 1) {
+                    resolveWithHead(url, attempt + 1, callback)
+                } else {
+                    PhantomLog.w("NAV resolve HEAD failed, fallback to original: $url")
+                    callback(url, false)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    val finalUrl = response.request.url.toString()
+                    val hasRedirect = response.priorResponse != null
+                    val location = response.header("Location")
+
+                    if (hasRedirect || !location.isNullOrEmpty()) {
+                        Log.d(TAG, "✅ HEAD resolved: $finalUrl")
+                        prefsManager.putResolvedUrl(url, finalUrl)
+                        callback(finalUrl, true)
+                        return
+                    }
+
+                    if (response.code == 405) {
+                        resolveWithGet(url, attempt, callback)
+                        return
+                    }
+
+                    // No redirect info; try GET to resolve
+                    resolveWithGet(url, attempt, callback)
+                }
+            }
+        })
+    }
+
+    private fun resolveWithGet(url: String, attempt: Int, callback: (String, Boolean) -> Unit) {
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+
+        resolverClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.w(TAG, "⚠️ GET resolve failed (attempt ${attempt + 1}): ${e.message}")
+                if (attempt < 1) {
+                    resolveWithGet(url, attempt + 1, callback)
+                } else {
+                    PhantomLog.w("NAV resolve GET failed, fallback to original: $url")
+                    callback(url, false)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    val finalUrl = response.request.url.toString()
+                    if (finalUrl != url) {
+                        Log.d(TAG, "✅ GET resolved: $finalUrl")
+                        prefsManager.putResolvedUrl(url, finalUrl)
+                        callback(finalUrl, true)
+                    } else {
+                        Log.w(TAG, "⚠️ GET resolve returned same URL, using original")
+                        PhantomLog.w("NAV resolve GET same URL, fallback: $url")
+                        callback(url, false)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun isShortMapsLink(url: String): Boolean {
+        return try {
+            val uri = Uri.parse(url)
+            val host = uri.host?.lowercase() ?: return false
+            when {
+                host == "maps.app.goo.gl" -> true
+                host == "goo.gl" && uri.path?.contains("/app/maps") == true -> true
+                host == "goo.gl" && uri.path?.contains("/maps") == true -> true
+                else -> false
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
     
     private fun normalizeRawInput(raw: String): String? {

@@ -24,6 +24,7 @@ class PhantomGoApplication : Application(), Application.ActivityLifecycleCallbac
         
         // Initialize crash reporter
         CrashReporter.init(this)
+        PhantomLog.init(this)
 
         registerActivityLifecycleCallbacks(this)
         
