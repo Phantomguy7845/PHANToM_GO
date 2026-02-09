@@ -6,11 +6,14 @@ import android.app.NotificationManager
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothSocket
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.phantom.carnavrelay.BtConst
 import com.phantom.carnavrelay.CrashReporter
 import com.phantom.carnavrelay.R
@@ -87,6 +90,20 @@ class MainClientService : Service() {
         val dev = adapter.getRemoteDevice(address)
 
         Log.d(TAG, "📡 Creating RFCOMM socket...")
+        // Check BLUETOOTH_CONNECT permission for Android 12+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                this, 
+                android.Manifest.permission.BLUETOOTH_CONNECT
+            ) == PackageManager.PERMISSION_GRANTED
+            
+            if (!hasPermission) {
+                Log.e(TAG, "❌ Missing BLUETOOTH_CONNECT permission")
+                throw SecurityException("BLUETOOTH_CONNECT permission required")
+            }
+        }
+        
+        @Suppress("MissingPermission")
         val s = dev.createRfcommSocketToServiceRecord(BtConst.APP_UUID)
         adapter.cancelDiscovery()
         

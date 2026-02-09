@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -38,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnClearPairing: Button
     private lateinit var btnCheckStatus: Button
     private lateinit var btnA11ySettings: Button
+    private lateinit var btnSettings: Button
     private lateinit var tvA11yToggle: TextView
     private lateinit var tvA11yStatus: TextView
     private lateinit var cardDisplay: MaterialCardView
@@ -88,9 +91,19 @@ class MainActivity : AppCompatActivity() {
         btnClearPairing = findViewById(R.id.btnClearPairing)
         btnCheckStatus = findViewById(R.id.btnCheckStatus)
         btnA11ySettings = findViewById(R.id.btnA11ySettings)
+        btnSettings = findViewById(R.id.btnSettings)
         tvA11yToggle = findViewById(R.id.tvA11yToggle)
         tvA11yStatus = findViewById(R.id.tvA11yStatus)
         cardDisplay = findViewById(R.id.cardDisplay)
+
+        // Setup button press animations and haptic feedback
+        setupButtonEffects(btnScanQR)
+        setupButtonEffects(btnSendTest)
+        setupButtonEffects(btnRetryPending)
+        setupButtonEffects(btnClearPairing)
+        setupButtonEffects(btnCheckStatus)
+        setupButtonEffects(btnA11ySettings)
+        setupButtonEffects(btnSettings)
 
         btnScanQR.setOnClickListener {
             startQRScan()
@@ -116,26 +129,37 @@ class MainActivity : AppCompatActivity() {
             showA11ySettings()
         }
 
-        btnSendTest.setOnClickListener {
-            sendTestLocation()
+        btnSettings.setOnClickListener {
+            openSettings()
         }
+    }
 
-        btnRetryPending.setOnClickListener {
-            retryPending()
+    private fun setupButtonEffects(button: Button) {
+        button.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    v.animate()
+                        .scaleX(0.98f)
+                        .scaleY(0.98f)
+                        .setDuration(100)
+                        .start()
+                    v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    v.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .setDuration(100)
+                        .start()
+                }
+            }
+            false
         }
+    }
 
-        btnClearPairing.setOnClickListener {
-            confirmClearPairing()
-        }
-        
-        btnCheckStatus.setOnClickListener {
-            checkServerStatus()
-            Toast.makeText(this, "Checking connection...", Toast.LENGTH_SHORT).show()
-        }
-
-        cardDisplay.setOnClickListener {
-            startActivity(Intent(this, DisplayActivity::class.java))
-        }
+    private fun openSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
     }
 
     private fun updateUI() {
@@ -226,52 +250,15 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun showA11ySettings() {
-        val isEnabled = PrefsManager.isA11yCaptureEnabled(this)
-        val isSystemEnabled = PrefsManager.isA11yCaptureEnabled(this)
-        
-        val message = if (!isSystemEnabled) {
-            "Accessibility service is not enabled in system settings.\n\nPlease enable it first, then you can toggle capture on/off from here."
-        } else {
-            "Auto-capture is currently ${if (isEnabled) "ON" else "OFF"}.\n\nYou can toggle this setting without going to system settings."
-        }
-        
-        AlertDialog.Builder(this)
-            .setTitle("Auto Capture Settings")
-            .setMessage(message)
-            .setPositiveButton(if (isSystemEnabled) "Toggle" else "Open Settings") { _, _ ->
-                if (isSystemEnabled) {
-                    // Toggle app-level setting
-                    val newState = !isEnabled
-                    prefsManager.setA11yCaptureEnabled(newState)
-                    updateA11yUI()
-                    Log.d(TAG, "A11y capture toggled: $newState")
-                } else {
-                    // Open system accessibility settings
-                    try {
-                        val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                        startActivity(intent)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to open accessibility settings", e)
-                        Toast.makeText(this, "Could not open settings", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        Toast.makeText(this, "Accessibility features have been removed", Toast.LENGTH_SHORT).show()
     }
     
     private fun updateA11yUI() {
-        val isEnabled = PrefsManager.isA11yCaptureEnabled(this)
-        val isSystemEnabled = PrefsManager.isA11yCaptureEnabled(this)
-        
-        tvA11yToggle.text = if (isEnabled) "ON" else "OFF"
-        tvA11yToggle.setTextColor(if (isEnabled) getColor(R.color.purple_500) else getColor(R.color.text_primary))
-        
-        tvA11yStatus.text = if (isSystemEnabled) {
-            if (isEnabled) "Auto-capturing navigation links" else "Tap to enable auto-capture"
-        } else {
-            "Enable in system settings first"
-        }
+        // Accessibility service has been removed
+        // Hide or disable accessibility-related UI elements
+        tvA11yToggle?.text = "REMOVED"
+        tvA11yToggle?.setTextColor(getColor(R.color.aurora_disconnected))
+        tvA11yStatus?.text = "Accessibility features removed"
     }
 
     private fun startQRScan() {

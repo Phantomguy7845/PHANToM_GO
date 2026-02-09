@@ -8,6 +8,8 @@ class PrefsManager(context: Context) {
     
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     
+    fun getPrefs(): SharedPreferences = prefs
+    
     companion object {
         private const val PREFS_NAME = "phantom_go_prefs"
         
@@ -30,9 +32,6 @@ class PrefsManager(context: Context) {
         
         // Pending queue
         private const val KEY_PENDING_QUEUE = "pending_queue"
-        
-        // Accessibility capture settings
-        private const val KEY_A11Y_CAPTURE_ENABLED = "a11y_capture_enabled"
     }
     
     // Display device: Server token
@@ -187,23 +186,4 @@ class PrefsManager(context: Context) {
         if (token.length <= 8) return token
         return "${token.take(4)}...${token.takeLast(4)}"
     }
-    
-    // Accessibility capture settings
-    fun isA11yCaptureEnabled(): Boolean {
-        return prefs.getBoolean(KEY_A11Y_CAPTURE_ENABLED, false)
-    }
-    
-    fun setA11yCaptureEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_A11Y_CAPTURE_ENABLED, enabled).apply()
-    }
-}
-
-// Extension function for system accessibility check
-fun PrefsManager.Companion.isA11yCaptureEnabled(context: Context): Boolean {
-    val expected = "${context.packageName}/com.phantom.carnavrelay.access.NavCaptureAccessibilityService"
-    val enabled = android.provider.Settings.Secure.getString(
-        context.contentResolver,
-        android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-    ) ?: return false
-    return enabled.split(':').any { it.equals(expected, ignoreCase = true) }
 }

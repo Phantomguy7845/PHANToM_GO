@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Ghost Purple Theme -->
+    <!-- Dark Aurora Theme Colors -->
+    <!-- Black to Silver gradient -->
+    <color name="aurora_black">#0A0A0A</color>
+    <color name="aurora_dark_gray">#1A1A1A</color>
+    <color name="aurora_gray">#2A2A2A</color>
+    <color name="aurora_silver">#3A3A3A</color>
+    
+    <!-- Aurora spectrum -->
+    <color name="aurora_purple">#6B46C1</color>
+    <color name="aurora_blue">#3B82F6</color>
+    <color name="aurora_cyan">#06B6D4</color>
+    <color name="aurora_green">#10B981</color>
+    <color name="aurora_mint">#34D399</color>
+    
+    <!-- Gradient variations -->
+    <color name="aurora_start">#0A0A0A</color>
+    <color name="aurora_center">#6B46C1</color>
+    <color name="aurora_end">#06B6D4</color>
+    
+    <!-- Status colors with aurora -->
+    <color name="aurora_success">#10B981</color>
+    <color name="aurora_warning">#F59E0B</color>
+    <color name="aurora_error">#EF4444</color>
+    <color name="aurora_info">#3B82F6</color>
+    <color name="aurora_waiting">#8B5CF6</color>
+    <color name="aurora_connected">#10B981</color>
+    <color name="aurora_disconnected">#6B7280</color>
+    <color name="aurora_auth_failed">#EF4444</color>
+
+    <!-- Legacy Ghost Purple Theme (keep for compatibility) -->
     <color name="purple_50">#F4ECF7</color>
     <color name="purple_100">#E8DAEF</color>
     <color name="purple_200">#D2B4DE</color>

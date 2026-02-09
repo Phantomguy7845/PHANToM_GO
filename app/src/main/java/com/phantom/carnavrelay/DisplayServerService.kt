@@ -33,6 +33,7 @@ class DisplayServerService : Service() {
 
     private var httpServer: HttpServer? = null
     private lateinit var prefsManager: PrefsManager
+    private var overlayController: OverlayController? = null
     private var lastUrl: String? = null
     private var lastCmdAt: Long = 0
 
@@ -40,6 +41,7 @@ class DisplayServerService : Service() {
         super.onCreate()
         Log.d(TAG, "▶️ DisplayServerService.onCreate()")
         prefsManager = PrefsManager(this)
+        overlayController = OverlayController(this)
         createNotificationChannel()
         acquireWakeLock()
     }
@@ -105,6 +107,11 @@ class DisplayServerService : Service() {
 
     override fun onDestroy() {
         Log.d(TAG, "💀 DisplayServerService.onDestroy()")
+        
+        // Cleanup overlay
+        overlayController?.cleanup()
+        
+        // Cleanup HTTP server
         try {
             httpServer?.stop()
             httpServer = null
@@ -113,7 +120,9 @@ class DisplayServerService : Service() {
             Log.e(TAG, "💥 Error stopping HTTP Server", e)
         }
         
+        // Release wake lock
         releaseWakeLock()
+        
         super.onDestroy()
     }
 
@@ -227,8 +236,25 @@ class DisplayServerService : Service() {
             Log.d(TAG, "📱 App in foreground, opening Maps directly")
             openMapsDirectly(url)
         } else {
-            Log.d(TAG, "� App in background, showing notification")
-            // Notification already shown above
+            Log.d(TAG, "📱 App in background, showing notification")
+            
+            // Try to show overlay if enabled and permission granted
+            overlayController?.let { controller ->
+                if (controller.isOverlayEnabled() && controller.hasOverlayPermission()) {
+                    Log.d(TAG, "🎯 Showing overlay widget")
+                    controller.showNavigationOverlay(url)
+                } else {
+                    Log.d(TAG, "🚫 Overlay disabled or no permission, using notification only")
+                    if (!controller.hasOverlayPermission()) {
+                        Log.w(TAG, "⚠️ Overlay permission not granted")
+                    }
+                    if (!controller.isOverlayEnabled()) {
+                        Log.d(TAG, "ℹ️ Overlay feature disabled in settings")
+                    }
+                }
+            } ?: run {
+                Log.w(TAG, "⚠️ Overlay controller not initialized")
+            }
         }
     }
     

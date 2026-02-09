@@ -29,6 +29,9 @@
     <!-- Battery optimization -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <!-- Overlay permission for navigation widget -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:name=".PhantomGoApplication"
         android:allowBackup="true"
@@ -38,6 +41,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CarNavRelay"
         android:usesCleartextTraffic="true">
+
+        <!-- App Shortcuts -->
+        <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
 
         <activity
             android:name=".MainActivity"
@@ -61,6 +67,12 @@
             android:name=".DiagnosticsActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.CarNavRelay" />
 
         <activity
             android:name=".RelayActivity"
@@ -109,7 +121,7 @@
             </intent-filter>
 
             <!-- ACTION_SEND for sharing text/plain (URLs) -->
-            <intent-filter>
+            <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
@@ -129,19 +141,6 @@
             android:name=".DisplayServerService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
-
-        <!-- Navigation Capture Accessibility Service -->
-        <service
-            android:name=".access.NavCaptureAccessibilityService"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/nav_capture_accessibility_config" />
-        </service>
 
         <!-- Receiver for opening Maps from notification -->
         <receiver

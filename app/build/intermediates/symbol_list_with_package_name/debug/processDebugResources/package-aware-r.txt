@@ -1280,6 +1280,26 @@ color accent_material_dark
 color accent_material_light
 color androidx_core_ripple_material_light
 color androidx_core_secondary_text_default_material_light
+color aurora_auth_failed
+color aurora_black
+color aurora_blue
+color aurora_center
+color aurora_connected
+color aurora_cyan
+color aurora_dark_gray
+color aurora_disconnected
+color aurora_end
+color aurora_error
+color aurora_gray
+color aurora_green
+color aurora_info
+color aurora_mint
+color aurora_purple
+color aurora_silver
+color aurora_start
+color aurora_success
+color aurora_waiting
+color aurora_warning
 color background
 color background_floating_material_dark
 color background_floating_material_light
@@ -2956,6 +2976,10 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable aurora_bg
+drawable aurora_button
+drawable aurora_button_ripple
+drawable aurora_card
 drawable avd_hide_password
 drawable avd_show_password
 drawable bg_code_block
@@ -3176,11 +3200,14 @@ id btnCheckStatus
 id btnClearPairing
 id btnCopyPayload
 id btnCopyToken
+id btnDismissOverlay
+id btnOpenNavigation
 id btnRefreshToken
 id btnResetPairing
 id btnRetryPending
 id btnScanQR
 id btnSendTest
+id btnSettings
 id btnShowQR
 id buttonContainer
 id buttonLayout
@@ -3202,6 +3229,7 @@ id checked
 id chronometer
 id circle_center
 id clearButton
+id clearLogButton
 id clear_text
 id clip_horizontal
 id clip_vertical
@@ -3220,6 +3248,7 @@ id contentPanel
 id contiguous
 id coordinator
 id copyButton
+id copyLogButton
 id cos
 id counterclockwise
 id cradle
@@ -3290,6 +3319,7 @@ id fullscreen_header
 id ghost_view
 id ghost_view_holder
 id gone
+id grantPermissionButton
 id graph
 id graph_wrap
 id group_divider
@@ -3327,6 +3357,8 @@ id line3
 id linear
 id listMode
 id list_item
+id logScrollView
+id logText
 id m3_side_sheet
 id marquee
 id masked
@@ -3418,6 +3450,8 @@ id open_search_view_toolbar
 id open_search_view_toolbar_container
 id outline
 id outward
+id overlayStatusText
+id overlaySwitch
 id packed
 id parallax
 id parent
@@ -3433,6 +3467,7 @@ id pin
 id position
 id postLayout
 id pressed
+id progressBar
 id progress_circular
 id progress_horizontal
 id radio
@@ -3471,6 +3506,7 @@ id select_dialog_listview
 id selected
 id selection_type
 id selfTestContent
+id sendingText
 id shareButton
 id shortcut
 id showCustom
@@ -3502,6 +3538,7 @@ id staticLayout
 id staticPostLayout
 id statusCard
 id statusIcon
+id statusText
 id stop
 id stretch
 id submenuarrow
@@ -3572,6 +3609,7 @@ id tvQrPayload
 id tvServerInfo
 id tvStatus
 id tvTokenHint
+id txtOverlayUrl
 id unchecked
 id uniform
 id unlabeled
@@ -3720,6 +3758,8 @@ layout activity_diagnostics
 layout activity_display
 layout activity_main
 layout activity_main_pair
+layout activity_relay_sending
+layout activity_settings
 layout custom_dialog
 layout design_bottom_navigation_item
 layout design_bottom_sheet_dialog
@@ -3800,6 +3840,7 @@ layout select_dialog_item_material
 layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
 layout support_simple_spinner_dropdown_item
+layout view_nav_overlay
 layout zxing_barcode_scanner
 layout zxing_capture
 menu menu_main
@@ -5329,4 +5370,4 @@ styleable ViewStubCompat android_id android_layout android_inflatedId
 styleable zxing_camera_preview zxing_framing_rect_height zxing_framing_rect_width zxing_preview_scaling_strategy zxing_use_texture_view
 styleable zxing_finder zxing_possible_result_points zxing_result_view zxing_viewfinder_laser zxing_viewfinder_laser_visibility zxing_viewfinder_mask
 styleable zxing_view zxing_scanner_layout
-xml nav_capture_accessibility_config
+xml shortcuts

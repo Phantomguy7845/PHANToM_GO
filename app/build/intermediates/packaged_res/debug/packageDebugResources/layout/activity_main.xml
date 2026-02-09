@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@drawable/aurora_bg">
 
     <TextView
         android:id="@+id/titleText"
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
         android:text="@string/app_name"
-        android:textColor="@color/purple_500"
+        android:textColor="@color/aurora_cyan"
         android:textSize="32sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginTop="24dp"
-        app:cardBackgroundColor="@color/surface"
+        app:cardBackgroundColor="@color/aurora_dark_gray"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Not Paired"
-                android:textColor="@color/purple_500"
+                android:textColor="@color/aurora_waiting"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -259,12 +259,28 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Settings Button -->
+    <Button
+        android:id="@+id/btnSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="⚙️ Settings"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:background="@drawable/aurora_button_ripple"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/statusCard" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:text="PHANToM GO - QR + HTTP Navigation"
-        android:textColor="@color/gray_400"
+        android:textColor="@color/aurora_silver"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -3,7 +3,12 @@ package com.phantom.carnavrelay
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -14,11 +19,21 @@ class RelayActivity : AppCompatActivity() {
     }
 
     private lateinit var mainSender: MainSender
+    private lateinit var sendingText: TextView
+    private lateinit var statusText: TextView
+    private lateinit var progressBar: ProgressBar
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "▶️ RelayActivity.onCreate()")
-
+        
+        // Set up sending screen
+        setContentView(R.layout.activity_relay_sending)
+        sendingText = findViewById(R.id.sendingText)
+        statusText = findViewById(R.id.statusText)
+        progressBar = findViewById(R.id.progressBar)
+        
         mainSender = MainSender(this)
 
         // Handle the intent
@@ -103,27 +118,57 @@ class RelayActivity : AppCompatActivity() {
     private fun sendToDisplay(mapsUrl: String) {
         if (!mainSender.isPaired()) {
             Log.w(TAG, "❌ Not paired with any display device")
-            Toast.makeText(this, "Not paired! Please pair with a Display device first.", Toast.LENGTH_LONG).show()
-            finish()
+            runOnUiThread {
+                statusText.text = "Not paired!"
+                sendingText.text = "Pairing required"
+                Toast.makeText(this@RelayActivity, "Not paired! Please pair with a Display device first.", Toast.LENGTH_LONG).show()
+                handler.postDelayed({ finish() }, 2000)
+            }
             return
         }
 
         Log.d(TAG, "📤 Sending URL to display: $mapsUrl")
+        
+        // Update UI
+        runOnUiThread {
+            statusText.text = "Sending navigation..."
+            sendingText.text = mapsUrl
+            progressBar.visibility = View.VISIBLE
+        }
+        
         mainSender.sendOpenUrl(mapsUrl, object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
                 Log.d(TAG, "✅ URL sent successfully to display")
-                showToast("Sent to display device!")
-                finish()
+                runOnUiThread {
+                    statusText.text = "Sent successfully!"
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@RelayActivity, "Sent to display device!", Toast.LENGTH_SHORT).show()
+                    
+                    // Auto-finish after showing success
+                    handler.postDelayed({ 
+                        finish()
+                    }, 1500)
+                }
             }
 
             override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
                 Log.e(TAG, "❌ Failed to send URL: $error, queued=$queued, authFailed=$authFailed")
-                if (queued) {
-                    showToast("Failed to send. Queued for retry.")
-                } else {
-                    showToast("Failed: $error")
+                runOnUiThread {
+                    statusText.text = "Failed: $error"
+                    sendingText.text = "Error occurred"
+                    progressBar.visibility = View.GONE
+                    
+                    if (queued) {
+                        Toast.makeText(this@RelayActivity, "Failed to send. Queued for retry.", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this@RelayActivity, "Failed: $error", Toast.LENGTH_LONG).show()
+                    }
+                    
+                    // Auto-finish after showing error
+                    handler.postDelayed({ 
+                        finish()
+                    }, 3000)
                 }
-                finish()
             }
         })
     }
@@ -195,12 +240,6 @@ class RelayActivity : AppCompatActivity() {
             }
             
             else -> uri.toString()
-        }
-    }
-
-    private fun showToast(message: String) {
-        runOnUiThread {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 }

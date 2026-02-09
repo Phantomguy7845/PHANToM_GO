@@ -1,33 +1,33 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-  <!-- Ghost Purple Theme -->
+  <!-- Dark Aurora Theme -->
   <style name="Theme.CarNavRelay" parent="Theme.Material3.DayNight.NoActionBar">
-    <!-- Primary Colors (Ghost Purple) -->
-    <item name="colorPrimary">@color/purple_500</item>
-    <item name="colorPrimaryVariant">@color/purple_700</item>
+    <!-- Primary Colors (Aurora) -->
+    <item name="colorPrimary">@color/aurora_purple</item>
+    <item name="colorPrimaryVariant">@color/aurora_blue</item>
     <item name="colorOnPrimary">@color/white</item>
-    <item name="colorPrimaryContainer">@color/purple_100</item>
-    <item name="colorOnPrimaryContainer">@color/purple_900</item>
+    <item name="colorPrimaryContainer">@color/aurora_dark_gray</item>
+    <item name="colorOnPrimaryContainer">@color/aurora_cyan</item>
 
-    <!-- Secondary Colors (Teal) -->
-    <item name="colorSecondary">@color/teal_500</item>
-    <item name="colorSecondaryVariant">@color/teal_700</item>
-    <item name="colorOnSecondary">@color/white</item>
-    <item name="colorSecondaryContainer">@color/teal_200</item>
-    <item name="colorOnSecondaryContainer">@color/teal_900</item>
+    <!-- Secondary Colors (Aurora) -->
+    <item name="colorSecondary">@color/aurora_cyan</item>
+    <item name="colorSecondaryVariant">@color/aurora_green</item>
+    <item name="colorOnSecondary">@color/aurora_black</item>
+    <item name="colorSecondaryContainer">@color/aurora_gray</item>
+    <item name="colorOnSecondaryContainer">@color/aurora_mint</item>
 
-    <!-- Surface Colors -->
-    <item name="colorSurface">@color/surface</item>
-    <item name="colorOnSurface">@color/on_surface</item>
-    <item name="android:colorBackground">@color/background</item>
-    <item name="colorOnBackground">@color/on_surface</item>
+    <!-- Surface Colors (Dark Aurora) -->
+    <item name="colorSurface">@color/aurora_dark_gray</item>
+    <item name="colorOnSurface">@color/aurora_silver</item>
+    <item name="android:colorBackground">@color/aurora_black</item>
+    <item name="colorOnBackground">@color/aurora_silver</item>
 
     <!-- Error Colors -->
-    <item name="colorError">@color/error</item>
+    <item name="colorError">@color/aurora_error</item>
     <item name="colorOnError">@color/white</item>
 
     <!-- System Bars -->
-    <item name="android:statusBarColor">@color/purple_700</item>
-    <item name="android:navigationBarColor">@color/purple_900</item>
+    <item name="android:statusBarColor">@color/aurora_black</item>
+    <item name="android:navigationBarColor">@color/aurora_black</item>
     <item name="android:windowLightStatusBar">false</item>
 
     <!-- Shape Appearance -->
@@ -56,6 +56,7 @@
   <style name="Widget.CarNavRelay.CardView" parent="Widget.Material3.CardView.Elevated">
     <item name="cardElevation">8dp</item>
     <item name="cardCornerRadius">24dp</item>
+    <item name="cardBackgroundColor">@drawable/aurora_card</item>
   </style>
 
   <!-- Button Styles -->
@@ -63,6 +64,11 @@
     <item name="cornerRadius">16dp</item>
     <item name="android:textSize">16sp</item>
     <item name="android:textStyle">bold</item>
+    <item name="backgroundTint">@null</item>
+    <item name="android:background">@drawable/aurora_button_ripple</item>
+    <item name="android:textColor">@color/white</item>
+    <item name="android:scaleY">1.0</item>
+    <item name="android:scaleX">1.0</item>
   </style>
 
   <!-- Translucent Theme for RelayActivity -->
