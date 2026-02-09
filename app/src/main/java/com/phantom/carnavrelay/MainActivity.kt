@@ -215,14 +215,9 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        try {
-            val intent = Intent("com.google.zxing.client.android.SCAN")
-            intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
-            scanLauncher.launch(intent)
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Failed to start QR scanner", e)
-            Toast.makeText(this, "Please install a QR scanner app", Toast.LENGTH_LONG).show()
-        }
+        Log.d(TAG, "📷 Launching in-app QR scanner")
+        val intent = Intent(this, PairScanActivity::class.java)
+        scanLauncher.launch(intent)
     }
 
     private fun sendTestLocation() {
