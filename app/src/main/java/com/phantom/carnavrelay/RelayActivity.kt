@@ -1,16 +1,23 @@
 package com.phantom.carnavrelay
 
+import android.Manifest
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -23,13 +30,13 @@ class RelayActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "PHANTOM_GO"
+        private const val CHANNEL_ID = "phantom_go_main"
+        private const val NOTIFICATION_ID = 3001
+        private const val NOTIFICATION_TIMEOUT_MS = 4000L
     }
 
     private lateinit var mainSender: MainSender
     private lateinit var prefsManager: PrefsManager
-    private lateinit var sendingText: TextView
-    private lateinit var statusText: TextView
-    private lateinit var progressBar: ProgressBar
     private val handler = Handler(Looper.getMainLooper())
     private val resolverClient = OkHttpClient.Builder()
         .followRedirects(true)
@@ -40,17 +47,11 @@ class RelayActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "▶️ RelayActivity.onCreate()")
-        
-        // Set up sending screen
-        setContentView(R.layout.activity_relay_sending)
-        sendingText = findViewById(R.id.sendingText)
-        statusText = findViewById(R.id.statusText)
-        progressBar = findViewById(R.id.progressBar)
-        
-        mainSender = MainSender(this)
-        prefsManager = PrefsManager(this)
 
-        // Handle the intent
+        mainSender = MainSender(applicationContext, toastEnabled = false)
+        prefsManager = PrefsManager(applicationContext)
+
+        ensureNotificationChannel()
         handleIntent(intent)
     }
 
@@ -63,6 +64,14 @@ class RelayActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
+        if (isDisplayModeActive()) {
+            Log.w(TAG, "🚫 Display mode active - ignoring external intent")
+            PhantomLog.w("NAV ignored: device in Display mode")
+            notifyStatus("Display mode active — ignoring share", allowToastFallback = true, forceAlert = true)
+            finishNoAnim()
+            return
+        }
+
         val action = intent.action
         val data = intent.data
         val type = intent.type
@@ -96,10 +105,8 @@ class RelayActivity : AppCompatActivity() {
         if (raw.isNullOrEmpty()) {
             Log.e(TAG, "❌ NO_RAW: No data received in intent")
             Log.e(TAG, "❌ NO_RAW: Intent details: action=$action, data=$data, type=$type, extraText=$extraText, processText=$processText")
-            runOnUiThread {
-                Toast.makeText(this, "No URL or text received", Toast.LENGTH_SHORT).show()
-            }
-            finish()
+            notifyStatus("Failed to send ❌", allowToastFallback = true, forceAlert = true)
+            finishNoAnim()
             return
         }
 
@@ -108,16 +115,18 @@ class RelayActivity : AppCompatActivity() {
 
         // Normalize raw -> mapsUrl
         val normalizedUrl = normalizeRawInput(raw)
-        
+
         if (normalizedUrl == null) {
             Log.w(TAG, "❌ Could not normalize input: $raw")
-            Toast.makeText(this, "Invalid navigation URL", Toast.LENGTH_SHORT).show()
-            finish()
+            notifyStatus("Failed to send ❌", allowToastFallback = true, forceAlert = true)
+            finishNoAnim()
             return
         }
 
         Log.d(TAG, "🔗 Normalized URL: $normalizedUrl")
         PhantomLog.i("NAV normalizedUrl=$normalizedUrl")
+
+        notifyStatus("Sending to car display…", allowToastFallback = false, forceAlert = false)
 
         resolveShortLinkIfNeeded(normalizedUrl) { resolvedUrl, resolved ->
             PhantomLog.i("NAV resolvedUrl=$resolvedUrl (resolved=$resolved)")
@@ -125,75 +134,33 @@ class RelayActivity : AppCompatActivity() {
                 sendToDisplay(resolvedUrl)
             } catch (e: Exception) {
                 Log.e(TAG, "💥 Exception in sendToDisplay", e)
-                runOnUiThread {
-                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-                finish()
+                notifyStatus("Failed to send ❌", allowToastFallback = true, forceAlert = true)
             }
         }
+
+        // Return immediately to previous app
+        finishNoAnim()
     }
-    
+
     private fun sendToDisplay(mapsUrl: String) {
         if (!mainSender.isPaired()) {
             Log.w(TAG, "❌ Not paired with any display device")
-            runOnUiThread {
-                statusText.text = "Not paired!"
-                sendingText.text = "Pairing required"
-                Toast.makeText(this@RelayActivity, "Not paired! Please pair with a Display device first.", Toast.LENGTH_LONG).show()
-                handler.postDelayed({ finish() }, 2000)
-            }
+            notifyStatus("Failed to send ❌", allowToastFallback = true, forceAlert = true)
             return
         }
 
         Log.d(TAG, "📤 Sending URL to display: $mapsUrl")
         PhantomLog.i("NAV sendUrl=$mapsUrl")
-        
-        // Update UI
-        runOnUiThread {
-            statusText.text = "Sending navigation..."
-            sendingText.text = mapsUrl
-            progressBar.visibility = View.VISIBLE
-        }
-        
+
         mainSender.sendOpenUrl(mapsUrl, object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
                 Log.d(TAG, "✅ URL sent successfully to display")
-                runOnUiThread {
-                    statusText.text = "Sent successfully!"
-                    progressBar.visibility = View.GONE
-                    Toast.makeText(this@RelayActivity, "Sent to display device!", Toast.LENGTH_SHORT).show()
-                    
-                    // Auto-finish after showing success
-                    handler.postDelayed({
-                        finish()
-                        overridePendingTransition(0, 0)
-                    }, 500)
-                }
+                notifyStatus("Sent to car display ✅", allowToastFallback = true, forceAlert = true)
             }
 
             override fun onFailure(error: String, queued: Boolean, authFailed: Boolean) {
                 Log.e(TAG, "❌ Failed to send URL: $error, queued=$queued, authFailed=$authFailed")
-                runOnUiThread {
-                    statusText.text = "Failed: $error"
-                    sendingText.text = "Error occurred"
-                    progressBar.visibility = View.GONE
-                    
-                    if (queued) {
-                        Toast.makeText(this@RelayActivity, "Failed to send. Queued for retry.", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(this@RelayActivity, "Failed: $error", Toast.LENGTH_LONG).show()
-                    }
-                    
-                    // Auto-finish after showing error
-                    handler.postDelayed({
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                            finishAndRemoveTask()
-                        } else {
-                            finish()
-                        }
-                        overridePendingTransition(0, 0)
-                    }, 2000)
-                }
+                notifyStatus("Failed to send ❌", allowToastFallback = true, forceAlert = true)
             }
         })
     }
@@ -307,7 +274,7 @@ class RelayActivity : AppCompatActivity() {
             false
         }
     }
-    
+
     private fun normalizeRawInput(raw: String): String? {
         // Try to parse as URI first
         val uri = try {
@@ -315,12 +282,12 @@ class RelayActivity : AppCompatActivity() {
         } catch (e: Exception) {
             null
         }
-        
+
         return when {
             // If it's a valid URI with scheme, use normalizeUrl
             uri?.scheme != null -> normalizeUrl(uri)
             // If it looks like coordinates (lat,lng), create geo URI
-            raw.matches(Regex("""^-?\d+\.?\d*,-?\d+\.?\d*\$""")) -> {
+            raw.matches(Regex("^-?\\d+\\.?\\d*,-?\\d+\\.?\\d*$")) -> {
                 "https://www.google.com/maps/search/?api=1&query=${Uri.encode(raw)}"
             }
             // If it's a search query, create search URL
@@ -336,7 +303,7 @@ class RelayActivity : AppCompatActivity() {
                 // geo:lat,lng or geo:0,0?q=...
                 val geoData = uri.schemeSpecificPart
                 val query = uri.query
-                
+
                 if (query != null && query.startsWith("q=")) {
                     // geo:0,0?q=search+query
                     val searchQuery = query.substring(2).replace("+", " ")
@@ -351,7 +318,7 @@ class RelayActivity : AppCompatActivity() {
                     } else null
                 } else null
             }
-            
+
             "google.navigation" -> {
                 // google.navigation:q=...
                 val query = uri.getQueryParameter("q")
@@ -359,7 +326,7 @@ class RelayActivity : AppCompatActivity() {
                     "https://www.google.com/maps/dir/?api=1&destination=${Uri.encode(query)}"
                 } else null
             }
-            
+
             "https" -> {
                 when {
                     uri.host?.contains("google.com") == true && uri.path?.contains("/maps") == true -> {
@@ -373,8 +340,97 @@ class RelayActivity : AppCompatActivity() {
                     else -> uri.toString()
                 }
             }
-            
+
             else -> uri.toString()
         }
+    }
+
+    private fun isDisplayModeActive(): Boolean {
+        return try {
+            val activityManager = getSystemService(android.app.ActivityManager::class.java)
+            val services = activityManager.getRunningServices(Integer.MAX_VALUE)
+            services.any { it.service.className == DisplayServerService::class.java.name }
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Could not check DisplayServerService state", e)
+            false
+        }
+    }
+
+    private fun ensureNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "PHANToM GO (Main)"
+            val descriptionText = "Share status notifications"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+                enableLights(true)
+                enableVibration(true)
+            }
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun canPostNotifications(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                return false
+            }
+        }
+        return NotificationManagerCompat.from(this).areNotificationsEnabled()
+    }
+
+    private fun notifyStatus(text: String, allowToastFallback: Boolean, forceAlert: Boolean) {
+        if (!canPostNotifications()) {
+            Log.w(TAG, "🔕 Notification permission missing or blocked")
+            PhantomLog.w("NOTIF blocked: $text")
+            if (allowToastFallback) {
+                showToastFallback(text)
+            }
+            return
+        }
+
+        if (forceAlert) {
+            NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID)
+        }
+
+        val openIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val openPendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            openIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_main_mode)
+            .setContentTitle("PHANToM GO")
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setAutoCancel(true)
+            .setTimeoutAfter(NOTIFICATION_TIMEOUT_MS)
+            .setContentIntent(openPendingIntent)
+            .addAction(R.drawable.ic_main_mode, "Open app", openPendingIntent)
+            .build()
+
+        NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun showToastFallback(text: String) {
+        handler.post {
+            Toast.makeText(applicationContext, text, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun finishNoAnim() {
+        finish()
+        overridePendingTransition(0, 0)
     }
 }

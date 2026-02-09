@@ -19,7 +19,10 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
-class MainSender(private val context: Context) {
+class MainSender(
+    private val context: Context,
+    private val toastEnabled: Boolean = true
+) {
 
     companion object {
         private const val TAG = "PHANTOM_GO"
@@ -299,6 +302,7 @@ class MainSender(private val context: Context) {
     }
 
     private fun showToast(message: String) {
+        if (!toastEnabled) return
         mainHandler.post {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
