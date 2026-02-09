@@ -145,9 +145,10 @@ class RelayActivity : AppCompatActivity() {
                     Toast.makeText(this@RelayActivity, "Sent to display device!", Toast.LENGTH_SHORT).show()
                     
                     // Auto-finish after showing success
-                    handler.postDelayed({ 
+                    handler.postDelayed({
                         finish()
-                    }, 1500)
+                        overridePendingTransition(0, 0)
+                    }, 500)
                 }
             }
 
@@ -165,9 +166,14 @@ class RelayActivity : AppCompatActivity() {
                     }
                     
                     // Auto-finish after showing error
-                    handler.postDelayed({ 
-                        finish()
-                    }, 3000)
+                    handler.postDelayed({
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            finishAndRemoveTask()
+                        } else {
+                            finish()
+                        }
+                        overridePendingTransition(0, 0)
+                    }, 2000)
                 }
             }
         })

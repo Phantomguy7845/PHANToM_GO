@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_700"
+    android:background="@drawable/aurora_bg"
     android:fillViewport="true">
 
     <LinearLayout
@@ -189,7 +189,9 @@
                 android:id="@+id/btnOpenLastNav"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
+                android:backgroundTint="@color/aurora_purple"
                 android:text="🧭 Open Last Navigation"
+                android:textColor="@color/white"
                 android:textSize="16sp"
                 style="@style/Widget.Material3.Button.TonalButton" />
 
@@ -199,7 +201,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:text="Disconnect / Reset"
-                android:textColor="@color/red"
+                android:textColor="@color/aurora_error"
                 android:textSize="14sp"
                 style="@style/Widget.Material3.Button.TextButton" />
 
@@ -222,7 +224,7 @@
                 android:text="Refresh Token"
                 android:textColor="@color/white"
                 android:textSize="13sp"
-                app:strokeColor="@color/white"
+                app:strokeColor="@color/aurora_cyan"
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
             <com.google.android.material.button.MaterialButton
@@ -234,7 +236,7 @@
                 android:text="Copy Token"
                 android:textColor="@color/white"
                 android:textSize="13sp"
-                app:strokeColor="@color/white"
+                app:strokeColor="@color/aurora_cyan"
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
         </LinearLayout>

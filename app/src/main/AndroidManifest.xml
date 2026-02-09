@@ -78,6 +78,8 @@
             android:name=".RelayActivity"
             android:exported="true"
             android:launchMode="singleTask"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
             android:theme="@style/Theme.CarNavRelay.Translucent">
 
             <!-- geo:lat,lng หรือ geo:0,0?q= -->

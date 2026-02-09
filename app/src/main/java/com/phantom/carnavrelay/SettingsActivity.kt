@@ -43,6 +43,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var copyLogButton: Button
     private lateinit var clearLogButton: Button
     private lateinit var grantPermissionButton: Button
+    private lateinit var backButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +66,7 @@ class SettingsActivity : AppCompatActivity() {
         copyLogButton = findViewById(R.id.copyLogButton)
         clearLogButton = findViewById(R.id.clearLogButton)
         grantPermissionButton = findViewById(R.id.grantPermissionButton)
+        backButton = findViewById(R.id.backButton)
     }
 
     private fun setupClickListeners() {
@@ -90,6 +92,10 @@ class SettingsActivity : AppCompatActivity() {
         grantPermissionButton.setOnClickListener {
             requestOverlayPermission()
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        backButton.setOnClickListener {
+            finish()
         }
     }
 

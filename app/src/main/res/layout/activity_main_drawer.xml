@@ -118,6 +118,7 @@
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/aurora_button_ripple"
                     android:text="📷 Scan QR to Pair"
+                    android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -134,8 +135,10 @@
                         android:layout_height="56dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
+                        android:backgroundTint="@color/aurora_purple"
                         android:enabled="false"
                         android:text="📍 Test"
+                        android:textColor="@color/white"
                         android:textSize="16sp"
                         style="@style/Widget.Material3.Button.TonalButton" />
 
@@ -146,6 +149,8 @@
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:enabled="false"
+                        android:textColor="@color/white"
+                        app:strokeColor="@color/aurora_cyan"
                         android:text="🔄 Retry"
                         android:textSize="16sp"
                         style="@style/Widget.Material3.Button.OutlinedButton" />
@@ -222,6 +227,8 @@
                     android:layout_height="48dp"
                     android:layout_marginBottom="12dp"
                     android:enabled="false"
+                    android:textColor="@color/white"
+                    app:strokeColor="@color/aurora_cyan"
                     android:text="🗑️ Clear Pairing"
                     android:textSize="14sp"
                     style="@style/Widget.Material3.Button.OutlinedButton" />
