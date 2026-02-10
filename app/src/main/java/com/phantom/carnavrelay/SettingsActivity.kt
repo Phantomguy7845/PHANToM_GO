@@ -35,6 +35,23 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var overlayController: OverlayController
     private lateinit var overlaySwitch: Switch
     private lateinit var overlayStatusText: TextView
+    private lateinit var mapLinkHubSwitch: Switch
+    private lateinit var mapLinkHubStatusText: TextView
+    private lateinit var mapLinkHubInstructionText: TextView
+    private lateinit var mapLinkHubDefaultStatusText: TextView
+    private lateinit var deviceModeStatusText: TextView
+    private lateinit var openByDefaultButton: Button
+    private lateinit var smartModeSwitch: Switch
+    private lateinit var smartModeStatusText: TextView
+    private lateinit var smartPolicyGroup: android.widget.RadioGroup
+    private lateinit var policyAutoSendNavOnly: android.widget.RadioButton
+    private lateinit var policyAlwaysAsk: android.widget.RadioButton
+    private lateinit var policyAlwaysSend: android.widget.RadioButton
+    private lateinit var policyAlwaysOpenOnPhone: android.widget.RadioButton
+    private lateinit var afterSendGroup: android.widget.RadioGroup
+    private lateinit var afterSendExit: android.widget.RadioButton
+    private lateinit var afterSendStay: android.widget.RadioButton
+    private lateinit var openMapsAfterSendSwitch: Switch
     private lateinit var logScrollView: ScrollView
     private lateinit var logText: TextView
     private lateinit var copyLogButton: Button
@@ -44,6 +61,11 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var requestNotificationButton: Button
     private lateinit var backButton: Button
     private var notificationRequestInFlight = false
+    private var updatingMapHubUi = false
+    private var updatingOpenMapsUi = false
+    private var updatingSmartModeUi = false
+    private var updatingPolicyUi = false
+    private var updatingAfterSendUi = false
 
     private val requestNotificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -69,6 +91,8 @@ class SettingsActivity : AppCompatActivity() {
         initViews()
         setupClickListeners()
         updateOverlayStatus()
+        updateMapLinkHubStatus()
+        updateSmartModeStatus()
         updateNotificationStatus()
         loadLogs()
     }
@@ -76,6 +100,23 @@ class SettingsActivity : AppCompatActivity() {
     private fun initViews() {
         overlaySwitch = findViewById(R.id.overlaySwitch)
         overlayStatusText = findViewById(R.id.overlayStatusText)
+        mapLinkHubSwitch = findViewById(R.id.mapLinkHubSwitch)
+        mapLinkHubStatusText = findViewById(R.id.mapLinkHubStatusText)
+        mapLinkHubInstructionText = findViewById(R.id.mapLinkHubInstructionText)
+        mapLinkHubDefaultStatusText = findViewById(R.id.mapLinkHubDefaultStatusText)
+        deviceModeStatusText = findViewById(R.id.deviceModeStatusText)
+        openByDefaultButton = findViewById(R.id.openByDefaultButton)
+        smartModeSwitch = findViewById(R.id.smartModeSwitch)
+        smartModeStatusText = findViewById(R.id.smartModeStatusText)
+        smartPolicyGroup = findViewById(R.id.smartPolicyGroup)
+        policyAutoSendNavOnly = findViewById(R.id.policyAutoSendNavOnly)
+        policyAlwaysAsk = findViewById(R.id.policyAlwaysAsk)
+        policyAlwaysSend = findViewById(R.id.policyAlwaysSend)
+        policyAlwaysOpenOnPhone = findViewById(R.id.policyAlwaysOpenOnPhone)
+        afterSendGroup = findViewById(R.id.afterSendGroup)
+        afterSendExit = findViewById(R.id.afterSendExit)
+        afterSendStay = findViewById(R.id.afterSendStay)
+        openMapsAfterSendSwitch = findViewById(R.id.openMapsAfterSendSwitch)
         logScrollView = findViewById(R.id.logScrollView)
         logText = findViewById(R.id.logText)
         copyLogButton = findViewById(R.id.copyLogButton)
@@ -94,6 +135,57 @@ class SettingsActivity : AppCompatActivity() {
             
             // Haptic feedback
             overlaySwitch.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        mapLinkHubSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (updatingMapHubUi) return@setOnCheckedChangeListener
+            Log.d(TAG, "🗺️ Map Link Hub toggle changed: $isChecked")
+            prefsManager.setMapLinkHubEnabled(isChecked)
+            setMapLinkHandlerEnabled(isChecked)
+            updateMapLinkHubStatus()
+            mapLinkHubSwitch.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        smartModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (updatingSmartModeUi) return@setOnCheckedChangeListener
+            Log.d(TAG, "🤖 Smart Mode toggle changed: $isChecked")
+            prefsManager.setSmartModeEnabled(isChecked)
+            updateSmartModeStatus()
+            smartModeSwitch.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        smartPolicyGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (updatingPolicyUi) return@setOnCheckedChangeListener
+            val policy = when (checkedId) {
+                R.id.policyAutoSendNavOnly -> PrefsManager.SMART_POLICY_AUTO_SEND_NAV_ONLY
+                R.id.policyAlwaysSend -> PrefsManager.SMART_POLICY_ALWAYS_SEND
+                R.id.policyAlwaysOpenOnPhone -> PrefsManager.SMART_POLICY_ALWAYS_OPEN_ON_PHONE
+                else -> PrefsManager.SMART_POLICY_ALWAYS_ASK
+            }
+            prefsManager.setSmartModePolicy(policy)
+            updateSmartModeStatus()
+        }
+
+        afterSendGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (updatingAfterSendUi) return@setOnCheckedChangeListener
+            val behavior = when (checkedId) {
+                R.id.afterSendStay -> PrefsManager.AFTER_SEND_STAY_IN_APP
+                else -> PrefsManager.AFTER_SEND_EXIT_AND_REMOVE_TASK
+            }
+            prefsManager.setAfterSendBehavior(behavior)
+        }
+
+        openMapsAfterSendSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (updatingOpenMapsUi) return@setOnCheckedChangeListener
+            Log.d(TAG, "🧭 Open Maps after send: $isChecked")
+            prefsManager.setOpenMapsAfterSendEnabled(isChecked)
+            updateMapLinkHubStatus()
+            openMapsAfterSendSwitch.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        openByDefaultButton.setOnClickListener {
+            openDefaultHandlerSettings()
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
         copyLogButton.setOnClickListener {
@@ -145,6 +237,120 @@ class SettingsActivity : AppCompatActivity() {
                 grantPermissionButton.visibility = View.GONE
             }
         }
+    }
+
+    private fun updateMapLinkHubStatus() {
+        val enabled = prefsManager.isMapLinkHubEnabled()
+
+        updatingMapHubUi = true
+        mapLinkHubSwitch.isChecked = enabled
+        updatingMapHubUi = false
+
+        setMapLinkHandlerEnabled(enabled)
+
+        mapLinkHubStatusText.text = if (enabled) "On" else "Off"
+        mapLinkHubStatusText.setTextColor(
+            ContextCompat.getColor(
+                this,
+                if (enabled) R.color.aurora_success else R.color.aurora_warning
+            )
+        )
+
+        val deviceMode = prefsManager.getDeviceMode()
+        deviceModeStatusText.text = "Device mode: $deviceMode"
+
+        mapLinkHubInstructionText.text = if (enabled) {
+            "ไปที่ Settings ของระบบ > Apps > Open by default > เลือก PHANToM GO แล้วกด Always"
+        } else {
+            "ปิดอยู่: ลิงก์แผนที่จะเปิด Google Maps ตามปกติ"
+        }
+
+        mapLinkHubDefaultStatusText.text = "System default: โปรดตั้งค่าในระบบ"
+
+        updatingOpenMapsUi = true
+        openMapsAfterSendSwitch.isChecked = prefsManager.isOpenMapsAfterSendEnabled()
+        updatingOpenMapsUi = false
+    }
+
+    private fun updateSmartModeStatus() {
+        val enabled = prefsManager.isSmartModeEnabled()
+        val policy = prefsManager.getSmartModePolicy()
+
+        updatingSmartModeUi = true
+        smartModeSwitch.isChecked = enabled
+        updatingSmartModeUi = false
+
+        smartModeStatusText.text = if (enabled) "On" else "Off"
+        smartModeStatusText.setTextColor(
+            ContextCompat.getColor(
+                this,
+                if (enabled) R.color.aurora_success else R.color.aurora_warning
+            )
+        )
+
+        updatingPolicyUi = true
+        smartPolicyGroup.check(
+            when (policy) {
+                PrefsManager.SMART_POLICY_ALWAYS_SEND -> R.id.policyAlwaysSend
+                PrefsManager.SMART_POLICY_ALWAYS_OPEN_ON_PHONE -> R.id.policyAlwaysOpenOnPhone
+                PrefsManager.SMART_POLICY_ALWAYS_ASK -> R.id.policyAlwaysAsk
+                else -> R.id.policyAutoSendNavOnly
+            }
+        )
+        updatingPolicyUi = false
+
+        smartPolicyGroup.isEnabled = enabled
+        policyAutoSendNavOnly.isEnabled = enabled
+        policyAlwaysAsk.isEnabled = enabled
+        policyAlwaysSend.isEnabled = enabled
+        policyAlwaysOpenOnPhone.isEnabled = enabled
+
+        updatingAfterSendUi = true
+        afterSendGroup.check(
+            when (prefsManager.getAfterSendBehavior()) {
+                PrefsManager.AFTER_SEND_STAY_IN_APP -> R.id.afterSendStay
+                else -> R.id.afterSendExit
+            }
+        )
+        updatingAfterSendUi = false
+    }
+
+    private fun setMapLinkHandlerEnabled(enabled: Boolean) {
+        val component = android.content.ComponentName(
+            this,
+            "${packageName}.MapLinkHandlerAlias"
+        )
+        val state = if (enabled) {
+            android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        } else {
+            android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        }
+        packageManager.setComponentEnabledSetting(
+            component,
+            state,
+            android.content.pm.PackageManager.DONT_KILL_APP
+        )
+        Log.d(TAG, "🔧 MapLinkHandlerAlias ${if (enabled) "ENABLED" else "DISABLED"}")
+        PhantomLog.i("MapLinkHandlerAlias ${if (enabled) "ENABLED" else "DISABLED"}")
+    }
+
+    private fun openDefaultHandlerSettings() {
+        val pkgUri = Uri.parse("package:$packageName")
+        val intents = listOf(
+            Intent(Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS, pkgUri),
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkgUri)
+        )
+
+        for (intent in intents) {
+            try {
+                startActivity(intent)
+                return
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Unable to open settings: ${intent.action}", e)
+            }
+        }
+
+        Toast.makeText(this, "Cannot open settings on this device", Toast.LENGTH_SHORT).show()
     }
 
     private fun requestOverlayPermission() {
@@ -238,6 +444,8 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateOverlayStatus()
+        updateMapLinkHubStatus()
+        updateSmartModeStatus()
         updateNotificationStatus()
         loadLogs() // Refresh logs
     }

@@ -93,6 +93,236 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Map Link Hub Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="@color/aurora_dark_gray"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🗺️ Map Link Hub"
+                    android:textColor="@color/aurora_cyan"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="เมื่อเปิด PHANToM GO จะรับลิงก์แผนที่แทน Google Maps แล้วส่งไปเครื่องจอทันที"
+                    android:textColor="@color/aurora_silver"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <Switch
+                        android:id="@+id/mapLinkHubSwitch"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:thumbTint="@color/aurora_cyan"
+                        android:trackTint="@color/aurora_gray" />
+
+                    <TextView
+                        android:id="@+id/mapLinkHubStatusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Off"
+                        android:textColor="@color/aurora_warning"
+                        android:textSize="14sp"
+                        android:layout_marginStart="16dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/deviceModeStatusText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Device mode: MAIN"
+                    android:textColor="@color/aurora_silver"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/mapLinkHubInstructionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="หากต้องการให้เด้งเข้า PHANToM GO อัตโนมัติ ให้ตั้งค่า Open by default ในระบบ"
+                    android:textColor="@color/aurora_silver"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/mapLinkHubDefaultStatusText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="System default: โปรดตั้งค่าในระบบ"
+                    android:textColor="@color/aurora_silver"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/openByDefaultButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⚙️ ตั้งค่า Open by default"
+                    android:textColor="@color/white"
+                    android:background="@drawable/aurora_button_ripple" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="โหมดฉลาด (Smart Mode)"
+                    android:textColor="@color/aurora_cyan"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <Switch
+                        android:id="@+id/smartModeSwitch"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:thumbTint="@color/aurora_cyan"
+                        android:trackTint="@color/aurora_gray" />
+
+                    <TextView
+                        android:id="@+id/smartModeStatusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Off"
+                        android:textColor="@color/aurora_warning"
+                        android:textSize="14sp"
+                        android:layout_marginStart="16dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="นโยบายโหมดฉลาด"
+                    android:textColor="@color/aurora_silver"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/smartPolicyGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp">
+
+                    <RadioButton
+                        android:id="@+id/policyAutoSendNavOnly"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="ส่งไปจอเฉพาะกรณีเป็นนำทาง" />
+
+                    <RadioButton
+                        android:id="@+id/policyAlwaysAsk"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="ถามผู้ใช้ทุกครั้ง" />
+
+                    <RadioButton
+                        android:id="@+id/policyAlwaysSend"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="ส่งไปจอทุกครั้ง" />
+
+                    <RadioButton
+                        android:id="@+id/policyAlwaysOpenOnPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="เปิด Maps บนเครื่องหลักทุกครั้ง" />
+
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="หลังส่งสำเร็จ"
+                    android:textColor="@color/aurora_silver"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/afterSendGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp">
+
+                    <RadioButton
+                        android:id="@+id/afterSendExit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="ปิดตัวเองและไม่อยู่ Recent" />
+
+                    <RadioButton
+                        android:id="@+id/afterSendStay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="ค้างใน PHANToM GO" />
+
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="หลังส่งสำเร็จ: เปิด Google Maps บนเครื่องหลัก"
+                    android:textColor="@color/aurora_silver"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="8dp" />
+
+                <Switch
+                    android:id="@+id/openMapsAfterSendSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:thumbTint="@color/aurora_cyan"
+                    android:trackTint="@color/aurora_gray" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Notification Settings Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"

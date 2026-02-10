@@ -38,6 +38,26 @@ class PrefsManager(context: Context) {
         const val MODE_MAIN = "MAIN"
         const val MODE_DISPLAY = "DISPLAY"
 
+        // Map link hub toggle
+        private const val KEY_MAP_LINK_HUB_ENABLED = "map_link_hub_enabled"
+
+        // Smart mode toggle + policy
+        private const val KEY_SMART_MODE_ENABLED = "smart_mode_enabled"
+        private const val KEY_SMART_MODE_POLICY = "smart_mode_policy"
+
+        const val SMART_POLICY_AUTO_SEND_NAV_ONLY = "AUTO_SEND_NAV_ONLY"
+        const val SMART_POLICY_ALWAYS_ASK = "ALWAYS_ASK"
+        const val SMART_POLICY_ALWAYS_SEND = "ALWAYS_SEND"
+        const val SMART_POLICY_ALWAYS_OPEN_ON_PHONE = "ALWAYS_OPEN_ON_PHONE"
+
+        // After send behavior
+        private const val KEY_AFTER_SEND_BEHAVIOR = "after_send_behavior"
+        const val AFTER_SEND_EXIT_AND_REMOVE_TASK = "EXIT_AND_REMOVE_TASK"
+        const val AFTER_SEND_STAY_IN_APP = "STAY_IN_APP"
+
+        // Open Maps after send (optional)
+        private const val KEY_OPEN_MAPS_AFTER_SEND = "open_maps_after_send"
+
         // Short link resolve cache
         private const val KEY_URL_RESOLVE_CACHE = "url_resolve_cache"
     }
@@ -191,6 +211,48 @@ class PrefsManager(context: Context) {
 
     fun setDeviceMode(mode: String) {
         prefs.edit().putString(KEY_DEVICE_MODE, mode).apply()
+    }
+
+    fun isMapLinkHubEnabled(): Boolean {
+        return prefs.getBoolean(KEY_MAP_LINK_HUB_ENABLED, false)
+    }
+
+    fun setMapLinkHubEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_MAP_LINK_HUB_ENABLED, enabled).apply()
+    }
+
+    fun isSmartModeEnabled(): Boolean {
+        return prefs.getBoolean(KEY_SMART_MODE_ENABLED, false)
+    }
+
+    fun setSmartModeEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_MODE_ENABLED, enabled).apply()
+    }
+
+    fun getSmartModePolicy(): String {
+        return prefs.getString(KEY_SMART_MODE_POLICY, SMART_POLICY_AUTO_SEND_NAV_ONLY)
+            ?: SMART_POLICY_AUTO_SEND_NAV_ONLY
+    }
+
+    fun setSmartModePolicy(policy: String) {
+        prefs.edit().putString(KEY_SMART_MODE_POLICY, policy).apply()
+    }
+
+    fun getAfterSendBehavior(): String {
+        return prefs.getString(KEY_AFTER_SEND_BEHAVIOR, AFTER_SEND_EXIT_AND_REMOVE_TASK)
+            ?: AFTER_SEND_EXIT_AND_REMOVE_TASK
+    }
+
+    fun setAfterSendBehavior(behavior: String) {
+        prefs.edit().putString(KEY_AFTER_SEND_BEHAVIOR, behavior).apply()
+    }
+
+    fun isOpenMapsAfterSendEnabled(): Boolean {
+        return prefs.getBoolean(KEY_OPEN_MAPS_AFTER_SEND, false)
+    }
+
+    fun setOpenMapsAfterSendEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_OPEN_MAPS_AFTER_SEND, enabled).apply()
     }
 
     fun getResolvedUrlFor(shortUrl: String): String? {

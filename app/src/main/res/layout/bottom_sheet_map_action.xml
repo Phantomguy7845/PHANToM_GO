@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/actionSheetTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ต้องการทำอะไรกับลิงก์นี้?"
+        android:textColor="@color/aurora_cyan"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/actionSheetType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ชนิด: ไม่แน่ใจ"
+        android:textColor="@color/aurora_silver"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnSendToDisplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="ส่งไปจอติดรถ"
+        android:textColor="@color/white"
+        android:background="@drawable/aurora_button_ripple"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnSendAndOpenMaps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="ส่งไปจอ + เปิด Maps บนเครื่องหลัก"
+        android:textColor="@color/white"
+        android:background="@drawable/aurora_button_ripple"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnOpenOnPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="เปิด Maps บนเครื่องหลัก"
+        android:textColor="@color/white"
+        android:background="@drawable/aurora_button_ripple"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnCopyLink"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="คัดลอกลิงก์"
+        android:textColor="@color/white"
+        android:background="@drawable/aurora_button_ripple"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="ยกเลิก"
+        android:textColor="@color/white"
+        android:background="@drawable/aurora_button_ripple" />
+
+</LinearLayout>

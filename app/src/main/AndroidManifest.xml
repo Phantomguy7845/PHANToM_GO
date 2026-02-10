@@ -82,6 +82,29 @@
             android:excludeFromRecents="true"
             android:theme="@style/Theme.CarNavRelay">
 
+            <!-- ACTION_SEND for sharing text/plain (URLs) -->
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
+            <!-- ACTION_PROCESS_TEXT for selected text processing -->
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
+        </activity>
+
+        <!-- Map link handler alias (toggle-able) -->
+        <activity-alias
+            android:name=".MapLinkHandlerAlias"
+            android:targetActivity=".RelayActivity"
+            android:exported="true"
+            android:enabled="false">
+
             <!-- geo:lat,lng หรือ geo:0,0?q= -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -122,21 +145,7 @@
                 <data android:scheme="https" android:host="maps.google.com" />
             </intent-filter>
 
-            <!-- ACTION_SEND for sharing text/plain (URLs) -->
-            <intent-filter android:priority="1000">
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <!-- ACTION_PROCESS_TEXT for selected text processing -->
-            <intent-filter>
-                <action android:name="android.intent.action.PROCESS_TEXT" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-        </activity>
+        </activity-alias>
 
         <!-- HTTP Server Service for Display mode -->
         <service

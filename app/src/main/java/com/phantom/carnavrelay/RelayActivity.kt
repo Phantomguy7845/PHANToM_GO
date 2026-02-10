@@ -14,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class RelayActivity : AppCompatActivity() {
 
@@ -32,6 +33,17 @@ class RelayActivity : AppCompatActivity() {
     private var lastRaw: String? = null
     private var requestId: Int = 0
     private var hasOpenedMaps = false
+    private var pendingOpenMapsAfterSend: Boolean? = null
+    private var lastResolvedUrl: String? = null
+    private var lastClassification: MapIntentType = MapIntentType.UNKNOWN
+    private var lastIntent: Intent? = null
+    private var lastForceSend: Boolean = false
+
+    private enum class MapIntentType {
+        NAVIGATION,
+        VIEW_MAP,
+        UNKNOWN
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +81,11 @@ class RelayActivity : AppCompatActivity() {
             return
         }
 
+        lastIntent = intent
+        val isMapView = isMapViewIntent(intent)
+        lastForceSend = !isMapView
+        val hubEnabled = prefsManager.isMapLinkHubEnabled()
+
         val raw = extractRawInput(intent)
         if (raw.isNullOrEmpty()) {
             Log.e(TAG, "❌ NO_RAW: No data received in intent")
@@ -77,14 +94,32 @@ class RelayActivity : AppCompatActivity() {
             return
         }
 
+        if (isMapView && !hubEnabled) {
+            Log.d(TAG, "↩️ Map Link Hub OFF - forwarding to Google Maps")
+            PhantomLog.i("NAV action=OPEN_MAPS (hub off)")
+            openMapsDirectAndFinish(raw)
+            return
+        }
+
         lastRaw = raw
         Log.d(TAG, "📋 Raw input: $raw")
         PhantomLog.i("NAV rawUrl=$raw")
 
-        startSendFlow(raw, currentRequestId)
+        if (!isMapView) {
+            PhantomLog.i("NAV action=SEND (share)")
+            startSendFlow(raw, currentRequestId, intent, forceSend = true)
+            return
+        }
+
+        startSendFlow(raw, currentRequestId, intent, forceSend = false)
     }
 
-    private fun startSendFlow(raw: String, currentRequestId: Int) {
+    private fun startSendFlow(
+        raw: String,
+        currentRequestId: Int,
+        originalIntent: Intent,
+        forceSend: Boolean
+    ) {
         val normalizedUrl = NavLinkUtils.normalizeRawInput(raw)
         if (normalizedUrl.isNullOrEmpty()) {
             Log.w(TAG, "❌ Could not normalize input: $raw")
@@ -94,21 +129,78 @@ class RelayActivity : AppCompatActivity() {
         }
 
         updateStatus("Resolving link…", R.color.aurora_mint)
+        PhantomLog.i("NAV normalizedUrl=$normalizedUrl")
 
         Thread {
             val resolvedUrl = NavLinkUtils.resolveShortLinkIfNeeded(prefsManager, normalizedUrl)
             runOnUiThread {
                 if (currentRequestId != requestId) return@runOnUiThread
-                updateStatus("Sending to Display…", R.color.aurora_mint)
-                sendToDisplay(resolvedUrl, currentRequestId)
+                lastResolvedUrl = resolvedUrl
+                PhantomLog.i("NAV resolvedUrl=$resolvedUrl")
+                if (forceSend) {
+                    updateStatus("Sending to Display…", R.color.aurora_mint)
+                    pendingOpenMapsAfterSend = null
+                    sendToDisplay(resolvedUrl, currentRequestId)
+                } else {
+                    val classification = classifyMapIntent(resolvedUrl, originalIntent)
+                    lastClassification = classification
+                    PhantomLog.i("NAV classify=$classification")
+                    decideAction(resolvedUrl, classification, currentRequestId)
+                }
             }
         }.start()
+    }
+
+    private fun decideAction(resolvedUrl: String, classification: MapIntentType, currentRequestId: Int) {
+        val smartEnabled = prefsManager.isSmartModeEnabled()
+        val policy = prefsManager.getSmartModePolicy()
+
+        if (!smartEnabled) {
+            PhantomLog.i("NAV action=ASK (smart off)")
+            showActionSheet(resolvedUrl, classification, currentRequestId)
+            return
+        }
+
+        when (policy) {
+            PrefsManager.SMART_POLICY_AUTO_SEND_NAV_ONLY -> {
+                if (classification == MapIntentType.NAVIGATION) {
+                    PhantomLog.i("NAV action=SEND (auto nav)")
+                    updateStatus("Sending to Display…", R.color.aurora_mint)
+                    pendingOpenMapsAfterSend = false
+                    sendToDisplay(resolvedUrl, currentRequestId)
+                } else {
+                    PhantomLog.i("NAV action=ASK (auto nav fallback)")
+                    showActionSheet(resolvedUrl, classification, currentRequestId)
+                }
+            }
+            PrefsManager.SMART_POLICY_ALWAYS_SEND -> {
+                PhantomLog.i("NAV action=SEND (always)")
+                updateStatus("Sending to Display…", R.color.aurora_mint)
+                pendingOpenMapsAfterSend = false
+                sendToDisplay(resolvedUrl, currentRequestId)
+            }
+            PrefsManager.SMART_POLICY_ALWAYS_OPEN_ON_PHONE -> {
+                PhantomLog.i("NAV action=OPEN_PHONE (always)")
+                openGoogleMaps(resolvedUrl) { success ->
+                    if (success) {
+                        applyAfterSendBehavior()
+                    } else {
+                        showError("ไม่พบ Google Maps", retryable = false)
+                    }
+                }
+            }
+            else -> {
+                PhantomLog.i("NAV action=ASK (always)")
+                showActionSheet(resolvedUrl, classification, currentRequestId)
+            }
+        }
     }
 
     private fun sendToDisplay(resolvedUrl: String, currentRequestId: Int) {
         if (!mainSender.isPaired()) {
             Log.w(TAG, "❌ Not paired with any display device")
             showError("Not paired with Display device", retryable = false)
+            PhantomLog.w("NAV send failed: not paired")
             return
         }
 
@@ -120,8 +212,8 @@ class RelayActivity : AppCompatActivity() {
                 runOnUiThread {
                     if (currentRequestId != requestId) return@runOnUiThread
                     Log.d(TAG, "✅ URL sent successfully to display")
-                    updateStatus("Sent! Opening Google Maps…", R.color.aurora_success)
-                    openMapsAndExit(resolvedUrl)
+                    PhantomLog.i("NAV send result=success")
+                    handleSendSuccess(resolvedUrl)
                 }
             }
 
@@ -129,36 +221,71 @@ class RelayActivity : AppCompatActivity() {
                 runOnUiThread {
                     if (currentRequestId != requestId) return@runOnUiThread
                     Log.e(TAG, "❌ Failed to send URL: $error, queued=$queued, authFailed=$authFailed")
+                    PhantomLog.w("NAV send result=failure error=$error queued=$queued authFailed=$authFailed")
                     showError("Send failed: $error", retryable = true)
                 }
             }
         })
     }
 
-    private fun openMapsAndExit(url: String) {
+    private fun handleSendSuccess(resolvedUrl: String) {
+        progressBar.visibility = View.GONE
+        val shouldOpenMaps = pendingOpenMapsAfterSend ?: prefsManager.isOpenMapsAfterSendEnabled()
+        pendingOpenMapsAfterSend = null
+
+        if (shouldOpenMaps) {
+            updateStatus("Sent! Opening Google Maps…", R.color.aurora_success)
+            openGoogleMaps(resolvedUrl) { success ->
+                if (success) {
+                    applyAfterSendBehavior()
+                } else {
+                    showError("ไม่พบ Google Maps", retryable = false)
+                }
+            }
+        } else {
+            updateStatus("Sent to Car Display ✅", R.color.aurora_success)
+            applyAfterSendBehavior()
+        }
+    }
+
+    private fun openMapsDirectAndFinish(rawUrl: String) {
         if (hasOpenedMaps) return
+        updateStatus("Opening Google Maps…", R.color.aurora_mint)
+
+        openGoogleMaps(rawUrl) { success ->
+            if (success) {
+                closeAndRemoveFromRecents()
+            } else {
+                hasOpenedMaps = false
+                Toast.makeText(this, "ไม่พบ Google Maps", Toast.LENGTH_SHORT).show()
+                showError("ไม่พบ Google Maps", retryable = false)
+            }
+        }
+    }
+
+    private fun openGoogleMaps(url: String, onComplete: (Boolean) -> Unit) {
+        if (hasOpenedMaps) {
+            onComplete(false)
+            return
+        }
         hasOpenedMaps = true
 
         val uri = Uri.parse(url)
         val mapsIntent = Intent(Intent.ACTION_VIEW, uri).apply {
             setPackage("com.google.android.apps.maps")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
         try {
             if (mapsIntent.resolveActivity(packageManager) != null) {
                 startActivity(mapsIntent)
-                closeAndRemoveFromRecents()
+                onComplete(true)
                 return
             }
         } catch (e: Exception) {
             Log.w(TAG, "⚠️ Google Maps intent resolve failed", e)
         }
 
-        val fallbackIntent = Intent(Intent.ACTION_VIEW, uri).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-
+        val fallbackIntent = Intent(Intent.ACTION_VIEW, uri)
         val hasExternalHandler = try {
             val handlers = packageManager.queryIntentActivities(
                 fallbackIntent,
@@ -172,7 +299,7 @@ class RelayActivity : AppCompatActivity() {
         if (hasExternalHandler) {
             try {
                 startActivity(fallbackIntent)
-                closeAndRemoveFromRecents()
+                onComplete(true)
                 return
             } catch (e: ActivityNotFoundException) {
                 Log.w(TAG, "⚠️ Fallback maps intent failed", e)
@@ -180,8 +307,7 @@ class RelayActivity : AppCompatActivity() {
         }
 
         hasOpenedMaps = false
-        Toast.makeText(this, "ไม่พบ Google Maps", Toast.LENGTH_SHORT).show()
-        showError("ไม่พบ Google Maps", retryable = false)
+        onComplete(false)
     }
 
     private fun closeAndRemoveFromRecents() {
@@ -194,6 +320,17 @@ class RelayActivity : AppCompatActivity() {
             finish()
         }
         overridePendingTransition(0, 0)
+    }
+
+    private fun applyAfterSendBehavior() {
+        when (prefsManager.getAfterSendBehavior()) {
+            PrefsManager.AFTER_SEND_STAY_IN_APP -> {
+                // stay in app
+            }
+            else -> {
+                closeAndRemoveFromRecents()
+            }
+        }
     }
 
     private fun extractRawInput(intent: Intent): String? {
@@ -249,7 +386,7 @@ class RelayActivity : AppCompatActivity() {
             actionButton.setOnClickListener {
                 requestId += 1
                 resetUiForNewRequest()
-                startSendFlow(lastRaw!!, requestId)
+                startSendFlow(lastRaw!!, requestId, lastIntent ?: intent, lastForceSend)
             }
         } else {
             actionButton.text = "Close"
@@ -270,5 +407,126 @@ class RelayActivity : AppCompatActivity() {
             Log.w(TAG, "⚠️ Could not check DisplayServerService state", e)
             false
         }
+    }
+
+    private fun isMapViewIntent(intent: Intent): Boolean {
+        if (intent.action != Intent.ACTION_VIEW) return false
+        val data = intent.data ?: return false
+        val scheme = data.scheme?.lowercase() ?: return false
+        return when (scheme) {
+            "geo", "google.navigation" -> true
+            "https" -> {
+                val host = data.host?.lowercase() ?: return false
+                host == "www.google.com" && (data.path?.startsWith("/maps") == true) ||
+                    host == "maps.google.com" ||
+                    host == "maps.app.goo.gl"
+            }
+            else -> false
+        }
+    }
+
+    private fun classifyMapIntent(url: String, originalIntent: Intent): MapIntentType {
+        val originalScheme = originalIntent.data?.scheme?.lowercase()
+        if (originalScheme == "google.navigation") {
+            return MapIntentType.NAVIGATION
+        }
+
+        val lower = url.lowercase()
+        val uri = try {
+            Uri.parse(url)
+        } catch (e: Exception) {
+            null
+        }
+
+        val query = uri?.query ?: ""
+
+        val isNav = lower.contains("/maps/dir") ||
+            lower.contains("dir/") ||
+            query.contains("destination=") ||
+            query.contains("travelmode=") ||
+            query.contains("dirflg=") ||
+            query.contains("dir_action=navigate") ||
+            query.contains("navigation=1") ||
+            lower.contains("google.navigation")
+
+        if (isNav) return MapIntentType.NAVIGATION
+
+        val isView = lower.contains("/maps/place") ||
+            lower.contains("/maps/search") ||
+            query.contains("q=") ||
+            lower.contains("maps?q=")
+
+        return if (isView) MapIntentType.VIEW_MAP else MapIntentType.UNKNOWN
+    }
+
+    private fun showActionSheet(
+        resolvedUrl: String,
+        classification: MapIntentType,
+        currentRequestId: Int
+    ) {
+        progressBar.visibility = View.GONE
+        updateStatus("Waiting for your choice…", R.color.aurora_mint)
+
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_map_action, null)
+        dialog.setContentView(view)
+
+        val typeText = view.findViewById<TextView>(R.id.actionSheetType)
+        val typeLabel = when (classification) {
+            MapIntentType.NAVIGATION -> "นำทาง"
+            MapIntentType.VIEW_MAP -> "ดูแผนที่"
+            else -> "ไม่แน่ใจ"
+        }
+        typeText.text = "ชนิด: $typeLabel"
+
+        view.findViewById<Button>(R.id.btnSendToDisplay).setOnClickListener {
+            if (currentRequestId != requestId) return@setOnClickListener
+            PhantomLog.i("NAV action=SEND (sheet)")
+            pendingOpenMapsAfterSend = false
+            dialog.dismiss()
+            updateStatus("Sending to Display…", R.color.aurora_mint)
+            sendToDisplay(resolvedUrl, currentRequestId)
+        }
+
+        view.findViewById<Button>(R.id.btnSendAndOpenMaps).setOnClickListener {
+            if (currentRequestId != requestId) return@setOnClickListener
+            PhantomLog.i("NAV action=SEND_OPEN (sheet)")
+            pendingOpenMapsAfterSend = true
+            dialog.dismiss()
+            updateStatus("Sending to Display…", R.color.aurora_mint)
+            sendToDisplay(resolvedUrl, currentRequestId)
+        }
+
+        view.findViewById<Button>(R.id.btnOpenOnPhone).setOnClickListener {
+            if (currentRequestId != requestId) return@setOnClickListener
+            PhantomLog.i("NAV action=OPEN_PHONE (sheet)")
+            dialog.dismiss()
+            openGoogleMaps(resolvedUrl) { success ->
+                if (success) {
+                    applyAfterSendBehavior()
+                } else {
+                    showError("ไม่พบ Google Maps", retryable = false)
+                }
+            }
+        }
+
+        view.findViewById<Button>(R.id.btnCopyLink).setOnClickListener {
+            if (currentRequestId != requestId) return@setOnClickListener
+            PhantomLog.i("NAV action=COPY_LINK (sheet)")
+            val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+            val clip = android.content.ClipData.newPlainText("PHANTOM_GO_LINK", resolvedUrl)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(this, "คัดลอกลิงก์แล้ว", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+            applyAfterSendBehavior()
+        }
+
+        view.findViewById<Button>(R.id.btnCancel).setOnClickListener {
+            PhantomLog.i("NAV action=CANCEL (sheet)")
+            dialog.dismiss()
+            applyAfterSendBehavior()
+        }
+
+        dialog.show()
     }
 }
