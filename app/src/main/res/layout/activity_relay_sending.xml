@@ -55,6 +55,16 @@
                     android:textColor="@color/aurora_mint"
                     android:textSize="16sp" />
 
+                <Button
+                    android:id="@+id/actionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Retry"
+                    android:textColor="@color/white"
+                    android:background="@drawable/aurora_button_ripple"
+                    android:visibility="gone" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

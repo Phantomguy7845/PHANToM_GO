@@ -75,13 +75,12 @@
             android:theme="@style/Theme.CarNavRelay" />
 
         <activity
-            android:name=".SilentShareReceiverActivity"
+            android:name=".RelayActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:noHistory="true"
             android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"
-            android:theme="@style/Theme.CarNavRelay.NoDisplay">
+            android:theme="@style/Theme.CarNavRelay">
 
             <!-- geo:lat,lng หรือ geo:0,0?q= -->
             <intent-filter>
@@ -138,14 +137,6 @@
             </intent-filter>
 
         </activity>
-
-        <activity
-            android:name=".RelayActivity"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:theme="@style/Theme.CarNavRelay.Translucent" />
 
         <!-- HTTP Server Service for Display mode -->
         <service

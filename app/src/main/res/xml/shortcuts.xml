@@ -2,7 +2,7 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     
     <!-- Share Navigation Target -->
-    <share-target android:targetClass="com.phantom.carnavrelay.SilentShareReceiverActivity">
+    <share-target android:targetClass="com.phantom.carnavrelay.RelayActivity">
         <data android:mimeType="text/plain" />
         <category android:name="android.shortcut.conversation" />
     </share-target>
