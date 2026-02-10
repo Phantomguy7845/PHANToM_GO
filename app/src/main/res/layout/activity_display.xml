@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/aurora_bg"
+    android:background="@drawable/display_bg_neon"
     android:fillViewport="true">
 
     <LinearLayout
@@ -22,9 +22,11 @@
                 android:id="@+id/statusCard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/aurora_glass"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="4dp">
+                app:cardElevation="6dp"
+                app:strokeColor="@color/aurora_cyan"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -34,12 +36,28 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="8dp">
 
+                    <View
+                        android:id="@+id/statusDot"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/status_dot_cyan" />
+
+                    <TextView
+                        android:id="@+id/statusGhost"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:text="👻"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
                     <TextView
                         android:id="@+id/tvStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🟡 Starting..."
-                        android:textColor="@color/purple_700"
+                        android:text="🟣 Disconnected"
+                        android:textColor="@color/ghost_purple_dark"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -79,9 +97,14 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
             android:text="0.0.0.0:8765"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/aurora_cyan"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:shadowColor="@color/aurora_cyan"
+            android:shadowRadius="8"
+            android:shadowDx="0"
+            android:shadowDy="0" />
 
         <!-- Token Hint -->
         <TextView
@@ -92,8 +115,13 @@
             android:layout_marginTop="4dp"
             android:alpha="0.8"
             android:text="Token: ****"
-            android:textColor="@color/purple_200"
-            android:textSize="14sp" />
+            android:textColor="@color/aurora_cyan"
+            android:textSize="16sp"
+            android:fontFamily="monospace"
+            android:shadowColor="@color/aurora_cyan"
+            android:shadowRadius="6"
+            android:shadowDx="0"
+            android:shadowDy="0" />
 
         <!-- Paired Info (shown when connected) -->
         <TextView
@@ -133,8 +161,12 @@
                 android:gravity="center"
                 android:maxWidth="300dp"
                 android:text="QR Payload will appear here"
-                android:textColor="@color/teal_200"
-                android:textSize="10sp" />
+                android:textColor="@color/aurora_cyan"
+                android:textSize="10sp"
+                android:shadowColor="@color/aurora_cyan"
+                android:shadowRadius="4"
+                android:shadowDx="0"
+                android:shadowDy="0" />
 
             <Button
                 android:id="@+id/btnCopyPayload"

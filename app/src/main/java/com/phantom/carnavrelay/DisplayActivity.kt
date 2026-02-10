@@ -17,6 +17,8 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -47,6 +49,8 @@ class DisplayActivity : AppCompatActivity() {
     private lateinit var tvTokenHint: TextView
     private lateinit var ivQrCode: ImageView
     private lateinit var tvStatus: TextView
+    private lateinit var statusDot: View
+    private lateinit var statusGhost: TextView
     private lateinit var tvPairedInfo: TextView
     private lateinit var btnRefreshToken: Button
     private lateinit var btnCopyToken: Button
@@ -62,6 +66,7 @@ class DisplayActivity : AppCompatActivity() {
     private lateinit var btnBatterySettings: Button
     private lateinit var tvQrPayload: TextView
     private lateinit var btnCopyPayload: Button
+    private var statusBlinkAnimator: ObjectAnimator? = null
 
     private val pairingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -94,6 +99,8 @@ class DisplayActivity : AppCompatActivity() {
         tvTokenHint = findViewById(R.id.tvTokenHint)
         ivQrCode = findViewById(R.id.ivQrCode)
         tvStatus = findViewById(R.id.tvStatus)
+        statusDot = findViewById(R.id.statusDot)
+        statusGhost = findViewById(R.id.statusGhost)
         tvPairedInfo = findViewById(R.id.tvPairedInfo)
         btnRefreshToken = findViewById(R.id.btnRefreshToken)
         btnCopyToken = findViewById(R.id.btnCopyToken)
@@ -188,10 +195,8 @@ class DisplayActivity : AppCompatActivity() {
             } else {
                 startService(intent)
             }
-            tvStatus.text = "🟢 Server Running"
         } catch (e: Exception) {
             Log.e(TAG, "💥 Failed to start server", e)
-            tvStatus.text = "🔴 Server Error"
             Toast.makeText(this, "Failed to start server: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
@@ -217,10 +222,8 @@ class DisplayActivity : AppCompatActivity() {
         
         if (isServiceRunning) {
             tvServerInfo.text = "Server: $ip:$port"
-            tvStatus.text = "🟢 Server Running"
         } else {
             tvServerInfo.text = "Server not running"
-            tvStatus.text = "🔴 Server Stopped"
         }
 
         // Update battery optimization status
@@ -244,6 +247,8 @@ class DisplayActivity : AppCompatActivity() {
             layoutConnected.visibility = View.GONE
             layoutConnectedActions.visibility = View.GONE
         }
+
+        updateConnectionIndicator(isPaired)
 
         val lastUrl = prefsManager.getPrefs().getString("last_url", null)
         btnOpenLastNav.isEnabled = !lastUrl.isNullOrEmpty()
@@ -441,5 +446,44 @@ class DisplayActivity : AppCompatActivity() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun updateConnectionIndicator(isPaired: Boolean) {
+        if (isPaired) {
+            statusDot.visibility = View.VISIBLE
+            statusDot.setBackgroundResource(R.drawable.status_dot_cyan)
+            statusGhost.visibility = View.GONE
+            tvStatus.text = "Bluetooth Connected"
+            tvStatus.setTextColor(getColor(R.color.aurora_cyan))
+            startStatusBlink()
+        } else {
+            stopStatusBlink()
+            statusDot.visibility = View.GONE
+            statusGhost.visibility = View.VISIBLE
+            statusGhost.text = "👻💤"
+            tvStatus.text = "Disconnected"
+            tvStatus.setTextColor(getColor(R.color.ghost_purple_dark))
+        }
+    }
+
+    private fun startStatusBlink() {
+        if (statusBlinkAnimator?.isRunning == true) return
+        statusBlinkAnimator = ObjectAnimator.ofFloat(statusDot, View.ALPHA, 0.3f, 1f).apply {
+            duration = 800
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            start()
+        }
+    }
+
+    private fun stopStatusBlink() {
+        statusBlinkAnimator?.cancel()
+        statusBlinkAnimator = null
+        statusDot.alpha = 1f
+    }
+
+    override fun onDestroy() {
+        statusBlinkAnimator?.cancel()
+        super.onDestroy()
     }
 }

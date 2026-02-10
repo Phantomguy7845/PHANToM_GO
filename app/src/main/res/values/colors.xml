@@ -9,6 +9,7 @@
     
     <!-- Aurora spectrum -->
     <color name="aurora_purple">#6B46C1</color>
+    <color name="aurora_pink">#F472B6</color>
     <color name="aurora_blue">#3B82F6</color>
     <color name="aurora_cyan">#06B6D4</color>
     <color name="aurora_green">#10B981</color>
@@ -28,6 +29,7 @@
     <color name="aurora_connected">#10B981</color>
     <color name="aurora_disconnected">#6B7280</color>
     <color name="aurora_auth_failed">#EF4444</color>
+    <color name="aurora_glass">#22FFFFFF</color>
 
     <!-- Legacy Ghost Purple Theme (keep for compatibility) -->
     <color name="purple_50">#F4ECF7</color>

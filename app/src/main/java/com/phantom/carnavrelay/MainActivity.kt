@@ -2,6 +2,8 @@ package com.phantom.carnavrelay
 
 import android.Manifest
 import android.content.ComponentName
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -11,6 +13,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -49,6 +52,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvA11yToggle: TextView
     private lateinit var tvA11yStatus: TextView
     private lateinit var cardDisplay: MaterialCardView
+    private lateinit var ghostIcon: TextView
+    private var ghostAnimator: ObjectAnimator? = null
 
     private val scanLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -103,6 +108,9 @@ class MainActivity : AppCompatActivity() {
         tvA11yToggle = findViewById(R.id.tvA11yToggle)
         tvA11yStatus = findViewById(R.id.tvA11yStatus)
         cardDisplay = findViewById(R.id.cardDisplay)
+        ghostIcon = findViewById(R.id.ghostIcon)
+
+        startGhostAnimation()
 
         // Setup button press animations and haptic feedback
         setupButtonEffects(btnScanQR)
@@ -192,6 +200,16 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             false // Don't consume; allow click handling
+        }
+    }
+
+    private fun startGhostAnimation() {
+        ghostAnimator?.cancel()
+        ghostAnimator = ObjectAnimator.ofFloat(ghostIcon, View.TRANSLATION_Y, 0f, -8f, 0f).apply {
+            duration = 2000
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            start()
         }
     }
 
@@ -423,6 +441,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
         super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        ghostAnimator?.cancel()
+        super.onDestroy()
     }
 
     private fun showAboutDialog() {

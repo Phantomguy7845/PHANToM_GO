@@ -29,6 +29,24 @@
             app:title="PHANToM GO"
             app:titleTextColor="@color/aurora_cyan" />
 
+        <TextView
+            android:id="@+id/ghostIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:text="👻"
+            android:textColor="@color/aurora_pink"
+            android:textSize="22sp"
+            android:shadowColor="@color/aurora_cyan"
+            android:shadowRadius="8"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:alpha="0.9"
+            android:importantForAccessibility="no"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/toolbar"
+            app:layout_constraintBottom_toBottomOf="@id/toolbar" />
+
         <!-- Main Content ScrollView -->
         <ScrollView
             android:layout_width="0dp"
@@ -110,13 +128,119 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Mode Selection Cards -->
+                <LinearLayout
+                    android:id="@+id/modeCardRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardMainMode"
+                        android:layout_width="0dp"
+                        android:layout_height="110dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        app:cardBackgroundColor="@color/aurora_glass"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="10dp"
+                        app:cardUseCompatPadding="true"
+                        app:strokeColor="@color/aurora_pink"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_main_mode"
+                                app:tint="@color/aurora_pink" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="@string/mode_main"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/mode_main_desc"
+                                android:textColor="@color/aurora_silver"
+                                android:textSize="11sp" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardDisplay"
+                        android:layout_width="0dp"
+                        android:layout_height="110dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/aurora_glass"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="10dp"
+                        app:cardUseCompatPadding="true"
+                        app:strokeColor="@color/aurora_cyan"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_display_mode"
+                                app:tint="@color/aurora_cyan" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="@string/mode_display"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/mode_display_desc"
+                                android:textColor="@color/aurora_silver"
+                                android:textSize="11sp" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
                 <!-- Primary Action: Scan QR -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnScanQR"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
                     android:layout_marginBottom="12dp"
-                    android:background="@drawable/aurora_button_ripple"
+                    android:background="@drawable/neon_primary_button"
+                    android:backgroundTint="@null"
                     android:text="📷 Scan QR to Pair"
                     android:textColor="@color/white"
                     android:textSize="18sp"
@@ -129,96 +253,33 @@
                     android:layout_marginBottom="16dp"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSendTest"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:backgroundTint="@color/aurora_purple"
-                        android:enabled="false"
-                        android:text="📍 Test"
-                        android:textColor="@color/white"
-                        android:textSize="16sp"
-                        style="@style/Widget.Material3.Button.TonalButton" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSendTest"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/neon_primary_button"
+                    android:backgroundTint="@null"
+                    android:enabled="false"
+                    android:text="📍 Test"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRetryPending"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:enabled="false"
-                        android:textColor="@color/white"
-                        app:strokeColor="@color/aurora_cyan"
-                        android:text="🔄 Retry"
-                        android:textSize="16sp"
-                        style="@style/Widget.Material3.Button.OutlinedButton" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRetryPending"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:background="@drawable/neon_outline_button"
+                    android:backgroundTint="@null"
+                    android:textColor="@color/aurora_cyan"
+                    android:text="🔄 Retry"
+                    android:textSize="16sp" />
 
-                </LinearLayout>
-
-                <!-- Display Mode Card (Large, Prominent) -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardDisplay"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/teal_700"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="8dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="20dp">
-
-                        <ImageView
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:src="@drawable/ic_display_mode"
-                            app:tint="@color/white" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/mode_display"
-                                android:textColor="@color/white"
-                                android:textSize="20sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Open Display Mode"
-                                android:textColor="@color/white"
-                                android:textSize="14sp"
-                                android:alpha="0.8" />
-
-                        </LinearLayout>
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:alpha="0.6"
-                            android:src="@drawable/ic_swap"
-                            app:tint="@color/white" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
                 <!-- Utility Actions -->
                 <com.google.android.material.button.MaterialButton
@@ -227,11 +288,11 @@
                     android:layout_height="48dp"
                     android:layout_marginBottom="12dp"
                     android:enabled="false"
-                    android:textColor="@color/white"
-                    app:strokeColor="@color/aurora_cyan"
+                    android:background="@drawable/neon_outline_button"
+                    android:backgroundTint="@null"
+                    android:textColor="@color/aurora_cyan"
                     android:text="🗑️ Clear Pairing"
-                    android:textSize="14sp"
-                    style="@style/Widget.Material3.Button.OutlinedButton" />
+                    android:textSize="14sp" />
 
                 <!-- Status Info (Compact) -->
                 <LinearLayout
