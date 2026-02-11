@@ -1,25 +1,25 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-  <!-- Dark Aurora Theme -->
+  <!-- Pastel Mint Theme -->
   <style name="Theme.CarNavRelay" parent="Theme.Material3.DayNight.NoActionBar">
-    <!-- Primary Colors (Aurora) -->
+    <!-- Primary Colors (Mint) -->
     <item name="colorPrimary">@color/aurora_purple</item>
     <item name="colorPrimaryVariant">@color/aurora_blue</item>
     <item name="colorOnPrimary">@color/white</item>
-    <item name="colorPrimaryContainer">@color/aurora_dark_gray</item>
-    <item name="colorOnPrimaryContainer">@color/aurora_cyan</item>
+    <item name="colorPrimaryContainer">@color/aurora_gray</item>
+    <item name="colorOnPrimaryContainer">@color/text_primary</item>
 
-    <!-- Secondary Colors (Aurora) -->
+    <!-- Secondary Colors -->
     <item name="colorSecondary">@color/aurora_cyan</item>
     <item name="colorSecondaryVariant">@color/aurora_green</item>
-    <item name="colorOnSecondary">@color/aurora_black</item>
+    <item name="colorOnSecondary">@color/text_primary</item>
     <item name="colorSecondaryContainer">@color/aurora_gray</item>
-    <item name="colorOnSecondaryContainer">@color/aurora_mint</item>
+    <item name="colorOnSecondaryContainer">@color/text_primary</item>
 
-    <!-- Surface Colors (Dark Aurora) -->
+    <!-- Surface Colors -->
     <item name="colorSurface">@color/aurora_dark_gray</item>
-    <item name="colorOnSurface">@color/aurora_silver</item>
+    <item name="colorOnSurface">@color/text_primary</item>
     <item name="android:colorBackground">@color/aurora_black</item>
-    <item name="colorOnBackground">@color/aurora_silver</item>
+    <item name="colorOnBackground">@color/text_primary</item>
 
     <!-- Error Colors -->
     <item name="colorError">@color/aurora_error</item>
@@ -28,7 +28,7 @@
     <!-- System Bars -->
     <item name="android:statusBarColor">@color/aurora_black</item>
     <item name="android:navigationBarColor">@color/aurora_black</item>
-    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:windowLightStatusBar">true</item>
 
     <!-- Shape Appearance -->
     <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.CarNavRelay.SmallComponent</item>

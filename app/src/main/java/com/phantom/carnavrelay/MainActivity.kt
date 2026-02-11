@@ -397,7 +397,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "▶️ MainActivity.onResume()")
-        setRelayComponentEnabled(!isDisplayServiceRunning(), "MainActivity.onResume")
+        setMapLinkHandlerEnabled(!isDisplayServiceRunning(), "MainActivity.onResume")
         updateUI()
         handler.post(statusCheckRunnable)
     }
@@ -419,8 +419,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setRelayComponentEnabled(enabled: Boolean, reason: String) {
-        val component = ComponentName(this, RelayActivity::class.java)
+    private fun setMapLinkHandlerEnabled(enabled: Boolean, reason: String) {
+        val component = ComponentName(this, "${packageName}.MapLinkHandlerAlias")
         val state = if (enabled) {
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED
         } else {
@@ -431,8 +431,8 @@ class MainActivity : AppCompatActivity() {
             state,
             PackageManager.DONT_KILL_APP
         )
-        Log.d(TAG, "🔧 RelayActivity component ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
-        PhantomLog.i("RelayActivity ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
+        Log.d(TAG, "🔧 MapLinkHandlerAlias ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
+        PhantomLog.i("MapLinkHandlerAlias ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
     }
 
     override fun onBackPressed() {

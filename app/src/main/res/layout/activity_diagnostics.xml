@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_700"
+    android:background="@color/aurora_black"
     android:orientation="vertical">
 
     <!-- Toolbar -->
@@ -21,14 +21,14 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cancel"
             android:src="@drawable/ic_arrow_back"
-            app:tint="@color/white" />
+            app:tint="@color/aurora_cyan" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Diagnostics"
-            android:textColor="@color/white"
+            android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -38,10 +38,10 @@
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/purple_800"
-        app:tabIndicatorColor="@color/teal_200"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/purple_200">
+        android:background="@color/aurora_dark_gray"
+        app:tabIndicatorColor="@color/aurora_cyan"
+        app:tabSelectedTextColor="@color/text_primary"
+        app:tabTextColor="@color/text_secondary">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -77,7 +77,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="System Check"
-                    android:textColor="@color/white"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -86,7 +86,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Checking app health and permissions..."
-                    android:textColor="@color/purple_200"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -116,8 +116,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Run Test Again"
-                    android:textColor="@color/purple_700"
-                    app:backgroundTint="@color/teal_200"
+                    android:textColor="@color/white"
+                    app:backgroundTint="@color/aurora_cyan"
                     app:cornerRadius="12dp" />
 
             </LinearLayout>
@@ -137,7 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Last Crash Report"
-                android:textColor="@color/white"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -146,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="If app crashed, report appears here"
-                android:textColor="@color/purple_200"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <com.google.android.material.card.MaterialCardView
@@ -154,7 +154,7 @@
                 android:layout_height="0dp"
                 android:layout_marginTop="16dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="@color/purple_900"
+                app:cardBackgroundColor="@color/aurora_dark_gray"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
 
@@ -169,7 +169,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="monospace"
                         android:text="No crash report available"
-                        android:textColor="@color/teal_200"
+                        android:textColor="@color/text_primary"
                         android:textSize="12sp" />
 
                 </ScrollView>
@@ -190,8 +190,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:text="Copy"
-                    android:textColor="@color/white"
-                    app:strokeColor="@color/white" />
+                    android:textColor="@color/aurora_cyan"
+                    app:strokeColor="@color/aurora_cyan" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/shareButton"
@@ -201,8 +201,8 @@
                     android:layout_marginHorizontal="8dp"
                     android:layout_weight="1"
                     android:text="Share"
-                    android:textColor="@color/white"
-                    app:strokeColor="@color/white" />
+                    android:textColor="@color/aurora_cyan"
+                    app:strokeColor="@color/aurora_cyan" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/clearButton"
@@ -211,8 +211,8 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="Clear"
-                    android:textColor="@color/purple_700"
-                    app:backgroundTint="@color/warning"
+                    android:textColor="@color/text_primary"
+                    app:backgroundTint="@color/aurora_warning"
                     app:cornerRadius="12dp" />
 
             </LinearLayout>

@@ -89,6 +89,12 @@ adb shell am start -a android.intent.action.SEND -t "text/plain" --es android.in
 adb shell am start -a android.intent.action.SEND -t "text/plain" --es android.intent.extra.TEXT "Siam Paragon"
 ```
 
+### 🧪 Verify Share Sheet Registration
+```bash
+# Confirm PHANToM GO is registered for text sharing
+adb shell cmd package query-intent-activities -a android.intent.action.SEND -t text/plain | grep -i phantom -n
+```
+
 ### 🧪 Test ACTION_PROCESS_TEXT
 ```bash
 # Test processing selected text

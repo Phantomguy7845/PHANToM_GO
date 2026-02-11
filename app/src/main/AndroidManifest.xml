@@ -81,12 +81,23 @@
             android:noHistory="true"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.CarNavRelay">
+        </activity>
 
-            <!-- ACTION_SEND for sharing text/plain (URLs) -->
+        <activity
+            android:name=".ShareReceiverActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.CarNavRelay">
+
+            <!-- ACTION_SEND for sharing text -->
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
+                <data android:mimeType="text/*" />
+                <data android:mimeType="text/uri-list" />
             </intent-filter>
 
             <!-- ACTION_PROCESS_TEXT for selected text processing -->
@@ -94,6 +105,7 @@
                 <action android:name="android.intent.action.PROCESS_TEXT" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
+                <data android:mimeType="text/*" />
             </intent-filter>
 
         </activity>

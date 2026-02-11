@@ -89,7 +89,7 @@ class DisplayActivity : AppCompatActivity() {
 
         initViews()
         checkPermissions()
-        setRelayComponentEnabled(false, "DisplayActivity.onCreate")
+        setMapLinkHandlerEnabled(false, "DisplayActivity.onCreate")
         updateUI()
         startHttpServer()
     }
@@ -218,7 +218,7 @@ class DisplayActivity : AppCompatActivity() {
         tvDisplayModeStatus.text = if (isServiceRunning) "ON" else "OFF"
         tvDisplayModeStatus.setTextColor(if (isServiceRunning) getColor(R.color.success) else getColor(R.color.gray_600))
 
-        setRelayComponentEnabled(!isServiceRunning, "DisplayActivity.updateUI")
+        setMapLinkHandlerEnabled(!isServiceRunning, "DisplayActivity.updateUI")
         
         if (isServiceRunning) {
             tvServerInfo.text = "Server: $ip:$port"
@@ -309,8 +309,8 @@ class DisplayActivity : AppCompatActivity() {
         }
     }
 
-    private fun setRelayComponentEnabled(enabled: Boolean, reason: String) {
-        val component = ComponentName(this, RelayActivity::class.java)
+    private fun setMapLinkHandlerEnabled(enabled: Boolean, reason: String) {
+        val component = ComponentName(this, "${packageName}.MapLinkHandlerAlias")
         val state = if (enabled) {
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED
         } else {
@@ -321,8 +321,8 @@ class DisplayActivity : AppCompatActivity() {
             state,
             PackageManager.DONT_KILL_APP
         )
-        Log.d(TAG, "🔧 RelayActivity component ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
-        PhantomLog.i("RelayActivity ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
+        Log.d(TAG, "🔧 MapLinkHandlerAlias ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
+        PhantomLog.i("MapLinkHandlerAlias ${if (enabled) "ENABLED" else "DISABLED"} ($reason)")
     }
     
     private fun updateBatteryStatus() {

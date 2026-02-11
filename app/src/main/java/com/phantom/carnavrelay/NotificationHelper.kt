@@ -1,6 +1,7 @@
 package com.phantom.carnavrelay
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -63,6 +64,7 @@ object NotificationHelper {
         showNotification(context, message, allowToastFallback, forceAlert = true)
     }
 
+    @SuppressLint("MissingPermission")
     private fun showNotification(
         context: Context,
         text: String,
@@ -105,7 +107,15 @@ object NotificationHelper {
             .addAction(R.drawable.ic_main_mode, "Open app", openPendingIntent)
             .build()
 
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+        try {
+            NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "🔕 Notification blocked by permission", e)
+            PhantomLog.w("NOTIF SecurityException: $text")
+            if (allowToastFallback) {
+                showToast(context, text)
+            }
+        }
     }
 
     private fun showToast(context: Context, text: String) {
