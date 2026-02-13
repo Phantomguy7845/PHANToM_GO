@@ -4,9 +4,8 @@
         <shape>
             <gradient
                 android:angle="45"
-                android:startColor="@color/aurora_mint"
-                android:centerColor="@color/aurora_blue"
-                android:endColor="@color/aurora_cyan"
+                android:startColor="@color/purple_dark"
+                android:endColor="@color/cyan_dark"
                 android:type="linear" />
             <corners android:radius="16dp" />
         </shape>
@@ -15,9 +14,8 @@
         <shape>
             <gradient
                 android:angle="135"
-                android:startColor="@color/aurora_mint"
-                android:centerColor="@color/aurora_blue"
-                android:endColor="@color/aurora_cyan"
+                android:startColor="@color/aurora_purple"
+                android:endColor="@color/aurora_green"
                 android:type="linear" />
             <corners android:radius="16dp" />
         </shape>

@@ -204,10 +204,14 @@ class RelayActivity : AppCompatActivity() {
             return
         }
 
-        Log.d(TAG, "📤 Sending URL to display: $resolvedUrl")
-        PhantomLog.i("NAV sendUrl=$resolvedUrl")
+        val locationOnlyUrl = NavLinkUtils.toLocationOnlyUrl(resolvedUrl)
+        if (locationOnlyUrl != resolvedUrl) {
+            PhantomLog.i("NAV locationOnlyUrl=$locationOnlyUrl")
+        }
+        Log.d(TAG, "📤 Sending URL to display: $locationOnlyUrl")
+        PhantomLog.i("NAV sendUrl=$locationOnlyUrl")
 
-        mainSender.sendOpenUrl(resolvedUrl, object : MainSender.Companion.SendCallback {
+        mainSender.sendOpenUrl(locationOnlyUrl, object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
                 runOnUiThread {
                     if (currentRequestId != requestId) return@runOnUiThread
@@ -337,21 +341,28 @@ class RelayActivity : AppCompatActivity() {
         val action = intent.action
         val type = intent.type
         val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
+        val extraSubject = intent.getStringExtra(Intent.EXTRA_SUBJECT)
         val processText = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
 
         return when (action) {
             Intent.ACTION_VIEW -> intent.data?.toString()
             Intent.ACTION_SEND -> {
-                if (type == "text/plain") {
-                    extraText ?: readClipData(intent.clipData)
-                } else {
-                    null
-                }
+                val isTextType = type == null || type.startsWith("text/") || type == "text/uri-list"
+                if (isTextType) {
+                    extraText
+                        ?: readClipData(intent.clipData)
+                        ?: intent.data?.toString()
+                        ?: extraSubject
+                } else null
             }
             Intent.ACTION_PROCESS_TEXT -> processText
             else -> {
                 Log.w(TAG, "❌ Unsupported action: $action")
-                extraText ?: intent.getStringExtra(EXTRA_TEXT) ?: readClipData(intent.clipData)
+                extraText
+                    ?: intent.getStringExtra(EXTRA_TEXT)
+                    ?: readClipData(intent.clipData)
+                    ?: intent.data?.toString()
+                    ?: extraSubject
             }
         }
     }

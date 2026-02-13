@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "PHANTOM_GO"
         private const val CAMERA_PERMISSION_REQUEST = 1001
-        private const val STATUS_CHECK_INTERVAL_MS = 5000L  // Check status every 5 seconds
+        private const val STATUS_CHECK_INTERVAL_MS = 4000L  // Check status every 4 seconds
     }
 
     private lateinit var prefsManager: PrefsManager
@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val testUrl = "google.navigation:q=13.7563,100.5018"
+        val testUrl = "https://www.google.com/maps/search/?api=1&query=13.7563,100.5018"
         mainSender.sendOpenUrl(testUrl, object : MainSender.Companion.SendCallback {
             override fun onSuccess() {
                 runOnUiThread {

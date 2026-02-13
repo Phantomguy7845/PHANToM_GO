@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:angle="135"
-        android:startColor="@color/aurora_start"
-        android:centerColor="@color/aurora_center"
-        android:endColor="@color/aurora_end"
-        android:type="linear" />
-    <corners android:radius="0dp" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="135"
+                android:startColor="@color/aurora_start"
+                android:centerColor="@color/aurora_center"
+                android:endColor="@color/aurora_end"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item android:alpha="0.18">
+        <bitmap
+            android:src="@drawable/neon_grid_tile"
+            android:tileMode="repeat" />
+    </item>
+    <item android:alpha="0.12">
+        <bitmap
+            android:src="@drawable/neon_grid_tile_fine"
+            android:tileMode="repeat" />
+    </item>
+</layer-list>

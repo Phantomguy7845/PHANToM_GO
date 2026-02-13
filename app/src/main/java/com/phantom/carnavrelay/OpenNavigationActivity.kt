@@ -30,12 +30,15 @@ class OpenNavigationActivity : AppCompatActivity() {
             return
         }
         
-        Log.d(TAG, "📍 Opening navigation URL: $url")
+        val prefsManager = PrefsManager(this)
+        val openBehavior = prefsManager.getDisplayOpenBehavior()
+        val previewUrl = NavLinkUtils.toDisplayOpenUrl(url, prefsManager.getDisplayNavMode(), openBehavior)
+        Log.d(TAG, "📍 Opening navigation URL: $previewUrl")
         PhantomLog.i("NAV openAttempt rawUrl=$url (OpenNavigationActivity)")
         
         try {
             // Create intent to open Google Maps
-            val mapsIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            val mapsIntent = Intent(Intent.ACTION_VIEW, Uri.parse(previewUrl)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 // Try to open Google Maps specifically
                 setPackage("com.google.android.apps.maps")

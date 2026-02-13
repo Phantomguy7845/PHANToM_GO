@@ -2,7 +2,6 @@ package com.phantom.carnavrelay
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import fi.iki.elonen.NanoHTTPD
 import java.io.IOException
@@ -63,6 +62,7 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
         val tokenHint = prefsManager.getTokenHint(token)
         val paired = prefsManager.isDisplayPaired()
         val pairedMainId = prefsManager.getDisplayPairedMainId()
+        prefsManager.setLastMainPingAt(System.currentTimeMillis())
         
         Log.d(TAG, "📊 /status request - paired=$paired, tokenHint=$tokenHint")
         
@@ -155,8 +155,8 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
             )
         }
         
-        // Token valid and paired - open Maps
-        Log.d(TAG, "✅ /open-url authorized, opening URL: $url")
+        // Token valid and paired - hand off to DisplayServerService
+        Log.d(TAG, "✅ /open-url authorized, received URL: $url")
         
         // Notify DisplayServerService for background handling
         try {
@@ -169,44 +169,11 @@ class HttpServer(private val context: Context, private val prefsManager: PrefsMa
             Log.e(TAG, "💥 Failed to notify DisplayServerService", e)
         }
         
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                setPackage("com.google.android.apps.maps")
-            }
-            context.startActivity(intent)
-            
-            Log.d(TAG, "✅ Maps opened successfully")
-            return newFixedLengthResponse(
-                Response.Status.OK,
-                "application/json",
-                JsonUtils.createOpenUrlResponse(true, "URL opened successfully")
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "💥 Failed to open Maps", e)
-            
-            // Fallback: open with any browser
-            try {
-                val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(fallbackIntent)
-                
-                Log.d(TAG, "✅ URL opened with fallback browser")
-                return newFixedLengthResponse(
-                    Response.Status.OK,
-                    "application/json",
-                    JsonUtils.createOpenUrlResponse(true, "URL opened (fallback)")
-                )
-            } catch (e2: Exception) {
-                Log.e(TAG, "💥 Fallback also failed", e2)
-                return newFixedLengthResponse(
-                    Response.Status.INTERNAL_ERROR,
-                    "application/json",
-                    JsonUtils.createOpenUrlResponse(false, "Failed to open URL: ${e2.message}")
-                )
-            }
-        }
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json",
+            JsonUtils.createOpenUrlResponse(true, "URL received")
+        )
     }
     
     private fun handleUnpair(session: IHTTPSession): Response {

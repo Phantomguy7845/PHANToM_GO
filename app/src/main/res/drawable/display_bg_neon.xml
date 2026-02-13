@@ -3,15 +3,20 @@
     <item>
         <shape>
             <gradient
-                android:startColor="@color/aurora_black"
+                android:startColor="@color/aurora_dark_gray"
                 android:centerColor="@color/aurora_gray"
                 android:endColor="@color/aurora_black"
                 android:angle="135" />
         </shape>
     </item>
-    <item android:alpha="0.15">
+    <item android:alpha="0.18">
         <bitmap
             android:src="@drawable/neon_grid_tile"
+            android:tileMode="repeat" />
+    </item>
+    <item android:alpha="0.12">
+        <bitmap
+            android:src="@drawable/neon_grid_tile_fine"
             android:tileMode="repeat" />
     </item>
 </layer-list>

@@ -22,11 +22,12 @@ class OverlayController(private val context: Context) {
         private const val TAG = "PHANTOM_GO"
         private const val PREF_OVERLAY_ENABLED = "overlay_enabled"
     }
-    
+
     private var overlayView: View? = null
     private var windowManager: WindowManager? = null
     private var currentUrl: String? = null
     private val prefs: SharedPreferences = context.getSharedPreferences("phantom_go_prefs", Context.MODE_PRIVATE)
+    private val prefsManager = PrefsManager(context)
     
     init {
         windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -144,8 +145,14 @@ class OverlayController(private val context: Context) {
     
     private fun openNavigationUrl(url: String) {
         Log.d(TAG, "🧭 Opening navigation URL: $url")
-        
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+
+        val openBehavior = prefsManager.getDisplayOpenBehavior()
+        val previewUrl = NavLinkUtils.toDisplayOpenUrl(
+            url,
+            prefsManager.getDisplayNavMode(),
+            openBehavior
+        )
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(previewUrl)).apply {
             setPackage("com.google.android.apps.maps")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }

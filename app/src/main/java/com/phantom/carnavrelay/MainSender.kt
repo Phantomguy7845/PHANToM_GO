@@ -1,8 +1,10 @@
 package com.phantom.carnavrelay
 
 import android.content.Context
+import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import okhttp3.Call
@@ -17,7 +19,11 @@ import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 class MainSender(
     private val context: Context,
@@ -29,6 +35,9 @@ class MainSender(
         private const val TAG = "PHANTOM_GO"
         private const val TIMEOUT_SECONDS = 3L
         private const val MAX_RETRIES = 2
+        private const val DISCOVERY_COOLDOWN_MS = 30000L
+        private const val DISCOVERY_TIMEOUT_MS = 300L
+        private const val DISCOVERY_MAX_HOSTS = 254
         
         // Connection states
         const val STATE_UNPAIRED = "UNPAIRED"
@@ -62,6 +71,8 @@ class MainSender(
     private val mainHandler = Handler(Looper.getMainLooper())
     
     private var currentState = STATE_UNPAIRED
+    @Volatile private var discoveryInProgress = false
+    @Volatile private var lastDiscoveryAt = 0L
 
     fun isPaired(): Boolean {
         return prefsManager.isPaired()
@@ -175,6 +186,7 @@ class MainSender(
                             prefsManager.addToPendingQueue(url)
                             showToast("Failed to send. Queued for retry.")
                         }
+                        maybeDiscoverDisplay("send-failure")
                         callback?.onFailure(errorMsg, queueOnFailure)
                     }
                 }
@@ -349,6 +361,7 @@ class MainSender(
                 override fun onFailure(call: Call, e: IOException) {
                     Log.e(TAG, "💥 Status check failed: ${e.message}")
                     setState(STATE_OFFLINE)
+                    maybeDiscoverDisplay("status-failure")
                     mainHandler.post {
                         callback?.invoke(false, e.message)
                     }
@@ -415,5 +428,147 @@ class MainSender(
             setState(STATE_OFFLINE)
             callback?.invoke(false, e.message)
         }
+    }
+
+    private fun maybeDiscoverDisplay(reason: String) {
+        if (!isPaired()) return
+        val now = System.currentTimeMillis()
+        if (discoveryInProgress || now - lastDiscoveryAt < DISCOVERY_COOLDOWN_MS) {
+            return
+        }
+        discoveryInProgress = true
+        lastDiscoveryAt = now
+
+        Thread {
+            try {
+                discoverDisplayOnLocalNetwork(reason)
+            } catch (e: Exception) {
+                Log.e(TAG, "💥 Auto-reconnect discovery failed", e)
+            } finally {
+                discoveryInProgress = false
+            }
+        }.start()
+    }
+
+    private fun discoverDisplayOnLocalNetwork(reason: String) {
+        val token = prefsManager.getPairedToken() ?: return
+        val tokenHint = prefsManager.getTokenHint(token)
+        val port = prefsManager.getPairedPort()
+
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+        val ipInt = wifiManager?.connectionInfo?.ipAddress ?: 0
+        val maskInt = wifiManager?.dhcpInfo?.netmask ?: 0
+        if (ipInt == 0 || maskInt == 0) {
+            Log.w(TAG, "⚠️ Auto-reconnect skipped: no Wi-Fi IP")
+            return
+        }
+
+        val ip = ipInt.toUInt()
+        val mask = maskInt.toUInt()
+        val network = ip and mask
+        val broadcast = network or mask.inv()
+        var start = network + 1u
+        var end = if (broadcast > 0u) broadcast - 1u else 0u
+        var hostCount = if (end >= start) (end - start + 1u) else 0u
+
+        if (hostCount == 0u) {
+            Log.w(TAG, "⚠️ Auto-reconnect skipped: invalid subnet range")
+            return
+        }
+
+        if (hostCount > DISCOVERY_MAX_HOSTS.toUInt()) {
+            val subnetBase = ip and 0xFFFFFF00u
+            start = subnetBase + 1u
+            end = subnetBase + 254u
+            hostCount = 254u
+        }
+
+        val localIpString = uintToIp(ip)
+        val localTokenHint = tokenHint
+        val localMainId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: ""
+
+        val discoveryClient = OkHttpClient.Builder()
+            .connectTimeout(DISCOVERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+            .readTimeout(DISCOVERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+            .writeTimeout(DISCOVERY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+            .build()
+
+        val found = AtomicBoolean(false)
+        val foundIp = AtomicReference<String?>(null)
+        val foundPort = AtomicInteger(port)
+
+        val executor = Executors.newFixedThreadPool(12)
+
+        var host = start
+        while (host <= end) {
+            val targetIp = uintToIp(host)
+            host++
+            if (targetIp == localIpString) {
+                continue
+            }
+            executor.execute {
+                if (found.get()) return@execute
+                val request = Request.Builder()
+                    .url("http://$targetIp:$port/status")
+                    .get()
+                    .build()
+                try {
+                    discoveryClient.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) return@use
+                        val body = response.body?.string() ?: return@use
+                        val json = JSONObject(body)
+                        val serverTokenHint = json.optString("tokenHint", "")
+                        val paired = json.optBoolean("paired", false)
+                        val pairedMainId = json.optString("pairedMainId", "")
+
+                        if (paired &&
+                            serverTokenHint == localTokenHint &&
+                            (pairedMainId.isEmpty() || pairedMainId == localMainId)
+                        ) {
+                            if (found.compareAndSet(false, true)) {
+                                foundIp.set(targetIp)
+                                foundPort.set(json.optInt("port", port))
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Ignore individual host failures
+                }
+            }
+        }
+
+        executor.shutdown()
+        val deadline = System.currentTimeMillis() + 4000L
+        while (!executor.isTerminated && System.currentTimeMillis() < deadline && !found.get()) {
+            executor.awaitTermination(200, TimeUnit.MILLISECONDS)
+        }
+        if (found.get()) {
+            executor.shutdownNow()
+        }
+
+        val ipFound = foundIp.get()
+        if (!ipFound.isNullOrEmpty()) {
+            prefsManager.savePairing(ipFound, foundPort.get(), token, verified = true)
+            setState(STATE_CONNECTED)
+            val message = "🔁 Auto-reconnect: Display found at $ipFound:${foundPort.get()} ($reason)"
+            Log.d(TAG, message)
+            PhantomLog.i(message)
+            showToast("Reconnected to Display")
+
+            if (prefsManager.getPendingCount() > 0) {
+                Log.d(TAG, "🔄 Auto-retry pending queue after reconnect")
+                retryPending(null)
+            }
+        } else {
+            Log.d(TAG, "ℹ️ Auto-reconnect: display not found ($reason)")
+        }
+    }
+
+    private fun uintToIp(value: UInt): String {
+        val b1 = (value and 0xFFu).toInt()
+        val b2 = ((value shr 8) and 0xFFu).toInt()
+        val b3 = ((value shr 16) and 0xFFu).toInt()
+        val b4 = ((value shr 24) and 0xFFu).toInt()
+        return "$b1.$b2.$b3.$b4"
     }
 }

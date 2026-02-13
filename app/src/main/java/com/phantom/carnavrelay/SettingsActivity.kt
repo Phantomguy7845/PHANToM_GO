@@ -52,6 +52,14 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var afterSendExit: android.widget.RadioButton
     private lateinit var afterSendStay: android.widget.RadioButton
     private lateinit var openMapsAfterSendSwitch: Switch
+    private lateinit var displayNavModeGroup: android.widget.RadioGroup
+    private lateinit var displayNavModeCar: android.widget.RadioButton
+    private lateinit var displayNavModeMotorcycle: android.widget.RadioButton
+    private lateinit var displayNavModeStatusText: TextView
+    private lateinit var displayOpenModeGroup: android.widget.RadioGroup
+    private lateinit var displayOpenModePreview: android.widget.RadioButton
+    private lateinit var displayOpenModeNavigate: android.widget.RadioButton
+    private lateinit var displayOpenModeStatusText: TextView
     private lateinit var logScrollView: ScrollView
     private lateinit var logText: TextView
     private lateinit var copyLogButton: Button
@@ -66,6 +74,8 @@ class SettingsActivity : AppCompatActivity() {
     private var updatingSmartModeUi = false
     private var updatingPolicyUi = false
     private var updatingAfterSendUi = false
+    private var updatingDisplayNavModeUi = false
+    private var updatingDisplayOpenModeUi = false
 
     private val requestNotificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -93,6 +103,8 @@ class SettingsActivity : AppCompatActivity() {
         updateOverlayStatus()
         updateMapLinkHubStatus()
         updateSmartModeStatus()
+        updateDisplayNavModeStatus()
+        updateDisplayOpenModeStatus()
         updateNotificationStatus()
         loadLogs()
     }
@@ -117,6 +129,14 @@ class SettingsActivity : AppCompatActivity() {
         afterSendExit = findViewById(R.id.afterSendExit)
         afterSendStay = findViewById(R.id.afterSendStay)
         openMapsAfterSendSwitch = findViewById(R.id.openMapsAfterSendSwitch)
+        displayNavModeGroup = findViewById(R.id.displayNavModeGroup)
+        displayNavModeCar = findViewById(R.id.displayNavModeCar)
+        displayNavModeMotorcycle = findViewById(R.id.displayNavModeMotorcycle)
+        displayNavModeStatusText = findViewById(R.id.displayNavModeStatusText)
+        displayOpenModeGroup = findViewById(R.id.displayOpenModeGroup)
+        displayOpenModePreview = findViewById(R.id.displayOpenModePreview)
+        displayOpenModeNavigate = findViewById(R.id.displayOpenModeNavigate)
+        displayOpenModeStatusText = findViewById(R.id.displayOpenModeStatusText)
         logScrollView = findViewById(R.id.logScrollView)
         logText = findViewById(R.id.logText)
         copyLogButton = findViewById(R.id.copyLogButton)
@@ -181,6 +201,26 @@ class SettingsActivity : AppCompatActivity() {
             prefsManager.setOpenMapsAfterSendEnabled(isChecked)
             updateMapLinkHubStatus()
             openMapsAfterSendSwitch.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        displayNavModeGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (updatingDisplayNavModeUi) return@setOnCheckedChangeListener
+            val mode = when (checkedId) {
+                R.id.displayNavModeMotorcycle -> PrefsManager.DISPLAY_NAV_MODE_MOTORCYCLE
+                else -> PrefsManager.DISPLAY_NAV_MODE_DRIVING
+            }
+            prefsManager.setDisplayNavMode(mode)
+            updateDisplayNavModeStatus()
+        }
+
+        displayOpenModeGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (updatingDisplayOpenModeUi) return@setOnCheckedChangeListener
+            val behavior = when (checkedId) {
+                R.id.displayOpenModeNavigate -> PrefsManager.DISPLAY_OPEN_BEHAVIOR_START_NAVIGATION
+                else -> PrefsManager.DISPLAY_OPEN_BEHAVIOR_PREVIEW_ROUTE
+            }
+            prefsManager.setDisplayOpenBehavior(behavior)
+            updateDisplayOpenModeStatus()
         }
 
         openByDefaultButton.setOnClickListener {
@@ -315,6 +355,48 @@ class SettingsActivity : AppCompatActivity() {
         updatingAfterSendUi = false
     }
 
+    private fun updateDisplayNavModeStatus() {
+        val mode = prefsManager.getDisplayNavMode()
+
+        updatingDisplayNavModeUi = true
+        displayNavModeGroup.check(
+            when (mode) {
+                PrefsManager.DISPLAY_NAV_MODE_MOTORCYCLE -> R.id.displayNavModeMotorcycle
+                else -> R.id.displayNavModeCar
+            }
+        )
+        updatingDisplayNavModeUi = false
+
+        displayNavModeStatusText.text = when (mode) {
+            PrefsManager.DISPLAY_NAV_MODE_MOTORCYCLE -> "Motorcycle"
+            else -> "Car"
+        }
+        displayNavModeStatusText.setTextColor(
+            ContextCompat.getColor(this, R.color.aurora_cyan)
+        )
+    }
+
+    private fun updateDisplayOpenModeStatus() {
+        val behavior = prefsManager.getDisplayOpenBehavior()
+
+        updatingDisplayOpenModeUi = true
+        displayOpenModeGroup.check(
+            when (behavior) {
+                PrefsManager.DISPLAY_OPEN_BEHAVIOR_START_NAVIGATION -> R.id.displayOpenModeNavigate
+                else -> R.id.displayOpenModePreview
+            }
+        )
+        updatingDisplayOpenModeUi = false
+
+        displayOpenModeStatusText.text = when (behavior) {
+            PrefsManager.DISPLAY_OPEN_BEHAVIOR_START_NAVIGATION -> "Start navigation"
+            else -> "Show route preview"
+        }
+        displayOpenModeStatusText.setTextColor(
+            ContextCompat.getColor(this, R.color.aurora_cyan)
+        )
+    }
+
     private fun setMapLinkHandlerEnabled(enabled: Boolean) {
         val component = android.content.ComponentName(
             this,
@@ -446,6 +528,8 @@ class SettingsActivity : AppCompatActivity() {
         updateOverlayStatus()
         updateMapLinkHubStatus()
         updateSmartModeStatus()
+        updateDisplayNavModeStatus()
+        updateDisplayOpenModeStatus()
         updateNotificationStatus()
         loadLogs() // Refresh logs
     }

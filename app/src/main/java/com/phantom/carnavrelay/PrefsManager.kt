@@ -60,11 +60,30 @@ class PrefsManager(context: Context) {
 
         // Short link resolve cache
         private const val KEY_URL_RESOLVE_CACHE = "url_resolve_cache"
+
+        // Display navigation mode (driving / motorcycle)
+        private const val KEY_DISPLAY_NAV_MODE = "display_nav_mode"
+        const val DISPLAY_NAV_MODE_DRIVING = "DRIVING"
+        const val DISPLAY_NAV_MODE_MOTORCYCLE = "MOTORCYCLE"
+
+        // Display open behavior (preview route / start navigation)
+        private const val KEY_DISPLAY_OPEN_BEHAVIOR = "display_open_behavior"
+        const val DISPLAY_OPEN_BEHAVIOR_PREVIEW_ROUTE = "PREVIEW_ROUTE"
+        const val DISPLAY_OPEN_BEHAVIOR_START_NAVIGATION = "START_NAVIGATION"
+
+        // Display: last time main device pinged /status
+        private const val KEY_LAST_MAIN_PING_AT = "last_main_ping_at"
     }
     
     // Display device: Server token
     fun getServerToken(): String {
-        return prefs.getString(KEY_SERVER_TOKEN, null) ?: generateNewToken()
+        val existing = prefs.getString(KEY_SERVER_TOKEN, null)
+        if (!existing.isNullOrBlank()) {
+            return existing
+        }
+        val newToken = generateNewToken()
+        setServerToken(newToken)
+        return newToken
     }
     
     fun setServerToken(token: String) {
@@ -253,6 +272,32 @@ class PrefsManager(context: Context) {
 
     fun setOpenMapsAfterSendEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_OPEN_MAPS_AFTER_SEND, enabled).apply()
+    }
+
+    fun getDisplayNavMode(): String {
+        return prefs.getString(KEY_DISPLAY_NAV_MODE, DISPLAY_NAV_MODE_DRIVING)
+            ?: DISPLAY_NAV_MODE_DRIVING
+    }
+
+    fun setDisplayNavMode(mode: String) {
+        prefs.edit().putString(KEY_DISPLAY_NAV_MODE, mode).apply()
+    }
+
+    fun getDisplayOpenBehavior(): String {
+        return prefs.getString(KEY_DISPLAY_OPEN_BEHAVIOR, DISPLAY_OPEN_BEHAVIOR_PREVIEW_ROUTE)
+            ?: DISPLAY_OPEN_BEHAVIOR_PREVIEW_ROUTE
+    }
+
+    fun setDisplayOpenBehavior(behavior: String) {
+        prefs.edit().putString(KEY_DISPLAY_OPEN_BEHAVIOR, behavior).apply()
+    }
+
+    fun getLastMainPingAt(): Long {
+        return prefs.getLong(KEY_LAST_MAIN_PING_AT, 0L)
+    }
+
+    fun setLastMainPingAt(timestampMs: Long) {
+        prefs.edit().putLong(KEY_LAST_MAIN_PING_AT, timestampMs).apply()
     }
 
     fun getResolvedUrlFor(shortUrl: String): String? {

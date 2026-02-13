@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/aurora_dark_gray"
+            app:cardBackgroundColor="@color/aurora_glass"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp">
 
@@ -98,7 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/aurora_dark_gray"
+            app:cardBackgroundColor="@color/aurora_glass"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp">
 
@@ -320,6 +320,98 @@
                     android:thumbTint="@color/aurora_cyan"
                     android:trackTint="@color/aurora_gray" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🛵 Display Navigation Mode"
+                    android:textColor="@color/aurora_cyan"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/displayNavModeStatusText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Car"
+                    android:textColor="@color/aurora_cyan"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/displayNavModeGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp">
+
+                    <RadioButton
+                        android:id="@+id/displayNavModeCar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="รถยนต์ (Car)" />
+
+                    <RadioButton
+                        android:id="@+id/displayNavModeMotorcycle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="มอเตอร์ไซค์ (Motorcycle)" />
+
+                </RadioGroup>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🧭 Display Open Mode"
+                    android:textColor="@color/aurora_cyan"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/displayOpenModeStatusText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Show route preview"
+                    android:textColor="@color/aurora_cyan"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/displayOpenModeGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp">
+
+                    <RadioButton
+                        android:id="@+id/displayOpenModePreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="แสดงเส้นทางก่อน (กดเริ่มเอง)" />
+
+                    <RadioButton
+                        android:id="@+id/displayOpenModeNavigate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:paddingVertical="12dp"
+                        android:text="เริ่มนำทางทันที" />
+
+                </RadioGroup>
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -328,7 +420,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/aurora_dark_gray"
+            app:cardBackgroundColor="@color/aurora_glass"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp">
 
@@ -374,7 +466,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/aurora_dark_gray"
+            app:cardBackgroundColor="@color/aurora_glass"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp">
 

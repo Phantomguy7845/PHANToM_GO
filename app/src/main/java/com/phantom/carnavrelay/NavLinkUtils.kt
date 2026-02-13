@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit
 
 object NavLinkUtils {
     private const val TAG = "PHANTOM_GO"
+    private const val RESOLVE_MAX_ATTEMPTS = 3
+    private const val RESOLVE_RETRY_DELAY_MS = 200L
 
     private val resolverClient = OkHttpClient.Builder()
         .followRedirects(true)
@@ -102,6 +104,30 @@ object NavLinkUtils {
             return cached
         }
 
+        var attempt = 1
+        var resolvedUrl = url
+        while (attempt <= RESOLVE_MAX_ATTEMPTS) {
+            resolvedUrl = resolveOnce(prefsManager, url)
+            if (resolvedUrl != url) {
+                return resolvedUrl
+            }
+            if (attempt < RESOLVE_MAX_ATTEMPTS) {
+                Log.w(TAG, "⚠️ Resolve attempt $attempt failed, retrying…")
+                try {
+                    Thread.sleep(RESOLVE_RETRY_DELAY_MS)
+                } catch (_: InterruptedException) {
+                    // ignore
+                }
+            }
+            attempt += 1
+        }
+
+        Log.w(TAG, "⚠️ Resolve failed after $RESOLVE_MAX_ATTEMPTS attempts, using original")
+        PhantomLog.w("NAV resolve failed after retries, fallback: $url")
+        return resolvedUrl
+    }
+
+    private fun resolveOnce(prefsManager: PrefsManager, url: String): String {
         return try {
             val request = Request.Builder()
                 .url(url)
@@ -150,6 +176,130 @@ object NavLinkUtils {
         } catch (e: Exception) {
             Log.w(TAG, "⚠️ GET resolve failed: ${e.message}")
             PhantomLog.w("NAV resolve GET failed, fallback to original: $url")
+            url
+        }
+    }
+
+    fun toLocationOnlyUrl(url: String): String {
+        val destination = extractDestination(url) ?: return url
+        return "https://www.google.com/maps/search/?api=1&query=${Uri.encode(destination)}"
+    }
+
+    fun toDirectionsPreviewUrl(url: String): String {
+        return toDirectionsPreviewUrl(url, null)
+    }
+
+    fun toDirectionsPreviewUrl(url: String, navMode: String?): String {
+        val destination = extractDestination(url) ?: return url
+        val travelMode = when (navMode) {
+            PrefsManager.DISPLAY_NAV_MODE_MOTORCYCLE -> "two_wheeler"
+            else -> "driving"
+        }
+        return "https://www.google.com/maps/dir/?api=1&destination=${Uri.encode(destination)}&travelmode=$travelMode"
+    }
+
+    fun toDisplayOpenUrl(url: String, navMode: String?, openBehavior: String?): String {
+        if (openBehavior == PrefsManager.DISPLAY_OPEN_BEHAVIOR_START_NAVIGATION) {
+            val destination = extractDestination(url)
+            if (!destination.isNullOrBlank()) {
+                val builder = Uri.Builder()
+                    .scheme("google.navigation")
+                    .appendQueryParameter("q", destination)
+                when (navMode) {
+                    PrefsManager.DISPLAY_NAV_MODE_MOTORCYCLE -> builder.appendQueryParameter("mode", "b")
+                    PrefsManager.DISPLAY_NAV_MODE_DRIVING -> builder.appendQueryParameter("mode", "d")
+                }
+                return builder.build().toString()
+            }
+        }
+
+        val baseUrl = toDirectionsPreviewUrl(url, navMode)
+        return if (openBehavior == PrefsManager.DISPLAY_OPEN_BEHAVIOR_START_NAVIGATION) {
+            appendQueryParam(baseUrl, "dir_action", "navigate")
+        } else {
+            baseUrl
+        }
+    }
+
+    private fun extractDestination(url: String): String? {
+        val uri = try {
+            Uri.parse(url)
+        } catch (e: Exception) {
+            null
+        } ?: return null
+
+        val scheme = uri.scheme?.lowercase() ?: return null
+        return when (scheme) {
+            "google.navigation" -> uri.getQueryParameter("q")
+            "geo" -> {
+                val query = uri.getQueryParameter("q")
+                if (!query.isNullOrBlank()) {
+                    query
+                } else {
+                    val ssp = uri.schemeSpecificPart ?: return null
+                    val latLng = ssp.substringBefore("?").trim()
+                    if (latLng.contains(",")) latLng else null
+                }
+            }
+            "http", "https" -> extractFromHttp(uri)
+            else -> null
+        }
+    }
+
+    private fun extractFromHttp(uri: Uri): String? {
+        val host = uri.host?.lowercase() ?: return null
+        val queryDestination = uri.getQueryParameter("destination")
+            ?: uri.getQueryParameter("daddr")
+            ?: uri.getQueryParameter("q")
+            ?: uri.getQueryParameter("query")
+
+        if (!queryDestination.isNullOrBlank()) {
+            return queryDestination
+        }
+
+        if (host.contains("google.com") || host.contains("maps.google.com")) {
+            val segments = uri.pathSegments ?: emptyList()
+            val dirIndex = segments.indexOf("dir")
+            if (dirIndex >= 0 && dirIndex + 1 < segments.size) {
+                val candidate = segments
+                    .subList(dirIndex + 1, segments.size)
+                    .asReversed()
+                    .firstOrNull { segment ->
+                        segment.isNotBlank() &&
+                            !segment.startsWith("@") &&
+                            !segment.startsWith("data=") &&
+                            !segment.contains("!")
+                    }
+                val decoded = candidate?.let { Uri.decode(it) }
+                if (!decoded.isNullOrBlank()) {
+                    return decoded
+                }
+            }
+            val placeIndex = segments.indexOf("place")
+            if (placeIndex >= 0 && placeIndex + 1 < segments.size) {
+                val place = segments[placeIndex + 1]
+                val decoded = Uri.decode(place)
+                if (decoded.isNotBlank()) {
+                    return decoded
+                }
+            }
+        }
+
+        return null
+    }
+
+    private fun appendQueryParam(url: String, name: String, value: String): String {
+        return try {
+            val uri = Uri.parse(url)
+            if (uri.getQueryParameter(name) != null) {
+                url
+            } else {
+                uri.buildUpon()
+                    .appendQueryParameter(name, value)
+                    .build()
+                    .toString()
+            }
+        } catch (e: Exception) {
             url
         }
     }

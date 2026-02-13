@@ -26,7 +26,14 @@ class OpenMapsReceiver : BroadcastReceiver() {
         PhantomLog.i("NAV openAttempt rawUrl=$url (OpenMapsReceiver)")
         
         try {
-            val mapsIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            val prefsManager = com.phantom.carnavrelay.PrefsManager(context)
+            val openBehavior = prefsManager.getDisplayOpenBehavior()
+            val previewUrl = com.phantom.carnavrelay.NavLinkUtils.toDisplayOpenUrl(
+                url,
+                prefsManager.getDisplayNavMode(),
+                openBehavior
+            )
+            val mapsIntent = Intent(Intent.ACTION_VIEW, Uri.parse(previewUrl)).apply {
                 setPackage("com.google.android.apps.maps")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }

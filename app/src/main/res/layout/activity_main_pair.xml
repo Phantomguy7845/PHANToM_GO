@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/aurora_black">
+    android:background="@drawable/aurora_bg">
 
     <ImageView
         android:id="@+id/backButton"
@@ -47,9 +47,11 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="48dp"
-        app:cardBackgroundColor="@color/aurora_dark_gray"
+        app:cardBackgroundColor="@color/aurora_glass"
         app:cardCornerRadius="24dp"
         app:cardElevation="16dp"
+        app:strokeColor="@color/glass_border"
+        app:strokeWidth="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/deviceNameText">
@@ -108,9 +110,9 @@
         android:text="@string/connect"
         android:textSize="18sp"
         android:enabled="false"
-        app:backgroundTint="@color/aurora_cyan"
         android:textColor="@color/white"
         app:cornerRadius="16dp"
+        style="@style/Widget.CarNavRelay.Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/codeCard" />

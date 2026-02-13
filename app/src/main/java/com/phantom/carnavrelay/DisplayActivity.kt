@@ -13,6 +13,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
@@ -42,6 +44,8 @@ class DisplayActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "PHANTOM_GO"
         private const val PERMISSION_REQUEST_CODE = 1001
+        private const val MAIN_PING_CHECK_INTERVAL_MS = 4000L
+        private const val MAIN_PING_TIMEOUT_MS = 12000L
     }
 
     private lateinit var prefsManager: PrefsManager
@@ -67,6 +71,15 @@ class DisplayActivity : AppCompatActivity() {
     private lateinit var tvQrPayload: TextView
     private lateinit var btnCopyPayload: Button
     private var statusBlinkAnimator: ObjectAnimator? = null
+    private val mainPingHandler = Handler(Looper.getMainLooper())
+    private val mainPingRunnable = object : Runnable {
+        override fun run() {
+            val isPaired = prefsManager.isDisplayPaired()
+            val mainActive = isMainRecentlyConnected()
+            updateConnectionIndicator(isPaired, mainActive)
+            mainPingHandler.postDelayed(this, MAIN_PING_CHECK_INTERVAL_MS)
+        }
+    }
 
     private val pairingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -248,7 +261,7 @@ class DisplayActivity : AppCompatActivity() {
             layoutConnectedActions.visibility = View.GONE
         }
 
-        updateConnectionIndicator(isPaired)
+        updateConnectionIndicator(isPaired, isMainRecentlyConnected())
 
         val lastUrl = prefsManager.getPrefs().getString("last_url", null)
         btnOpenLastNav.isEnabled = !lastUrl.isNullOrEmpty()
@@ -448,8 +461,8 @@ class DisplayActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun updateConnectionIndicator(isPaired: Boolean) {
-        if (isPaired) {
+    private fun updateConnectionIndicator(isPaired: Boolean, isMainActive: Boolean) {
+        if (isPaired && isMainActive) {
             statusDot.visibility = View.VISIBLE
             statusDot.setBackgroundResource(R.drawable.status_dot_cyan)
             statusGhost.visibility = View.GONE
@@ -461,9 +474,25 @@ class DisplayActivity : AppCompatActivity() {
             statusDot.visibility = View.GONE
             statusGhost.visibility = View.VISIBLE
             statusGhost.text = "👻💤"
-            tvStatus.text = "Disconnected"
+            tvStatus.text = if (isPaired) "Main Disconnected" else "Disconnected"
             tvStatus.setTextColor(getColor(R.color.ghost_purple_dark))
         }
+    }
+
+    private fun isMainRecentlyConnected(): Boolean {
+        val lastPing = prefsManager.getLastMainPingAt()
+        if (lastPing <= 0L) return false
+        return (System.currentTimeMillis() - lastPing) <= MAIN_PING_TIMEOUT_MS
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mainPingHandler.post(mainPingRunnable)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mainPingHandler.removeCallbacks(mainPingRunnable)
     }
 
     private fun startStatusBlink() {

@@ -10,6 +10,8 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
@@ -37,6 +39,8 @@ class DisplayServerService : Service() {
     private var overlayController: OverlayController? = null
     private var lastUrl: String? = null
     private var lastCmdAt: Long = 0
+    @Volatile private var resolveToken: Long = 0
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val appStateReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -245,32 +249,63 @@ class DisplayServerService : Service() {
 
     fun onNavigationReceived(url: String) {
         Log.d(TAG, "📡 Navigation received: $url")
-        lastUrl = url
+        resolveForDisplayAsync(url)
+    }
+
+    private fun resolveForDisplayAsync(rawUrl: String) {
+        if (!NavLinkUtils.isShortMapsLink(rawUrl)) {
+            handleNavigationReady(rawUrl, rawUrl)
+            return
+        }
+
+        val token = System.currentTimeMillis()
+        resolveToken = token
+        Thread {
+            val resolvedUrl = NavLinkUtils.resolveShortLinkIfNeeded(prefsManager, rawUrl)
+            mainHandler.post {
+                if (resolveToken != token) {
+                    Log.d(TAG, "⏭️ Skipping stale resolve result")
+                    return@post
+                }
+                handleNavigationReady(rawUrl, resolvedUrl)
+            }
+        }.start()
+    }
+
+    private fun handleNavigationReady(rawUrl: String, resolvedUrl: String) {
+        val finalUrl = if (resolvedUrl.isBlank()) rawUrl else resolvedUrl
+        if (finalUrl != rawUrl) {
+            Log.d(TAG, "🔁 Display resolved short link: $rawUrl -> $finalUrl")
+            PhantomLog.i("NAV display resolved: $rawUrl -> $finalUrl")
+        }
+
+        lastUrl = finalUrl
         lastCmdAt = System.currentTimeMillis()
-        
+
         // Save to prefs for diagnostics
         val prefs = getSharedPreferences("phantom_go_prefs", Context.MODE_PRIVATE)
         prefs.edit().apply {
             putLong("last_cmd_at", lastCmdAt)
-            putString("last_url", url)
+            putString("last_url", finalUrl)
             apply()
         }
-        
+
         // Show navigation notification with Open Navigation action
-        showNavigationNotification(url)
-        
+        showNavigationNotification(finalUrl)
+
         // Check if app is in foreground
         if (PhantomGoApplication.isInForeground()) {
             Log.d(TAG, "📱 App in foreground, opening Maps directly")
-            openMapsDirectly(url)
+            openMapsDirectly(finalUrl)
         } else {
-            Log.d(TAG, "📱 App in background, showing notification")
-            
+            Log.d(TAG, "📱 App in background, opening Maps directly")
+            openMapsDirectly(finalUrl)
+
             // Try to show overlay if enabled and permission granted
             overlayController?.let { controller ->
                 if (controller.isOverlayEnabled() && controller.hasOverlayPermission()) {
                     Log.d(TAG, "🎯 Showing overlay widget")
-                    controller.showNavigationOverlay(url)
+                    controller.showNavigationOverlay(finalUrl)
                 } else {
                     Log.d(TAG, "🚫 Overlay disabled or no permission, using notification only")
                     if (!controller.hasOverlayPermission()) {
@@ -288,26 +323,34 @@ class DisplayServerService : Service() {
     
     private fun openMapsDirectly(url: String) {
         try {
-            val mapsIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            val openBehavior = prefsManager.getDisplayOpenBehavior()
+            val openUrl = NavLinkUtils.toDisplayOpenUrl(
+                url,
+                prefsManager.getDisplayNavMode(),
+                openBehavior
+            )
+            val mapsIntent = Intent(Intent.ACTION_VIEW, Uri.parse(openUrl)).apply {
                 setPackage("com.google.android.apps.maps")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            
-            if (mapsIntent.resolveActivity(packageManager) != null) {
-                startActivity(mapsIntent)
-                Log.d(TAG, "✅ Opened Google Maps directly")
-            } else {
-                // Fallback
-                val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+
+            startActivity(mapsIntent)
+            Log.d(TAG, "✅ Opened Google Maps directly")
+        } catch (e: Exception) {
+            Log.e(TAG, "💥 Failed to open Maps directly", e)
+            // Fallback to preview URL without forcing navigation
+            try {
+                val previewUrl = NavLinkUtils.toDirectionsPreviewUrl(url, prefsManager.getDisplayNavMode())
+                val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(previewUrl)).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 startActivity(fallbackIntent)
-                Log.d(TAG, "✅ Opened with fallback map app")
+                Log.d(TAG, "✅ Opened with fallback preview URL")
+            } catch (e2: Exception) {
+                Log.e(TAG, "💥 Failed to open fallback preview", e2)
+                // Fallback to notification
+                showNavigationNotification(url)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "💥 Failed to open Maps directly", e)
-            // Fallback to notification
-            showNavigationNotification(url)
         }
     }
     

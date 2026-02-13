@@ -1,86 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Pastel Mint/Brown Theme Colors -->
-    <!-- Off-white to mint surfaces -->
-    <color name="aurora_black">#FAFBFA</color>
-    <color name="aurora_dark_gray">#FFFFFF</color>
-    <color name="aurora_gray">#F1F7F3</color>
-    <color name="aurora_silver">#5E6A66</color>
-    
-    <!-- Mint spectrum -->
-    <color name="aurora_purple">#6ED8C3</color>
-    <color name="aurora_pink">#D9B99B</color>
-    <color name="aurora_blue">#3CCCB0</color>
-    <color name="aurora_cyan">#2FBFA2</color>
-    <color name="aurora_green">#5FCFB8</color>
-    <color name="aurora_mint">#6ED8C3</color>
-    
-    <!-- Gradient variations -->
-    <color name="aurora_start">#FAFBFA</color>
-    <color name="aurora_center">#F0FAF6</color>
-    <color name="aurora_end">#E7F6F1</color>
-    
-    <!-- Status colors with pastel -->
-    <color name="aurora_success">#3DBE9E</color>
-    <color name="aurora_warning">#C9A27E</color>
-    <color name="aurora_error">#D87C7C</color>
-    <color name="aurora_info">#2FBFA2</color>
-    <color name="aurora_waiting">#93A89C</color>
-    <color name="aurora_connected">#3DBE9E</color>
-    <color name="aurora_disconnected">#8C7B6A</color>
-    <color name="aurora_auth_failed">#D87C7C</color>
-    <color name="aurora_glass">#33F1FBF6</color>
+    <!-- Base palette from themeref.html -->
+    <color name="navy">#0A0A1A</color>
+    <color name="navy_light">#1A1A2E</color>
+    <color name="navy_mid">#16213E</color>
+    <color name="purple">#A855F7</color>
+    <color name="purple_dark">#7C3AED</color>
+    <color name="purple_glow">#C084FC</color>
+    <color name="cyan">#22D3EE</color>
+    <color name="cyan_glow">#67E8F9</color>
+    <color name="cyan_dark">#0891B2</color>
+    <color name="white_soft">#F0F0FF</color>
+    <color name="gray_soft">#94A3B8</color>
+    <color name="glass_bg">#991A1A2E</color>
+    <color name="glass_border">#33A855F7</color>
+    <color name="error_red">#F87171</color>
 
-    <!-- Legacy palette remapped to pastel browns (compatibility) -->
-    <color name="purple_50">#F7F2ED</color>
-    <color name="purple_100">#F1E7DD</color>
-    <color name="purple_200">#E7D5C3</color>
-    <color name="purple_300">#D9B99B</color>
-    <color name="purple_400">#C9A27E</color>
-    <color name="purple_500">#B4886A</color>
-    <color name="purple_600">#9C7055</color>
-    <color name="purple_700">#7F5B44</color>
-    <color name="purple_800">#644737</color>
-    <color name="purple_900">#4C3529</color>
+    <!-- Core aliases -->
+    <color name="black">@color/navy</color>
+    <color name="white">@color/white_soft</color>
 
-    <!-- Ghost aliases (pastel brown) -->
-    <color name="ghost_purple">#D9B99B</color>
-    <color name="ghost_purple_dark">#9C7055</color>
-    <color name="ghost_purple_light">#F1E7DD</color>
+    <!-- Aurora palette -->
+    <color name="aurora_black">@color/navy</color>
+    <color name="aurora_dark_gray">@color/navy_light</color>
+    <color name="aurora_gray">@color/navy_mid</color>
+    <color name="aurora_silver">@color/gray_soft</color>
 
-    <!-- Teal complementary (mint) -->
-    <color name="teal_200">#BCEFE4</color>
-    <color name="teal_500">#6ED8C3</color>
-    <color name="teal_700">#2FBFA2</color>
-    <color name="teal_900">#1A8E78</color>
+    <color name="aurora_purple">@color/purple</color>
+    <color name="aurora_pink">@color/purple_glow</color>
+    <color name="aurora_blue">@color/cyan_glow</color>
+    <color name="aurora_cyan">@color/cyan</color>
+    <color name="aurora_green">@color/cyan_dark</color>
+    <color name="aurora_mint">@color/cyan</color>
 
-    <!-- Neutral -->
-    <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
-    <color name="gray_100">#F5F5F5</color>
-    <color name="gray_200">#EEEEEE</color>
-    <color name="gray_300">#E0E0E0</color>
-    <color name="gray_400">#BDBDBD</color>
-    <color name="gray_500">#9E9E9E</color>
-    <color name="gray_600">#757575</color>
-    <color name="gray_700">#616161</color>
-    <color name="gray_800">#424242</color>
-    <color name="gray_900">#212121</color>
+    <color name="aurora_start">@color/navy</color>
+    <color name="aurora_center">@color/navy_mid</color>
+    <color name="aurora_end">@color/navy_light</color>
 
-    <!-- Status -->
-    <color name="success">#27AE60</color>
-    <color name="warning">#F39C12</color>
-    <color name="error">#E74C3C</color>
-    <color name="red">#E74C3C</color>
-    <color name="info">#3498DB</color>
+    <color name="aurora_success">@color/cyan</color>
+    <color name="aurora_warning">@color/purple_glow</color>
+    <color name="aurora_error">@color/error_red</color>
+    <color name="aurora_info">@color/cyan_glow</color>
+    <color name="aurora_waiting">@color/purple_glow</color>
+    <color name="aurora_connected">@color/cyan</color>
+    <color name="aurora_disconnected">@color/purple_dark</color>
+    <color name="aurora_auth_failed">@color/error_red</color>
+    <color name="aurora_glass">@color/glass_bg</color>
 
-    <!-- Background -->
-    <color name="background">#FAFBFA</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="on_surface">#26332E</color>
-    <color name="on_primary">#FFFFFF</color>
-    
-    <!-- Text colors -->
-    <color name="text_primary">#26332E</color>
-    <color name="text_secondary">#5B6A64</color>
+    <!-- Legacy palette remapped -->
+    <color name="purple_50">@color/navy_light</color>
+    <color name="purple_100">@color/navy_light</color>
+    <color name="purple_200">@color/navy_mid</color>
+    <color name="purple_300">@color/purple_glow</color>
+    <color name="purple_400">@color/purple</color>
+    <color name="purple_500">@color/purple</color>
+    <color name="purple_600">@color/purple_dark</color>
+    <color name="purple_700">@color/purple_dark</color>
+    <color name="purple_800">@color/navy</color>
+    <color name="purple_900">@color/navy</color>
+
+    <color name="ghost_purple">@color/purple_glow</color>
+    <color name="ghost_purple_dark">@color/purple_dark</color>
+    <color name="ghost_purple_light">@color/white_soft</color>
+
+    <color name="teal_200">@color/cyan_glow</color>
+    <color name="teal_500">@color/cyan</color>
+    <color name="teal_700">@color/cyan_dark</color>
+    <color name="teal_900">@color/navy</color>
+
+    <color name="gray_100">@color/white_soft</color>
+    <color name="gray_200">@color/gray_soft</color>
+    <color name="gray_300">@color/gray_soft</color>
+    <color name="gray_400">@color/gray_soft</color>
+    <color name="gray_500">@color/gray_soft</color>
+    <color name="gray_600">@color/gray_soft</color>
+    <color name="gray_700">@color/gray_soft</color>
+    <color name="gray_800">@color/navy_light</color>
+    <color name="gray_900">@color/navy</color>
+
+    <color name="success">@color/cyan</color>
+    <color name="warning">@color/purple_glow</color>
+    <color name="error">@color/error_red</color>
+    <color name="red">@color/error_red</color>
+    <color name="info">@color/cyan_glow</color>
+
+    <color name="background">@color/navy</color>
+    <color name="surface">@color/navy_light</color>
+    <color name="on_surface">@color/white_soft</color>
+    <color name="on_primary">@color/white_soft</color>
+
+    <color name="text_primary">@color/white_soft</color>
+    <color name="text_secondary">@color/gray_soft</color>
 </resources>
