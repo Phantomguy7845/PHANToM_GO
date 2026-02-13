@@ -64,298 +64,211 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingVertical="8dp">
+                <!-- Connection Status Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/statusCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@color/aurora_dark_gray"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp">
 
-                <!-- Two-Panel Layout -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:id="@+id/tvPairStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Not Paired"
+                            android:textColor="@color/aurora_waiting"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPairInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Scan QR code from Display device"
+                            android:textColor="@color/aurora_silver"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvPendingCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/badge_warning"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:text="Pending: 0"
+                            android:textColor="@color/aurora_warning"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvConnectionState"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/badge_neutral"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:text="🟡 Waiting for Pairing"
+                            android:textColor="@color/aurora_waiting"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Primary Action: Scan QR -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnScanQR"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/aurora_button_ripple"
+                    android:text="📷 Scan QR to Pair"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <!-- Secondary Actions Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
                     android:orientation="horizontal">
 
-                    <!-- MAIN DEVICE COLUMN -->
-                    <LinearLayout
-                        android:id="@+id/columnMain"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSendTest"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_height="56dp"
                         android:layout_marginEnd="8dp"
-                        android:orientation="vertical">
+                        android:layout_weight="1"
+                        android:enabled="false"
+                        android:text="📍 Test"
+                        android:textSize="16sp"
+                        style="@style/Widget.Material3.Button.TonalButton" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:text="MAIN DEVICE"
-                            android:textColor="@color/aurora_cyan"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRetryPending"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:enabled="false"
+                        android:text="🔄 Retry"
+                        android:textSize="16sp"
+                        style="@style/Widget.Material3.Button.OutlinedButton" />
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/cardMainMode"
-                            android:layout_width="match_parent"
-                            android:layout_height="110dp"
-                            android:layout_marginBottom="12dp"
-                            app:cardBackgroundColor="@color/aurora_glass"
-                            app:cardCornerRadius="18dp"
-                            app:cardElevation="10dp"
-                            app:cardUseCompatPadding="true"
-                            app:strokeColor="@color/aurora_pink"
-                            app:strokeWidth="1dp">
+                </LinearLayout>
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:orientation="vertical"
-                                android:padding="16dp">
+                <!-- Display Mode Card (Large, Prominent) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDisplay"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginBottom="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/teal_700"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp">
 
-                                <ImageView
-                                    android:layout_width="28dp"
-                                    android:layout_height="28dp"
-                                    android:src="@drawable/ic_main_mode"
-                                    app:tint="@color/aurora_pink" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="@string/mode_main"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
+                        <ImageView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:src="@drawable/ic_display_mode"
+                            app:tint="@color/white" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="@string/mode_main_desc"
-                                    android:textColor="@color/text_secondary"
-                                    android:textSize="11sp" />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <!-- Connection Status Card -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/statusCard"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            app:cardBackgroundColor="@color/aurora_glass"
-                            app:cardCornerRadius="16dp"
-                            app:cardElevation="4dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="20dp">
-
-                                <TextView
-                                    android:id="@+id/tvPairStatus"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Not Paired"
-                                    android:textColor="@color/aurora_waiting"
-                                    android:textSize="20sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/tvPairInfo"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="Scan QR code from Display device"
-                                    android:textColor="@color/aurora_silver"
-                                    android:textSize="14sp" />
-
-                                <TextView
-                                    android:id="@+id/tvPendingCount"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:background="@drawable/badge_warning"
-                                    android:paddingHorizontal="8dp"
-                                    android:paddingVertical="4dp"
-                                    android:text="Pending: 0"
-                                    android:textColor="@color/aurora_warning"
-                                    android:textSize="12sp" />
-
-                                <TextView
-                                    android:id="@+id/tvConnectionState"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:background="@drawable/badge_neutral"
-                                    android:paddingHorizontal="10dp"
-                                    android:paddingVertical="4dp"
-                                    android:text="🟡 Waiting for Pairing"
-                                    android:textColor="@color/aurora_waiting"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold" />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <!-- Primary Action: Scan QR -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnScanQR"
-                            android:layout_width="match_parent"
-                            android:layout_height="64dp"
-                            android:layout_marginBottom="12dp"
-                            android:background="@drawable/neon_primary_button"
-                            android:backgroundTint="@null"
-                            android:text="📷 Scan QR to Pair"
-                            android:textColor="@color/white"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <!-- Secondary Actions Row -->
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            android:orientation="horizontal">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnSendTest"
-                                android:layout_width="0dp"
-                                android:layout_height="56dp"
-                                android:layout_marginEnd="8dp"
-                                android:layout_weight="1"
-                                android:background="@drawable/neon_primary_button"
-                                android:backgroundTint="@null"
-                                android:enabled="false"
-                                android:text="📍 Test"
-                                android:textColor="@color/white"
-                                android:textSize="16sp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnRetryPending"
-                                android:layout_width="0dp"
-                                android:layout_height="56dp"
-                                android:layout_marginStart="8dp"
-                                android:layout_weight="1"
-                                android:enabled="false"
-                                android:background="@drawable/neon_outline_button"
-                                android:backgroundTint="@null"
-                                android:textColor="@color/aurora_cyan"
-                                android:text="🔄 Retry"
-                                android:textSize="16sp" />
-
-                        </LinearLayout>
-
-                        <!-- Utility Actions -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnClearPairing"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:layout_marginBottom="12dp"
-                            android:enabled="false"
-                            android:background="@drawable/neon_outline_button"
-                            android:backgroundTint="@null"
-                            android:textColor="@color/aurora_cyan"
-                            android:text="🗑️ Clear Pairing"
-                            android:textSize="14sp" />
-
-                        <!-- Status Info (Compact) -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            android:background="@color/aurora_dark_gray"
-                            android:orientation="vertical"
-                            android:padding="16dp">
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/tvA11yStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Accessibility features removed"
-                                android:textColor="@color/aurora_disconnected"
-                                android:textSize="12sp" />
+                                android:text="@string/mode_display"
+                                android:textColor="@color/white"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/tvA11yToggle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="REMOVED"
-                                android:textColor="@color/aurora_disconnected"
-                                android:textSize="10sp"
-                                android:textStyle="bold" />
+                                android:text="Open Display Mode"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:alpha="0.8" />
 
                         </LinearLayout>
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:alpha="0.6"
+                            android:src="@drawable/ic_swap"
+                            app:tint="@color/white" />
+
                     </LinearLayout>
 
-                    <!-- DISPLAY DEVICE COLUMN -->
-                    <LinearLayout
-                        android:id="@+id/columnDisplay"
-                        android:layout_width="0dp"
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Utility Actions -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearPairing"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="12dp"
+                    android:enabled="false"
+                    android:text="🗑️ Clear Pairing"
+                    android:textSize="14sp"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
+
+                <!-- Status Info (Compact) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/aurora_dark_gray"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvA11yStatus"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:orientation="vertical">
+                        android:text="Accessibility features removed"
+                        android:textColor="@color/aurora_disconnected"
+                        android:textSize="12sp" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:text="DISPLAY DEVICE"
-                            android:textColor="@color/aurora_cyan"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/cardDisplay"
-                            android:layout_width="match_parent"
-                            android:layout_height="140dp"
-                            android:layout_marginBottom="12dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            app:cardBackgroundColor="@color/aurora_glass"
-                            app:cardCornerRadius="18dp"
-                            app:cardElevation="10dp"
-                            app:cardUseCompatPadding="true"
-                            app:strokeColor="@color/aurora_cyan"
-                            app:strokeWidth="1dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:orientation="vertical"
-                                android:padding="16dp">
-
-                                <ImageView
-                                    android:layout_width="28dp"
-                                    android:layout_height="28dp"
-                                    android:src="@drawable/ic_display_mode"
-                                    app:tint="@color/aurora_cyan" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="@string/mode_display"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="@string/mode_display_desc"
-                                    android:textColor="@color/text_secondary"
-                                    android:textSize="11sp" />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvA11yToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="REMOVED"
+                        android:textColor="@color/aurora_disconnected"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 
